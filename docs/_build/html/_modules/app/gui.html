@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>app.gui &mdash; JLab PyNMR 0.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> JLab PyNMR
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">JLab PyNMR</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>app.gui</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for app.gui</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;PyNMR, J.Maxwell 2020</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">pytz</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="k">import</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QErrorMessage</span><span class="p">,</span> <span class="n">QTabWidget</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QWidget</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtGui</span> <span class="k">import</span> <span class="n">QIntValidator</span><span class="p">,</span> <span class="n">QDoubleValidator</span><span class="p">,</span> <span class="n">QValidator</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="k">import</span> <span class="n">QThread</span><span class="p">,</span> <span class="n">pyqtSignal</span><span class="p">,</span> <span class="n">Qt</span>
+<span class="kn">from</span> <span class="nn">logging.handlers</span> <span class="k">import</span> <span class="n">TimedRotatingFileHandler</span>
+
+<span class="kn">from</span> <span class="nn">app.classes</span> <span class="k">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">Scan</span><span class="p">,</span> <span class="n">RunningScan</span><span class="p">,</span> <span class="n">Event</span><span class="p">,</span> <span class="n">Baseline</span><span class="p">,</span> <span class="n">HistPoint</span><span class="p">,</span> <span class="n">History</span>
+<span class="kn">from</span> <span class="nn">app.epics</span> <span class="k">import</span> <span class="n">EPICS</span>
+<span class="kn">from</span> <span class="nn">app.gui_run_tab</span> <span class="k">import</span> <span class="n">RunTab</span>
+<span class="kn">from</span> <span class="nn">app.gui_base_tab</span> <span class="k">import</span> <span class="n">BaseTab</span>
+<span class="kn">from</span> <span class="nn">app.gui_tune_tab</span> <span class="k">import</span> <span class="n">TuneTab</span>
+<span class="kn">from</span> <span class="nn">app.gui_te_tab</span> <span class="k">import</span> <span class="n">TETab</span>
+<span class="kn">from</span> <span class="nn">app.daq</span> <span class="k">import</span> <span class="n">DAQConnection</span><span class="p">,</span> <span class="n">UDP</span><span class="p">,</span> <span class="n">TCP</span><span class="p">,</span> <span class="n">RS_Connection</span><span class="p">,</span> <span class="n">NI_Connection</span>
+<span class="kn">from</span> <span class="nn">app.magnet_control</span> <span class="k">import</span> <span class="n">MagnetControl</span>
+
+
+<div class="viewcode-block" id="MainWindow"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow">[docs]</a><span class="k">class</span> <span class="nc">MainWindow</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Main window of application, with all the utility gui tabs. Includes methods for</span>
+<span class="sd">    starting Event, Base instances. Event and Baselines are attributes, so that all child</span>
+<span class="sd">    tabs can access. Many attributes concern the GUI, the attributes that effect operation</span>
+<span class="sd">    are listed.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        config: Current Config configuration instance</span>
+<span class="sd">        event: Current Event instance</span>
+<span class="sd">        baseline: Current Baseline instance</span>
+<span class="sd">        epics: Open EPICS connection</span>
+<span class="sd">        history: History instance containing set of HistPoints</span>
+<span class="sd">        eventfile: Current event data filehandle</span>
+<span class="sd">        eventfile_start: String of eventfile start time</span>
+<span class="sd">        eventfile_lines: Number of entries in current eventfile</span>
+<span class="sd">        channels: List of channels from config file</span>
+<span class="sd">        settings: Dict of settings from config file</span>
+<span class="sd">        epics_reads: Dict keyed on epics channels with name strings</span>
+<span class="sd">        epics_writes: Dict keyed on epics channels with Event attributes to send</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_dialog</span> <span class="o">=</span> <span class="n">QErrorMessage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statusBar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_bar</span><span class="o">.</span><span class="n">showMessage</span><span class="p">(</span><span class="s1">&#39;Ready.&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;pynmr_config.yaml&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_settings</span><span class="p">()</span>
+        <span class="n">channel_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">][</span><span class="s1">&#39;default_channel&#39;</span><span class="p">]]</span>  <span class="c1"># dict of selected channel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_logger</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">channel_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span>           <span class="c1"># current configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>      <span class="c1"># open empty event</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baseline</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="p">{})</span>     <span class="c1"># open empty baseline</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">History</span><span class="p">()</span>   <span class="c1"># for now, starting new history with each window</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_eventfile</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_connects</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;JLab Polarization Display&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="mi">1200</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mi">800</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tab_widget</span> <span class="o">=</span> <span class="n">QTabWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tab_widget</span><span class="p">)</span>
+
+        <span class="c1"># Make tabs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_tab</span> <span class="o">=</span> <span class="n">RunTab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tab_widget</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_tab</span><span class="p">,</span> <span class="s2">&quot;Run&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tune_tab</span> <span class="o">=</span> <span class="n">TuneTab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tab_widget</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tune_tab</span><span class="p">,</span> <span class="s2">&quot;Tune&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_tab</span> <span class="o">=</span> <span class="n">BaseTab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tab_widget</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_tab</span><span class="p">,</span> <span class="s2">&quot;Baseline&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">te_tab</span> <span class="o">=</span> <span class="n">TETab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tab_widget</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">te_tab</span><span class="p">,</span> <span class="s2">&quot;TE&quot;</span><span class="p">)</span>
+        <span class="c1"># self.anal_tab = QWidget()</span>
+        <span class="c1"># self.tab_widget.addTab(self.anal_tab, &quot;Analysis&quot;)</span>
+        <span class="c1"># self.viewer_tab = QWidget()</span>
+        <span class="c1"># self.tab_widget.addTab(self.viewer_tab, &quot;Event Viewer&quot;)   </span>
+        <span class="c1">#self.settings_tab = SettingsTab(self)</span>
+        <span class="c1">#self.tab_widget.addTab(self.settings_tab,&quot;Settings&quot;)</span>
+
+<div class="viewcode-block" id="MainWindow.new_event"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.new_event">[docs]</a>    <span class="k">def</span> <span class="nf">new_event</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Create new event instance&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_event_base</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MainWindow.new_eventfile"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.new_eventfile">[docs]</a>    <span class="k">def</span> <span class="nf">new_eventfile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Open new eventfile&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close_eventfile</span><span class="p">()</span>    <span class="c1"># try to close previous eventfile</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s1">&#39;US/Eastern&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eventfile_start</span> <span class="o">=</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">_%H-%M-%S&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eventfile_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;event_dir&quot;</span><span class="p">],</span> <span class="n">f</span><span class="s1">&#39;current_</span><span class="si">{self.eventfile_start}</span><span class="s1">.txt&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eventfile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eventfile_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eventfile_lines</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Opened new evenfile </span><span class="si">{self.eventfile_name}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.close_eventfile"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.close_eventfile">[docs]</a>    <span class="k">def</span> <span class="nf">close_eventfile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Try to close and rename eventfile&#39;&#39;&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eventfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s1">&#39;US/Eastern&#39;</span><span class="p">))</span>
+            <span class="n">new</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{self.eventfile_start}</span><span class="s1">__{now.strftime(&quot;%Y-%m-</span><span class="si">%d</span><span class="s1">_%H-%M-%S&quot;)}.txt&#39;</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eventfile_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;event_dir&quot;</span><span class="p">],</span> <span class="n">new</span><span class="p">))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Closed eventfile and moved to </span><span class="si">{new}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="MainWindow.end_event"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.end_event">[docs]</a>    <span class="k">def</span> <span class="nf">end_event</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;End event, closing the event instance and calling updates for each tab&#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">close_event</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epics</span><span class="o">.</span><span class="n">read_all</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">eventfile</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eventfile_lines</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eventfile_lines</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>            <span class="c1"># open new eventfile once the current one has a number of entries</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">new_eventfile</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">add_hist</span><span class="p">(</span><span class="n">HistPoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_tab</span><span class="o">.</span><span class="n">update_event_plots</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">te_tab</span><span class="o">.</span><span class="n">update_event_plots</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MainWindow.new_base"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.new_base">[docs]</a>    <span class="k">def</span> <span class="nf">new_base</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basedict</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Choose eventfile and event to act as baseline for this and future events</span>
+<span class="sd">        Args:</span>
+<span class="sd">            basedict: Dict of baseline event attributes, from save file</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baseline</span> <span class="o">=</span> <span class="n">Baseline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">basedict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_event_base</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Set baseline </span><span class="si">{self.baseline.stop_stamp}</span><span class="s2"> from </span><span class="si">{self.baseline.base_file}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_bar</span><span class="o">.</span><span class="n">showMessage</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Set baseline </span><span class="si">{self.baseline.stop_stamp}</span><span class="s2"> from </span><span class="si">{self.baseline.base_file}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.set_event_base"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.set_event_base">[docs]</a>    <span class="k">def</span> <span class="nf">set_event_base</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Set baseline in current event&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">base_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline</span><span class="o">.</span><span class="n">stop_stamp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">base_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline</span><span class="o">.</span><span class="n">base_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">basesweep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline</span><span class="o">.</span><span class="n">phase</span></div>
+
+<div class="viewcode-block" id="MainWindow.set_cc"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.set_cc">[docs]</a>    <span class="k">def</span> <span class="nf">set_cc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cc</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Set new Calibration Constant</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_tab</span><span class="o">.</span><span class="n">controls_lines</span><span class="p">[</span><span class="s1">&#39;cc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{cc:.6f}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">controls</span><span class="p">[</span><span class="s1">&#39;cc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{cc:.6f}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Saved TE data and set new calibration constant </span><span class="si">{cc}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_bar</span><span class="o">.</span><span class="n">showMessage</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Saved TE data and set new calibration constant </span><span class="si">{cc}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.channel_change"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.channel_change">[docs]</a>    <span class="k">def</span> <span class="nf">channel_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Channel setting changed. Make new config.&#39;&#39;&#39;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">][</span><span class="n">name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span>           <span class="c1"># new configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>      <span class="c1"># open empty event</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_tab</span><span class="o">.</span><span class="n">combo_changed</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Changed channel to </span><span class="si">{self.config.channel[&#39;name&#39;]}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.init_connects"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.init_connects">[docs]</a>    <span class="k">def</span> <span class="nf">init_connects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Initialize connections to required instruments, EPICS server</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epics</span> <span class="o">=</span> <span class="n">EPICS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;epics_test&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">epics_reads</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">epics_writes</span><span class="p">)</span>  <span class="c1"># open EPICS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rs</span> <span class="o">=</span> <span class="n">RS_Connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>            <span class="c1"># open conenction to Rohde and Schwarz</span></div>
+
+<div class="viewcode-block" id="MainWindow.connect_daq"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.connect_daq">[docs]</a>    <span class="k">def</span> <span class="nf">connect_daq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Try test connect to DAQ devices, turn on run buttons if successful&#39;&#39;&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">daq</span> <span class="o">=</span> <span class="n">DAQConnection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>     <span class="c1"># open connection to DAQ of choice</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_bar</span><span class="o">.</span><span class="n">showMessage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">daq</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">daq</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_tab</span><span class="o">.</span><span class="n">run_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>                   <span class="c1"># turn on buttons</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tune_tab</span><span class="o">.</span><span class="n">run_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_tab</span><span class="o">.</span><span class="n">connect_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_tab</span><span class="o">.</span><span class="n">connect_button</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Connected: &#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">daq</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">daq</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">error_dialog</span><span class="o">.</span><span class="n">showMessage</span><span class="p">(</span><span class="s1">&#39;Exception: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MainWindow.run_toggle"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.run_toggle">[docs]</a>    <span class="k">def</span> <span class="nf">run_toggle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Disable or enable buttons on other tabs when one tab is running&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_tab</span><span class="o">.</span><span class="n">run_button</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tune_tab</span><span class="o">.</span><span class="n">run_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tune_tab</span><span class="o">.</span><span class="n">run_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tune_tab</span><span class="o">.</span><span class="n">run_button</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_tab</span><span class="o">.</span><span class="n">run_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_tab</span><span class="o">.</span><span class="n">run_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MainWindow.check_state"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.check_state">[docs]</a>    <span class="k">def</span> <span class="nf">check_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Enables colors for LineEdit validators&#39;&#39;&#39;</span>
+        <span class="n">sender</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sender</span><span class="p">()</span>
+        <span class="n">validator</span> <span class="o">=</span> <span class="n">sender</span><span class="o">.</span><span class="n">validator</span><span class="p">()</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">sender</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">sender</span><span class="o">.</span><span class="n">isEnabled</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="n">QValidator</span><span class="o">.</span><span class="n">Acceptable</span><span class="p">:</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;#c4df9b&#39;</span> <span class="c1"># green</span>
+            <span class="k">elif</span> <span class="n">state</span> <span class="o">==</span> <span class="n">QValidator</span><span class="o">.</span><span class="n">Intermediate</span><span class="p">:</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;#fff79a&#39;</span> <span class="c1"># yellow</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;#f6989d&#39;</span> <span class="c1"># red</span>
+            <span class="n">sender</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s1">&#39;QLineEdit { background-color: </span><span class="si">%s</span><span class="s1"> }&#39;</span> <span class="o">%</span> <span class="n">color</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.load_settings"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.load_settings">[docs]</a>    <span class="k">def</span> <span class="nf">load_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Load settings from YAML config file&#39;&#39;&#39;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>                           <span class="c1"># Load settings from YAML files</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>     <span class="c1"># list of channels in config file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">]</span>                    <span class="c1"># dict of settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epics_reads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;epics_reads&#39;</span><span class="p">]</span>              <span class="c1"># dict of epics channels: name string</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epics_writes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;epics_writes&#39;</span><span class="p">]</span>              <span class="c1"># dict of epics channels: name string</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_bar</span><span class="o">.</span><span class="n">showMessage</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Loaded settings from </span><span class="si">{self.config_filename}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.start_logger"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.start_logger">[docs]</a>    <span class="k">def</span> <span class="nf">start_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Start logger</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logHandler</span> <span class="o">=</span> <span class="n">TimedRotatingFileHandler</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">][</span><span class="s1">&#39;log_dir&#39;</span><span class="p">],</span><span class="s2">&quot;log&quot;</span><span class="p">),</span><span class="n">when</span><span class="o">=</span><span class="s2">&quot;midnight&quot;</span><span class="p">)</span>    <span class="c1"># setup logfiles</span>
+        <span class="n">logHandler</span><span class="o">.</span><span class="n">suffix</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">.txt&quot;</span>
+        <span class="n">logFormatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">datefmt</span><span class="o">=</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+        <span class="n">logHandler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">logFormatter</span><span class="p">)</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logHandler</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loaded config file&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.divider"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.divider">[docs]</a>    <span class="k">def</span> <span class="nf">divider</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">div</span> <span class="o">=</span> <span class="n">QLabel</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">div</span><span class="o">.</span><span class="n">setStyleSheet</span> <span class="p">(</span><span class="s2">&quot;QLabel {background-color: #eeeeee; padding: 0; margin: 0; border-bottom: 0 solid #eeeeee; border-top: 1 solid #eeeeee;}&quot;</span><span class="p">)</span>
+        <span class="n">div</span><span class="o">.</span><span class="n">setMaximumHeight</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">div</span></div>
+
+<div class="viewcode-block" id="MainWindow.closeEvent"><a class="viewcode-back" href="../../source/app.html#app.gui.MainWindow.closeEvent">[docs]</a>    <span class="k">def</span> <span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Things to do on close</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close_eventfile</span><span class="p">()</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, James Maxwell
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

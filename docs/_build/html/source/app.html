@@ -1,0 +1,1548 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>app package &mdash; JLab PyNMR 0.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> JLab PyNMR
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">app package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-app.classes">app.classes module</a></li>
+<li><a class="reference internal" href="#module-app.gui">app.gui module</a></li>
+<li><a class="reference internal" href="#module-app.gui_base_tab">app.gui_base_tab module</a></li>
+<li><a class="reference internal" href="#module-app.gui_run_tab">app.gui_run_tab module</a></li>
+<li><a class="reference internal" href="#module-app.gui_te_tab">app.gui_te_tab module</a></li>
+<li><a class="reference internal" href="#module-app.gui_tune_tab">app.gui_tune_tab module</a></li>
+<li><a class="reference internal" href="#module-app.epics">app.epics module</a></li>
+<li><a class="reference internal" href="#module-app.te_calc">app.te_calc module</a></li>
+<li><a class="reference internal" href="#module-app.daq">app.daq module</a></li>
+<li><a class="reference internal" href="#module-app.magnet_control">app.magnet_control module</a></li>
+<li><a class="reference internal" href="#module-app">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">JLab PyNMR</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>app package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/app.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="app-package">
+<h1>app package<a class="headerlink" href="#app-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-app.classes">
+<span id="app-classes-module"></span><h2>app.classes module<a class="headerlink" href="#module-app.classes" title="Permalink to this headline">¶</a></h2>
+<p>PyNMR, J.Maxwell 2020</p>
+<dl class="class">
+<dt id="app.classes.Baseline">
+<em class="property">class </em><code class="sig-prename descclassname">app.classes.</code><code class="sig-name descname">Baseline</code><span class="sig-paren">(</span><em class="sig-param">config</em>, <em class="sig-param">dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#Baseline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.Baseline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Data object for baseline event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dict</strong> – Dict of all event attributes to add as attributes to this object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="app.classes.Config">
+<em class="property">class </em><code class="sig-prename descclassname">app.classes.</code><code class="sig-name descname">Config</code><span class="sig-paren">(</span><em class="sig-param">channel</em>, <em class="sig-param">settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#Config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Contains all relevent settings data for NMR measurement</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> – Dict of current channel setting, selected from config file</p></li>
+<li><p><strong>settings</strong> – Dict of settings from config file</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="app.classes.Config.channel">
+<code class="sig-name descname">channel</code><a class="headerlink" href="#app.classes.Config.channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict of channel settings; keys are species, cent_freq, mod_freq, power</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Config.controls">
+<code class="sig-name descname">controls</code><a class="headerlink" href="#app.classes.Config.controls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict of ConfigItems for controls</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Config.freq_list">
+<code class="sig-name descname">freq_list</code><a class="headerlink" href="#app.classes.Config.freq_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>1D Numpy array of frequency points in sweep as a float, in MHz</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Config.freq_bytes">
+<code class="sig-name descname">freq_bytes</code><a class="headerlink" href="#app.classes.Config.freq_bytes" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of frequency steps, as bytes of 16 bit binary word for R&amp;S:        <a class="reference external" href="https://www.rohde-schwarz.com/webhelp/sma100a_webhelp_1/Content/fb359696521a42fa.htm">https://www.rohde-schwarz.com/webhelp/sma100a_webhelp_1/Content/fb359696521a42fa.htm</a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.classes.ConfigItem">
+<em class="property">class </em><code class="sig-prename descclassname">app.classes.</code><code class="sig-name descname">ConfigItem</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">text</em>, <em class="sig-param">valid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#ConfigItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.ConfigItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Single configurable item with validator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – Value of item</p></li>
+<li><p><strong>text</strong> – Text string describing item for label</p></li>
+<li><p><strong>valid</strong> – QValidator object for the value string</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="app.classes.ConfigItem.set_config">
+<code class="sig-name descname">set_config</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#ConfigItem.set_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.ConfigItem.set_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change config settings to those in the LineEdit boxes, changing string to correct type based on validator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> – Value to change the config item to.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.classes.Event">
+<em class="property">class </em><code class="sig-prename descclassname">app.classes.</code><code class="sig-name descname">Event</code><span class="sig-paren">(</span><em class="sig-param">config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#Event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.Event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Data and method object for single event point. Takes config instance on init.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> – Config class instance</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="app.classes.Event.config">
+<code class="sig-name descname">config</code><a class="headerlink" href="#app.classes.Event.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Config object for the event</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.scan">
+<code class="sig-name descname">scan</code><a class="headerlink" href="#app.classes.Event.scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scan object for the event</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.start_time">
+<code class="sig-name descname">start_time</code><a class="headerlink" href="#app.classes.Event.start_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datetime object for time event started accumulating measurements</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.start_stamp">
+<code class="sig-name descname">start_stamp</code><a class="headerlink" href="#app.classes.Event.start_stamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Timestamp int for starting datetime</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.stop_time">
+<code class="sig-name descname">stop_time</code><a class="headerlink" href="#app.classes.Event.stop_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datetime object for time event stopped accumulating measurements</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.stop_stamp">
+<code class="sig-name descname">stop_stamp</code><a class="headerlink" href="#app.classes.Event.stop_stamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Timestamp int for stop datetime</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.basesweep">
+<code class="sig-name descname">basesweep</code><a class="headerlink" href="#app.classes.Event.basesweep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Baseline phase sweep list</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.basesub">
+<code class="sig-name descname">basesub</code><a class="headerlink" href="#app.classes.Event.basesub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Baseline subtracted phase sweep list for event</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.polysub">
+<code class="sig-name descname">polysub</code><a class="headerlink" href="#app.classes.Event.polysub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Polyfit subtracted basesub list</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.wings">
+<code class="sig-name descname">wings</code><a class="headerlink" href="#app.classes.Event.wings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Portion of sweep to use for fit, 4 long list giving position of left start, left stop, right start and right stop positions as a decimal from 0 to 1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.cc">
+<code class="sig-name descname">cc</code><a class="headerlink" href="#app.classes.Event.cc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calibration constant float</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.area">
+<code class="sig-name descname">area</code><a class="headerlink" href="#app.classes.Event.area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Area under polyfit curve float</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.pol">
+<code class="sig-name descname">pol</code><a class="headerlink" href="#app.classes.Event.pol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Measured polarization for event, CC*Area, float</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.base_time">
+<code class="sig-name descname">base_time</code><a class="headerlink" href="#app.classes.Event.base_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datetime object for stop of baseline event</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.base_stamp">
+<code class="sig-name descname">base_stamp</code><a class="headerlink" href="#app.classes.Event.base_stamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Timestamp int of baseline event</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Event.base_file">
+<code class="sig-name descname">base_file</code><a class="headerlink" href="#app.classes.Event.base_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filename string where baseline event can be found</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.classes.Event.close_event">
+<code class="sig-name descname">close_event</code><span class="sig-paren">(</span><em class="sig-param">epics_reads</em>, <em class="sig-param">eventfile</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#Event.close_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.Event.close_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes event, calls fits and plots, writes to disk, history and EPICS</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>eventfile</strong> – File object to write event to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.classes.Event.fit_wings">
+<code class="sig-name descname">fit_wings</code><span class="sig-paren">(</span><em class="sig-param">wings</em>, <em class="sig-param">sweep</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#Event.fit_wings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.Event.fit_wings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit to wings with scipy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wings</strong> – Wings, 4 element list of portions of sweep to use, attribute from Config</p></li>
+<li><p><strong>sweep</strong> – List of samples to fit</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Tuple of final fit coefficient list</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pf</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.classes.Event.poly">
+<code class="sig-name descname">poly</code><span class="sig-paren">(</span><em class="sig-param">p</em>, <em class="sig-param">x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#Event.poly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.Event.poly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Third order polynomial for fitting</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> – List of polynomial coefficients</p></li>
+<li><p><strong>x</strong> – Sample point</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.classes.Event.print_event">
+<code class="sig-name descname">print_event</code><span class="sig-paren">(</span><em class="sig-param">eventfile</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#Event.print_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.Event.print_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print out event to eventfile, formatting to dict to write to json line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>eventfile</strong> – File object to write event to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.classes.Event.update_event">
+<code class="sig-name descname">update_event</code><span class="sig-paren">(</span><em class="sig-param">new_sigs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#Event.update_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.Event.update_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to update event with new signal chunk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_sigs</strong> – tuple of number of sweeps in the chunk, new phase data list and new diode data list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.classes.HistPoint">
+<em class="property">class </em><code class="sig-prename descclassname">app.classes.</code><code class="sig-name descname">HistPoint</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#HistPoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.HistPoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Single history point. History contains only critical info from event.</p>
+<dl class="attribute">
+<dt id="app.classes.HistPoint.dt">
+<code class="sig-name descname">dt</code><a class="headerlink" href="#app.classes.HistPoint.dt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datetime object of time event stopped</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.HistPoint.pol">
+<code class="sig-name descname">pol</code><a class="headerlink" href="#app.classes.HistPoint.pol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Float measured polarization</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.HistPoint.cc">
+<code class="sig-name descname">cc</code><a class="headerlink" href="#app.classes.HistPoint.cc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Float calibration constant</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.HistPoint.area">
+<code class="sig-name descname">area</code><a class="headerlink" href="#app.classes.HistPoint.area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Float area under polyfit</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.classes.History">
+<em class="property">class </em><code class="sig-prename descclassname">app.classes.</code><code class="sig-name descname">History</code><a class="reference internal" href="../_modules/app/classes.html#History"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.History" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Contains polarization history since start, methods for returning subset of points</p>
+<dl class="method">
+<dt id="app.classes.History.add_hist">
+<code class="sig-name descname">add_hist</code><span class="sig-paren">(</span><em class="sig-param">hp</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#History.add_hist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.History.add_hist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="app.classes.History.to_plot">
+<code class="sig-name descname">to_plot</code><span class="sig-paren">(</span><em class="sig-param">start_stamp=0</em>, <em class="sig-param">stop_stamp=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#History.to_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.History.to_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets datetimes and polarizations in history</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict keyed on timestamps of HistPoints</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.classes.RunningScan">
+<em class="property">class </em><code class="sig-prename descclassname">app.classes.</code><code class="sig-name descname">RunningScan</code><span class="sig-paren">(</span><em class="sig-param">config</em>, <em class="sig-param">to_avg</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#RunningScan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.RunningScan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Data object for averaged set of sweeps, with method to perform running average.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> – Config object for scan</p></li>
+<li><p><strong>to_avg</strong> – Number of sweeps to keep in running average</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="app.classes.RunningScan.freq_list">
+<code class="sig-name descname">freq_list</code><a class="headerlink" href="#app.classes.RunningScan.freq_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Frequency points of sweep in MHz, from config</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.RunningScan.phase">
+<code class="sig-name descname">phase</code><a class="headerlink" href="#app.classes.RunningScan.phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of measurements at each frequency points for the phase</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.RunningScan.diode">
+<code class="sig-name descname">diode</code><a class="headerlink" href="#app.classes.RunningScan.diode" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of measurements at each frequency points for the diode</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.RunningScan.points_in">
+<code class="sig-name descname">points_in</code><a class="headerlink" href="#app.classes.RunningScan.points_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of sweeps currently in the average</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.classes.RunningScan.running_avg">
+<code class="sig-name descname">running_avg</code><span class="sig-paren">(</span><em class="sig-param">new_sigs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#RunningScan.running_avg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.RunningScan.running_avg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs running average for tuning</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_sigs</strong> – tuple of number of sweeps in the chunk, new phase data list and new diode data list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.classes.Scan">
+<em class="property">class </em><code class="sig-prename descclassname">app.classes.</code><code class="sig-name descname">Scan</code><span class="sig-paren">(</span><em class="sig-param">config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#Scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.Scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Data object for averaged set of sweeps, with method to average.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> – Config object containing all settings for the scan</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="app.classes.Scan.phase">
+<code class="sig-name descname">phase</code><a class="headerlink" href="#app.classes.Scan.phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>1D Numpy array of measurements at each frequency points for the phase</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Scan.diode">
+<code class="sig-name descname">diode</code><a class="headerlink" href="#app.classes.Scan.diode" title="Permalink to this definition">¶</a></dt>
+<dd><p>1D Numpy array of measurements at each frequency points for the diode</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.classes.Scan.avg_chunks">
+<code class="sig-name descname">avg_chunks</code><span class="sig-paren">(</span><em class="sig-param">new_sigs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#Scan.avg_chunks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.Scan.avg_chunks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average new chunk with rest of set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_sigs</strong> – tuple of number of sweeps in the chunk, new phase data list and new diode data list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.classes.Status">
+<em class="property">class </em><code class="sig-prename descclassname">app.classes.</code><code class="sig-name descname">Status</code><span class="sig-paren">(</span><em class="sig-param">chan_names</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/classes.html#Status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.classes.Status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Data object for external EPICS status variables, handles calls to get new values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>chan_names</strong> – Dict of epics channels: names strings</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="app.classes.Status.chan_names">
+<code class="sig-name descname">chan_names</code><a class="headerlink" href="#app.classes.Status.chan_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict of epics channels: names strings</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.classes.Status.chan">
+<code class="sig-name descname">chan</code><a class="headerlink" href="#app.classes.Status.chan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict of channels: values</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-app.gui">
+<span id="app-gui-module"></span><h2>app.gui module<a class="headerlink" href="#module-app.gui" title="Permalink to this headline">¶</a></h2>
+<p>PyNMR, J.Maxwell 2020</p>
+<dl class="class">
+<dt id="app.gui.MainWindow">
+<em class="property">class </em><code class="sig-prename descclassname">app.gui.</code><code class="sig-name descname">MainWindow</code><span class="sig-paren">(</span><em class="sig-param">parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QMainWindow</span></code></p>
+<p>Main window of application, with all the utility gui tabs. Includes methods for
+starting Event, Base instances. Event and Baselines are attributes, so that all child
+tabs can access. Many attributes concern the GUI, the attributes that effect operation
+are listed.</p>
+<dl class="attribute">
+<dt id="app.gui.MainWindow.config">
+<code class="sig-name descname">config</code><a class="headerlink" href="#app.gui.MainWindow.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Current Config configuration instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.gui.MainWindow.event">
+<code class="sig-name descname">event</code><a class="headerlink" href="#app.gui.MainWindow.event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Current Event instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.gui.MainWindow.baseline">
+<code class="sig-name descname">baseline</code><a class="headerlink" href="#app.gui.MainWindow.baseline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Current Baseline instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.gui.MainWindow.epics">
+<code class="sig-name descname">epics</code><a class="headerlink" href="#app.gui.MainWindow.epics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open EPICS connection</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.gui.MainWindow.history">
+<code class="sig-name descname">history</code><a class="headerlink" href="#app.gui.MainWindow.history" title="Permalink to this definition">¶</a></dt>
+<dd><p>History instance containing set of HistPoints</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.gui.MainWindow.eventfile">
+<code class="sig-name descname">eventfile</code><a class="headerlink" href="#app.gui.MainWindow.eventfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Current event data filehandle</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.gui.MainWindow.eventfile_start">
+<code class="sig-name descname">eventfile_start</code><a class="headerlink" href="#app.gui.MainWindow.eventfile_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>String of eventfile start time</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.gui.MainWindow.eventfile_lines">
+<code class="sig-name descname">eventfile_lines</code><a class="headerlink" href="#app.gui.MainWindow.eventfile_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of entries in current eventfile</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.gui.MainWindow.channels">
+<code class="sig-name descname">channels</code><a class="headerlink" href="#app.gui.MainWindow.channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of channels from config file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.gui.MainWindow.settings">
+<code class="sig-name descname">settings</code><a class="headerlink" href="#app.gui.MainWindow.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict of settings from config file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.gui.MainWindow.epics_reads">
+<code class="sig-name descname">epics_reads</code><a class="headerlink" href="#app.gui.MainWindow.epics_reads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict keyed on epics channels with name strings</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.gui.MainWindow.epics_writes">
+<code class="sig-name descname">epics_writes</code><a class="headerlink" href="#app.gui.MainWindow.epics_writes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict keyed on epics channels with Event attributes to send</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.channel_change">
+<code class="sig-name descname">channel_change</code><span class="sig-paren">(</span><em class="sig-param">i</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.channel_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.channel_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Channel setting changed. Make new config.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.check_state">
+<code class="sig-name descname">check_state</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.check_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.check_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables colors for LineEdit validators</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.closeEvent">
+<code class="sig-name descname">closeEvent</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.closeEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Things to do on close</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.close_eventfile">
+<code class="sig-name descname">close_eventfile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.close_eventfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.close_eventfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to close and rename eventfile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.connect_daq">
+<code class="sig-name descname">connect_daq</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.connect_daq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.connect_daq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try test connect to DAQ devices, turn on run buttons if successful</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.divider">
+<code class="sig-name descname">divider</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.divider"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.divider" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.end_event">
+<code class="sig-name descname">end_event</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.end_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.end_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>End event, closing the event instance and calling updates for each tab</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.init_connects">
+<code class="sig-name descname">init_connects</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.init_connects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.init_connects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize connections to required instruments, EPICS server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.load_settings">
+<code class="sig-name descname">load_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.load_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.load_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load settings from YAML config file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.new_base">
+<code class="sig-name descname">new_base</code><span class="sig-paren">(</span><em class="sig-param">basedict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.new_base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.new_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose eventfile and event to act as baseline for this and future events
+:param basedict: Dict of baseline event attributes, from save file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.new_event">
+<code class="sig-name descname">new_event</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.new_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.new_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new event instance</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.new_eventfile">
+<code class="sig-name descname">new_eventfile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.new_eventfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.new_eventfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open new eventfile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.run_toggle">
+<code class="sig-name descname">run_toggle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.run_toggle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.run_toggle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disable or enable buttons on other tabs when one tab is running</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.set_cc">
+<code class="sig-name descname">set_cc</code><span class="sig-paren">(</span><em class="sig-param">cc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.set_cc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.set_cc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set new Calibration Constant</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.set_event_base">
+<code class="sig-name descname">set_event_base</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.set_event_base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.set_event_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set baseline in current event</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui.MainWindow.start_logger">
+<code class="sig-name descname">start_logger</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui.html#MainWindow.start_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui.MainWindow.start_logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start logger</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-app.gui_base_tab">
+<span id="app-gui-base-tab-module"></span><h2>app.gui_base_tab module<a class="headerlink" href="#module-app.gui_base_tab" title="Permalink to this headline">¶</a></h2>
+<p>PyNMR, J.Maxwell 2020</p>
+<dl class="class">
+<dt id="app.gui_base_tab.BaseTab">
+<em class="property">class </em><code class="sig-prename descclassname">app.gui_base_tab.</code><code class="sig-name descname">BaseTab</code><span class="sig-paren">(</span><em class="sig-param">parent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#BaseTab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.BaseTab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<p>Creates baseline tab</p>
+<dl class="method">
+<dt id="app.gui_base_tab.BaseTab.divider">
+<code class="sig-name descname">divider</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#BaseTab.divider"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.BaseTab.divider" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="app.gui_base_tab.BaseTab.open_basefile">
+<code class="sig-name descname">open_basefile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#BaseTab.open_basefile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.BaseTab.open_basefile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open and list contents of eventfile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_base_tab.BaseTab.pick_basefile">
+<code class="sig-name descname">pick_basefile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#BaseTab.pick_basefile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.BaseTab.pick_basefile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call open file dialog to get eventfile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_base_tab.BaseTab.select_event">
+<code class="sig-name descname">select_event</code><span class="sig-paren">(</span><em class="sig-param">item</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#BaseTab.select_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.BaseTab.select_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose event selected from table, set as baseline and plot</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_base_tab.BaseTab.set_base">
+<code class="sig-name descname">set_base</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#BaseTab.set_base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.BaseTab.set_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send baseline chosen to be set as the baseline for future events</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_base_tab.BaseTab.use_last">
+<code class="sig-name descname">use_last</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#BaseTab.use_last"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.BaseTab.use_last" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open most recent eventfile for baselines</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.gui_base_tab.MagnetBox">
+<em class="property">class </em><code class="sig-prename descclassname">app.gui_base_tab.</code><code class="sig-name descname">MagnetBox</code><span class="sig-paren">(</span><em class="sig-param">parent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#MagnetBox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.MagnetBox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QGroupBox</span></code></p>
+<p>Magnet control gui</p>
+<dl class="method">
+<dt id="app.gui_base_tab.MagnetBox.open_connection">
+<code class="sig-name descname">open_connection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#MagnetBox.open_connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.MagnetBox.open_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open connection to serial port, turn on controls if it works</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_base_tab.MagnetBox.set">
+<code class="sig-name descname">set</code><span class="sig-paren">(</span><em class="sig-param">channel</em>, <em class="sig-param">value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#MagnetBox.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.MagnetBox.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends command and reads status, starts thread to monitor values if needed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_base_tab.MagnetBox.set_lims">
+<code class="sig-name descname">set_lims</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#MagnetBox.set_lims"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.MagnetBox.set_lims" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle set button click</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_base_tab.MagnetBox.sw_tog">
+<code class="sig-name descname">sw_tog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#MagnetBox.sw_tog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.MagnetBox.sw_tog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggle switchheater</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_base_tab.MagnetBox.update_status">
+<code class="sig-name descname">update_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#MagnetBox.update_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.MagnetBox.update_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the widgets displaying the magnet status</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.gui_base_tab.UpdateMag">
+<em class="property">class </em><code class="sig-prename descclassname">app.gui_base_tab.</code><code class="sig-name descname">UpdateMag</code><span class="sig-paren">(</span><em class="sig-param">mc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#UpdateMag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.UpdateMag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QThread</span></code></p>
+<p>Thread to update the magnet status</p>
+<dl class="method">
+<dt id="app.gui_base_tab.UpdateMag.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_base_tab.html#UpdateMag.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_base_tab.UpdateMag.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="app.gui_base_tab.UpdateMag.stat_now">
+<code class="sig-name descname">stat_now</code><a class="headerlink" href="#app.gui_base_tab.UpdateMag.stat_now" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-app.gui_run_tab">
+<span id="app-gui-run-tab-module"></span><h2>app.gui_run_tab module<a class="headerlink" href="#module-app.gui_run_tab" title="Permalink to this headline">¶</a></h2>
+<p>PyNMR, J.Maxwell 2020</p>
+<dl class="class">
+<dt id="app.gui_run_tab.RunTab">
+<em class="property">class </em><code class="sig-prename descclassname">app.gui_run_tab.</code><code class="sig-name descname">RunTab</code><span class="sig-paren">(</span><em class="sig-param">parent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunTab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunTab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<p>Creates run tab. Starts threads for run and to update plots</p>
+<dl class="method">
+<dt id="app.gui_run_tab.RunTab.abort_run">
+<code class="sig-name descname">abort_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunTab.abort_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunTab.abort_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quit now</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_run_tab.RunTab.add_sweeps">
+<code class="sig-name descname">add_sweeps</code><span class="sig-paren">(</span><em class="sig-param">new_sigs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunTab.add_sweeps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunTab.add_sweeps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the tuple of sweeps to event</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_run_tab.RunTab.changed_range">
+<code class="sig-name descname">changed_range</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunTab.changed_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunTab.changed_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change time range of pol v time plot</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_run_tab.RunTab.combo_changed">
+<code class="sig-name descname">combo_changed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunTab.combo_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunTab.combo_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Channel changed, so change label</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_run_tab.RunTab.connect_pushed">
+<code class="sig-name descname">connect_pushed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunTab.connect_pushed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunTab.connect_pushed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect button pushed, run parent connect method</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_run_tab.RunTab.done">
+<code class="sig-name descname">done</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunTab.done"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunTab.done" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finished sweeps: close event. If stop button checked, reset buttons, else run again.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_run_tab.RunTab.lock_pushed">
+<code class="sig-name descname">lock_pushed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunTab.lock_pushed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunTab.lock_pushed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable changing settings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_run_tab.RunTab.reload_pushed">
+<code class="sig-name descname">reload_pushed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunTab.reload_pushed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunTab.reload_pushed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reload settings button pushed run parent load method</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_run_tab.RunTab.run_pushed">
+<code class="sig-name descname">run_pushed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunTab.run_pushed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunTab.run_pushed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start main loop if conditions met</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_run_tab.RunTab.start_thread">
+<code class="sig-name descname">start_thread</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunTab.start_thread"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunTab.start_thread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open new event instance, create then start threads for data taking and plotting</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_run_tab.RunTab.update_event_plots">
+<code class="sig-name descname">update_event_plots</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunTab.update_event_plots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunTab.update_event_plots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update all plots and indicators for this event using instance data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_run_tab.RunTab.update_run_plot">
+<code class="sig-name descname">update_run_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunTab.update_run_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunTab.update_run_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the running plot</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.gui_run_tab.RunThread">
+<em class="property">class </em><code class="sig-prename descclassname">app.gui_run_tab.</code><code class="sig-name descname">RunThread</code><span class="sig-paren">(</span><em class="sig-param">config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunThread"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QThread</span></code></p>
+<p>Thread class for main NMR run loop
+:param config: Config object of settings</p>
+<dl class="attribute">
+<dt id="app.gui_run_tab.RunThread.finished">
+<code class="sig-name descname">finished</code><a class="headerlink" href="#app.gui_run_tab.RunThread.finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="app.gui_run_tab.RunThread.reply">
+<code class="sig-name descname">reply</code><a class="headerlink" href="#app.gui_run_tab.RunThread.reply" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="app.gui_run_tab.RunThread.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_run_tab.html#RunThread.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_run_tab.RunThread.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main run loop. Request start of sweeps, receive sweeps, update event, report.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>On completion of a chunk, emits new_sigs, the number of sweeps in the chunk and the phase and diode chunk data as numpy arrays</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-app.gui_te_tab">
+<span id="app-gui-te-tab-module"></span><h2>app.gui_te_tab module<a class="headerlink" href="#module-app.gui_te_tab" title="Permalink to this headline">¶</a></h2>
+<p>PyNMR, J.Maxwell 2020</p>
+<dl class="class">
+<dt id="app.gui_te_tab.TETab">
+<em class="property">class </em><code class="sig-prename descclassname">app.gui_te_tab.</code><code class="sig-name descname">TETab</code><span class="sig-paren">(</span><em class="sig-param">parent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_te_tab.html#TETab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_te_tab.TETab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<p>Creates settings tab</p>
+<dl class="method">
+<dt id="app.gui_te_tab.TETab.changed_region1">
+<code class="sig-name descname">changed_region1</code><span class="sig-paren">(</span><em class="sig-param">region1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_te_tab.html#TETab.changed_region1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_te_tab.TETab.changed_region1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update zoom plot from selection, fit selection</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_te_tab.TETab.changed_region2">
+<code class="sig-name descname">changed_region2</code><span class="sig-paren">(</span><em class="sig-param">region2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_te_tab.html#TETab.changed_region2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_te_tab.TETab.changed_region2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update zoom plot from selection, fit selection</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_te_tab.TETab.double_clicked">
+<code class="sig-name descname">double_clicked</code><span class="sig-paren">(</span><em class="sig-param">item</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_te_tab.html#TETab.double_clicked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_te_tab.TETab.double_clicked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove event from table when double clicked</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_te_tab.TETab.fit_exp">
+<code class="sig-name descname">fit_exp</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_te_tab.html#TETab.fit_exp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_te_tab.TETab.fit_exp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exponential fit to area of time data with scipy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – 2-D numpy array with time and area data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Tuple of final fit coefficient list</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pf</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_te_tab.TETab.fit_lin">
+<code class="sig-name descname">fit_lin</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_te_tab.html#TETab.fit_lin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_te_tab.TETab.fit_lin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linear fit to area of time data with scipy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – 2-D numpy array with time and area data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Tuple of final fit coefficient list</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pf</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_te_tab.TETab.take_te">
+<code class="sig-name descname">take_te</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_te_tab.html#TETab.take_te"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_te_tab.TETab.take_te" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send points for TE to make TE object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_te_tab.TETab.update_event_plots">
+<code class="sig-name descname">update_event_plots</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_te_tab.html#TETab.update_event_plots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_te_tab.TETab.update_event_plots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update time plot as running</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_te_tab.TETab.use_te">
+<code class="sig-name descname">use_te</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_te_tab.html#TETab.use_te"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_te_tab.TETab.use_te" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print TE out to json file named after time taken, set CC</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-app.gui_tune_tab">
+<span id="app-gui-tune-tab-module"></span><h2>app.gui_tune_tab module<a class="headerlink" href="#module-app.gui_tune_tab" title="Permalink to this headline">¶</a></h2>
+<p>PyNMR, J.Maxwell 2020</p>
+<dl class="class">
+<dt id="app.gui_tune_tab.TuneTab">
+<em class="property">class </em><code class="sig-prename descclassname">app.gui_tune_tab.</code><code class="sig-name descname">TuneTab</code><span class="sig-paren">(</span><em class="sig-param">parent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_tune_tab.html#TuneTab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_tune_tab.TuneTab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<p>Creates tune tab</p>
+<dl class="method">
+<dt id="app.gui_tune_tab.TuneTab.abort_run">
+<code class="sig-name descname">abort_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_tune_tab.html#TuneTab.abort_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_tune_tab.TuneTab.abort_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quit now</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_tune_tab.TuneTab.add_sweeps">
+<code class="sig-name descname">add_sweeps</code><span class="sig-paren">(</span><em class="sig-param">new_sigs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_tune_tab.html#TuneTab.add_sweeps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_tune_tab.TuneTab.add_sweeps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the tuple of sweeps to event</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_tune_tab.TuneTab.change_avg">
+<code class="sig-name descname">change_avg</code><span class="sig-paren">(</span><em class="sig-param">to_avg</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_tune_tab.html#TuneTab.change_avg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_tune_tab.TuneTab.change_avg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the number to average</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_tune_tab.TuneTab.run_pushed">
+<code class="sig-name descname">run_pushed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_tune_tab.html#TuneTab.run_pushed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_tune_tab.TuneTab.run_pushed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start tune loop if conditions met</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_tune_tab.TuneTab.start_thread">
+<code class="sig-name descname">start_thread</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_tune_tab.html#TuneTab.start_thread"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_tune_tab.TuneTab.start_thread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open new event instance, create then start threads for data taking and plotting</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.gui_tune_tab.TuneTab.update_run_plot">
+<code class="sig-name descname">update_run_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_tune_tab.html#TuneTab.update_run_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_tune_tab.TuneTab.update_run_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the running plots</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.gui_tune_tab.TuneThread">
+<em class="property">class </em><code class="sig-prename descclassname">app.gui_tune_tab.</code><code class="sig-name descname">TuneThread</code><span class="sig-paren">(</span><em class="sig-param">parent</em>, <em class="sig-param">config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_tune_tab.html#TuneThread"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_tune_tab.TuneThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QThread</span></code></p>
+<p>Thread class for tune loop</p>
+<dl class="attribute">
+<dt id="app.gui_tune_tab.TuneThread.reply">
+<code class="sig-name descname">reply</code><a class="headerlink" href="#app.gui_tune_tab.TuneThread.reply" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="app.gui_tune_tab.TuneThread.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/gui_tune_tab.html#TuneThread.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.gui_tune_tab.TuneThread.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main run loop. Request start of sweeps, receive sweeps, update event, report.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-app.epics">
+<span id="app-epics-module"></span><h2>app.epics module<a class="headerlink" href="#module-app.epics" title="Permalink to this headline">¶</a></h2>
+<p>PyNMR, J.Maxwell 2020</p>
+<dl class="class">
+<dt id="app.epics.EPICS">
+<em class="property">class </em><code class="sig-prename descclassname">app.epics.</code><code class="sig-name descname">EPICS</code><span class="sig-paren">(</span><em class="sig-param">test_mode</em>, <em class="sig-param">read_names</em>, <em class="sig-param">write_atts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/epics.html#EPICS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.epics.EPICS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to hold all EPICS channels to monitor and write, and methods on them. Includes test mode which is used if test_chan get returns None. All channels are using Process Variables, which allow direct access without using a caget or caput. For example:</p>
+<blockquote>
+<div><p>p1 = PV(‘chan’)
+print(p1.value)        # this is a get
+p1.value = 2.0         # this is a put</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>test_chan</strong> – Name of EPICS channel to test to see if the connection is working, otherwise use test mode</p></li>
+<li><p><strong>read_names</strong> – Dict of channel names string to read keyed on epics channel ie ‘HBPT:targ_pol’</p></li>
+<li><p><strong>write_atts</strong> – Dict of Event attributes to write keyed on epics channel</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="app.epics.EPICS.read_all">
+<code class="sig-name descname">read_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/epics.html#EPICS.read_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.epics.EPICS.read_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read new values from EPICS PVs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict of values keyed on channel name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.epics.EPICS.write_all">
+<code class="sig-name descname">write_all</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/epics.html#EPICS.write_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.epics.EPICS.write_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write all new values to EPICS PVs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>event</strong> – Event class instance with values to write</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-app.te_calc">
+<span id="app-te-calc-module"></span><h2>app.te_calc module<a class="headerlink" href="#module-app.te_calc" title="Permalink to this headline">¶</a></h2>
+<p>J.Maxwell 2020</p>
+<dl class="class">
+<dt id="app.te_calc.TE">
+<em class="property">class </em><code class="sig-prename descclassname">app.te_calc.</code><code class="sig-name descname">TE</code><span class="sig-paren">(</span><em class="sig-param">species</em>, <em class="sig-param">field</em>, <em class="sig-param">areas</em>, <em class="sig-param">temps</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/te_calc.html#TE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.te_calc.TE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to perform TE measurements, output results. Ignores error in CC due to error in temp, as the contribution to delta CC from delta t is suppressed by 1/pol^2, and pol is small.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – Nuclear species string, proton or deuteron. Looks for p or d to select which, so flexible on the string provided</p></li>
+<li><p><strong>field</strong> – field value float in Tesla</p></li>
+<li><p><strong>areas</strong> – 1-D numpy array with areas</p></li>
+<li><p><strong>temps</strong> – 1-D numpy array with temps</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="app.te_calc.TE.field">
+<code class="sig-name descname">field</code><a class="headerlink" href="#app.te_calc.TE.field" title="Permalink to this definition">¶</a></dt>
+<dd><p>magnetic field used for calculation</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.te_calc.TE.num">
+<code class="sig-name descname">num</code><a class="headerlink" href="#app.te_calc.TE.num" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of points in the measurements</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.te_calc.TE.cc">
+<code class="sig-name descname">cc</code><a class="headerlink" href="#app.te_calc.TE.cc" title="Permalink to this definition">¶</a></dt>
+<dd><p>averaged calibration constant from points</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.te_calc.TE.cc_std">
+<code class="sig-name descname">cc_std</code><a class="headerlink" href="#app.te_calc.TE.cc_std" title="Permalink to this definition">¶</a></dt>
+<dd><p>standard deviation of calibation constant from points</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.te_calc.TE.te_pol">
+<code class="sig-name descname">te_pol</code><a class="headerlink" href="#app.te_calc.TE.te_pol" title="Permalink to this definition">¶</a></dt>
+<dd><p>averaged polarization during TE</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.te_calc.TE.te_pol_std">
+<code class="sig-name descname">te_pol_std</code><a class="headerlink" href="#app.te_calc.TE.te_pol_std" title="Permalink to this definition">¶</a></dt>
+<dd><p>standard deviation of polarizations</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.te_calc.TE.temp">
+<code class="sig-name descname">temp</code><a class="headerlink" href="#app.te_calc.TE.temp" title="Permalink to this definition">¶</a></dt>
+<dd><p>averaged temperature during TE</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.te_calc.TE.temp_std">
+<code class="sig-name descname">temp_std</code><a class="headerlink" href="#app.te_calc.TE.temp_std" title="Permalink to this definition">¶</a></dt>
+<dd><p>standard deviation of temperatures</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.te_calc.TE.area">
+<code class="sig-name descname">area</code><a class="headerlink" href="#app.te_calc.TE.area" title="Permalink to this definition">¶</a></dt>
+<dd><p>averaged area during TE</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.te_calc.TE.area_std">
+<code class="sig-name descname">area_std</code><a class="headerlink" href="#app.te_calc.TE.area_std" title="Permalink to this definition">¶</a></dt>
+<dd><p>standard deviation of areas</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.te_calc.TE.pretty_te">
+<code class="sig-name descname">pretty_te</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/te_calc.html#TE.pretty_te"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.te_calc.TE.pretty_te" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return formated string short version of TE report</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.te_calc.TE.print_te">
+<code class="sig-name descname">print_te</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/te_calc.html#TE.print_te"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.te_calc.TE.print_te" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print long version of TE report to JSON file</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-app.daq">
+<span id="app-daq-module"></span><h2>app.daq module<a class="headerlink" href="#module-app.daq" title="Permalink to this headline">¶</a></h2>
+<p>PyNMR, J.Maxwell 2020</p>
+<dl class="class">
+<dt id="app.daq.DAQConnection">
+<em class="property">class </em><code class="sig-prename descclassname">app.daq.</code><code class="sig-name descname">DAQConnection</code><span class="sig-paren">(</span><em class="sig-param">config</em>, <em class="sig-param">timeout</em>, <em class="sig-param">tune_mode</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#DAQConnection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.DAQConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Handle connection to and communication with DAQ system. Designed to hide all the specifics of different DAQ systems with generic actions for all. Init will open connections and send configuration settings to DAQ.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> – Config object with settings</p></li>
+<li><p><strong>timeout</strong> – Timeout for DAQ system</p></li>
+<li><p><strong>tune_mode</strong> – Use tune mode, with only one chuck</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="app.daq.DAQConnection.get_chunk">
+<code class="sig-name descname">get_chunk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#DAQConnection.get_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.DAQConnection.get_chunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive subset of total sweeps for the event</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.daq.DAQConnection.start_sweeps">
+<code class="sig-name descname">start_sweeps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#DAQConnection.start_sweeps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.DAQConnection.start_sweeps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send command to sending NMR sweeps</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.daq.NI_Connection">
+<em class="property">class </em><code class="sig-prename descclassname">app.daq.</code><code class="sig-name descname">NI_Connection</code><span class="sig-paren">(</span><em class="sig-param">config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#NI_Connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.NI_Connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>NI DAQ in and out tasks and methods to use them. Code from C.Carlin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> – Current Config object</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="app.daq.NI_Connection.get_chunk">
+<code class="sig-name descname">get_chunk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#NI_Connection.get_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.NI_Connection.get_chunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get sweeps from NI board, return number of sweeps in chunk, phase np.array, diode np.array</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.daq.NI_Connection.start">
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#NI_Connection.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.NI_Connection.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.daq.RS_Connection">
+<em class="property">class </em><code class="sig-prename descclassname">app.daq.</code><code class="sig-name descname">RS_Connection</code><span class="sig-paren">(</span><em class="sig-param">config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#RS_Connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.RS_Connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Handle connection to Rohde and Schwarz SMA100A via Telnet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> – Current Config object</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="app.daq.RS_Connection.rf_off">
+<code class="sig-name descname">rf_off</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#RS_Connection.rf_off"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.RS_Connection.rf_off" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to turn off RF, then close.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.daq.RS_Connection.rf_on">
+<code class="sig-name descname">rf_on</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#RS_Connection.rf_on"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.RS_Connection.rf_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to turn on RF, then close.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.daq.TCP">
+<em class="property">class </em><code class="sig-prename descclassname">app.daq.</code><code class="sig-name descname">TCP</code><span class="sig-paren">(</span><em class="sig-param">config</em>, <em class="sig-param">timeout</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#TCP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.TCP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Handle TCP commands and responses</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> – Config object with settings</p></li>
+<li><p><strong>timeout</strong> – Int for TCP timeout time (secs)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="app.daq.TCP.get_chunk">
+<code class="sig-name descname">get_chunk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#TCP.get_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.TCP.get_chunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive chunks over tcp</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of sweeps in chunk, phase chunk and diode chunk numpy arrays</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.daq.UDP">
+<em class="property">class </em><code class="sig-prename descclassname">app.daq.</code><code class="sig-name descname">UDP</code><span class="sig-paren">(</span><em class="sig-param">config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#UDP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.UDP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Handle UDP commands and responses</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> – Config object with settings</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="app.daq.UDP.act_sweep">
+<code class="sig-name descname">act_sweep</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#UDP.act_sweep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.UDP.act_sweep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send activate sweep command
+:returns: Boolean denoting success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.daq.UDP.int_sweep">
+<code class="sig-name descname">int_sweep</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#UDP.int_sweep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.UDP.int_sweep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send interrupt sweep command
+:returns: Boolean denoting success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.daq.UDP.read_freq">
+<code class="sig-name descname">read_freq</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#UDP.read_freq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.UDP.read_freq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read frequency command
+:returns: Data sent back as hex</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.daq.UDP.read_stat">
+<code class="sig-name descname">read_stat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#UDP.read_stat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.UDP.read_stat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read status command
+:returns: Data sent back as hex</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.daq.UDP.set_freq">
+<code class="sig-name descname">set_freq</code><span class="sig-paren">(</span><em class="sig-param">freq_bytes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#UDP.set_freq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.UDP.set_freq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send frequency points, converts freq list into bytes
+:param freq_bytes: List of bytes for R&amp;S frequency modulation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Boolean denoting success</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.daq.UDP.set_register">
+<code class="sig-name descname">set_register</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/daq.html#UDP.set_register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.daq.UDP.set_register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send set register command and string
+:returns: Boolean denoting success</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-app.magnet_control">
+<span id="app-magnet-control-module"></span><h2>app.magnet_control module<a class="headerlink" href="#module-app.magnet_control" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="app.magnet_control.MagnetControl">
+<em class="property">class </em><code class="sig-prename descclassname">app.magnet_control.</code><code class="sig-name descname">MagnetControl</code><a class="reference internal" href="../_modules/app/magnet_control.html#MagnetControl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.magnet_control.MagnetControl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Talks to Magnet PS via serial, contains magnet state attributes</p>
+<dl class="method">
+<dt id="app.magnet_control.MagnetControl.close_port">
+<code class="sig-name descname">close_port</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/magnet_control.html#MagnetControl.close_port"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.magnet_control.MagnetControl.close_port" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="app.magnet_control.MagnetControl.fast">
+<code class="sig-name descname">fast</code><span class="sig-paren">(</span><em class="sig-param">bool</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/magnet_control.html#MagnetControl.fast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.magnet_control.MagnetControl.fast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select fast for sweep mode</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.magnet_control.MagnetControl.get_ports">
+<code class="sig-name descname">get_ports</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/magnet_control.html#MagnetControl.get_ports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.magnet_control.MagnetControl.get_ports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return available serial ports. Port is tuple: (port, desc, hwid)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.magnet_control.MagnetControl.open_port">
+<code class="sig-name descname">open_port</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/magnet_control.html#MagnetControl.open_port"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.magnet_control.MagnetControl.open_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open serial connection</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.magnet_control.MagnetControl.read_all">
+<code class="sig-name descname">read_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/magnet_control.html#MagnetControl.read_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.magnet_control.MagnetControl.read_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read all magnet parameters and write to instance state attribute</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.magnet_control.MagnetControl.read_port">
+<code class="sig-name descname">read_port</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/magnet_control.html#MagnetControl.read_port"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.magnet_control.MagnetControl.read_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read from serial port until encounter space</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.magnet_control.MagnetControl.set_port">
+<code class="sig-name descname">set_port</code><span class="sig-paren">(</span><em class="sig-param">port</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/magnet_control.html#MagnetControl.set_port"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.magnet_control.MagnetControl.set_port" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="app.magnet_control.MagnetControl.toggle">
+<code class="sig-name descname">toggle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/magnet_control.html#MagnetControl.toggle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.magnet_control.MagnetControl.toggle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggle switch heater</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.magnet_control.MagnetControl.write_port">
+<code class="sig-name descname">write_port</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/magnet_control.html#MagnetControl.write_port"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.magnet_control.MagnetControl.write_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write to serial</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-app">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-app" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, James Maxwell
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

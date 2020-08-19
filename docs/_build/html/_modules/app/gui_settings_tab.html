@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>app.gui_settings_tab &mdash; JLab PyNMR 0.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> JLab PyNMR
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">JLab PyNMR</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>app.gui_settings_tab</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for app.gui_settings_tab</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">datetime</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">dateutil.parser</span> <span class="k">import</span> <span class="n">parse</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtGui</span> <span class="k">import</span> <span class="o">*</span>
+ 
+<span class="kn">from</span> <span class="nn">app.classes</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">app.config</span> <span class="k">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="SettingsTab"><a class="viewcode-back" href="../../source/app.html#app.gui_settings_tab.SettingsTab">[docs]</a><span class="k">class</span> <span class="nc">SettingsTab</span><span class="p">(</span><span class="n">QWidget</span><span class="p">):</span> 
+    <span class="sd">&#39;&#39;&#39;Creates settings tab&#39;&#39;&#39;</span>   
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">QWidget</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>  
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">event</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">event</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baseline</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">baseline</span>
+        
+        <span class="c1"># Populate Settings Tab </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span> <span class="o">=</span> <span class="n">QGridLayout</span><span class="p">()</span>            <span class="c1"># main layout</span>
+        
+        <span class="c1"># Left Side</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span> 
+                        
+               
+        <span class="c1"># Populate NMR settings, include settings from run page and other settings       </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nmrset_box</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s1">&#39;NMR Settings&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nmrset_box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nmrset_box</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">QGridLayout</span><span class="p">())</span> 
+        
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings_labels</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">settings</span><span class="p">:</span>   
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_labels</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">setValidator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">valid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Preferred</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Preferred</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">setMinimumWidth</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>            
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">check_state</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nmrset_box</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings_labels</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nmrset_box</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>            <span class="c1"># make entries for config items</span>
+            <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>   
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">other_settings</span><span class="p">:</span>   
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">other_settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_labels</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">other_settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">setValidator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">other_settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">valid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Preferred</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Preferred</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">setMinimumWidth</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>            
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">check_state</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nmrset_box</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings_labels</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nmrset_box</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings_lines</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>            <span class="c1"># make entries for config items</span>
+            <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>   
+            
+        <span class="c1"># for key in parent.config.settings:   </span>
+            <span class="c1"># parent.config.settings[key].line_edit.setEnabled(False)</span>
+            <span class="c1"># parent.config.settings[key].line_edit.textChanged.connect(parent.check_state)</span>
+            <span class="c1"># parent.config.settings[key].line_edit.textChanged.emit(parent.config.settings[key].line_edit.text())</span>
+            <span class="c1"># self.nmrset_box.layout().addWidget(parent.config.settings[key].label, i, 0)</span>
+            <span class="c1"># self.nmrset_box.layout().addWidget(parent.config.settings[key].line_edit, i, 1)            # make entries for config items</span>
+            <span class="c1"># i+=1</span>
+                                         
+        <span class="c1"># for key in parent.config.other_settings:   </span>
+            <span class="c1"># parent.config.other_settings[key].line_edit.textChanged.connect(parent.check_state)</span>
+            <span class="c1"># parent.config.other_settings[key].line_edit.textChanged.emit(parent.config.other_settings[key].line_edit.text())</span>
+            <span class="c1"># self.nmrset_box.layout().addWidget(parent.config.other_settings[key].label, i, 0)</span>
+            <span class="c1"># self.nmrset_box.layout().addWidget(parent.config.other_settings[key].line_edit, i, 1)            # make entries for config items</span>
+            <span class="c1"># i+=1</span>
+
+                
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># Right Side</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>     
+        <span class="bp">self</span><span class="o">.</span><span class="n">pref_box</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s1">&#39;Preferences&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pref_box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pref_box</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">QGridLayout</span><span class="p">())</span>   
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="p">)</span>
+            
+            
+
+<div class="viewcode-block" id="SettingsTab.divider"><a class="viewcode-back" href="../../source/app.html#app.gui_settings_tab.SettingsTab.divider">[docs]</a>    <span class="k">def</span> <span class="nf">divider</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">div</span> <span class="o">=</span> <span class="n">QLabel</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">div</span><span class="o">.</span><span class="n">setStyleSheet</span> <span class="p">(</span><span class="s2">&quot;QLabel {background-color: #eeeeee; padding: 0; margin: 0; border-bottom: 0 solid #eeeeee; border-top: 1 solid #eeeeee;}&quot;</span><span class="p">)</span>
+        <span class="n">div</span><span class="o">.</span><span class="n">setMaximumHeight</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">div</span>               </div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, James Maxwell
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

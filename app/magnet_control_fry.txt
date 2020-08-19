@@ -1,0 +1,253 @@
+import serial
+import time
+import datetime
+import ctypes
+import numpy
+import os
+from decimal import Decimal
+import numpy as np
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+def wait30s():
+    time.sleep(30)
+    print("ding! 30 seconds")
+    return
+
+
+def llim(sllim):
+    dc.flushInput()
+    dc.flushOutput()
+    dc.write("LLIM "+str(sllim)+"\n")
+    p()
+    dc.flushInput()
+    dc.flushOutput()
+
+def ulim(sulim):
+    dc.flushInput()
+    dc.flushOutput()
+    dc.write("ULIM "+str(sulim)+"\n")
+    p()
+    dc.flushInput()
+    dc.flushOutput()
+
+
+def pson():
+    dc.flushInput()
+    dc.flushOutput()
+    dc.write("PSHTR ON\n")
+    p()
+    dc.flushInput()
+    dc.flushOutput()
+
+
+def psoff():
+    dc.flushInput()
+    dc.flushOutput()
+    dc.write("PSHTR OFF\n")
+    p()
+    dc.flushInput()
+    dc.flushOutput()
+
+def swu():
+    dc.flushInput()
+    dc.flushOutput()
+    dc.write("SWEEP UP\n")
+    p()
+    dc.flushInput()
+    dc.flushOutput()
+
+
+def swd():
+    dc.flushInput()
+    dc.flushOutput()
+    dc.write("SWEEP DOWN\n")
+    p()
+    dc.flushInput()
+    dc.flushOutput()
+
+
+def swp():
+    dc.flushInput()
+    dc.flushOutput()
+    dc.write("SWEEP PAUSE\n")
+    p()
+    dc.flushInput()
+    dc.flushOutput()
+
+def swz():
+
+    dc.flushInput()
+    dc.flushOutput()
+    dc.write("SWEEP ZERO\n")
+    p()
+    dc.flushInput()
+    dc.flushOutput()
+
+
+def p():
+
+    dc.flushInput()
+    dc.flushOutput()
+
+    dc.write("IMAG?\n")
+    time.sleep(0.05)
+    rcvCurrent = readCurrent()
+    time.sleep(0.05)
+    
+    dc.flushInput()
+    dc.flushOutput()
+
+    dc.write("PSHTR?\n")
+    time.sleep(0.05)
+    rcvCurrentPSHTR = readCurrentPSHTR()
+    time.sleep(0.05)
+
+    dc.flushInput()
+    dc.flushOutput()
+
+    dc.write("VMAG?\n")
+    time.sleep(0.05)
+    rcvvmag = readvmag()
+    time.sleep(0.05)
+    
+    dc.flushInput()
+    dc.flushOutput()
+
+    dc.write("SWEEP?\n")
+    time.sleep(0.05)
+    rcvsweep = readsweep()
+    time.sleep(0.05)
+    
+    dc.flushInput()
+    dc.flushOutput()
+
+    dc.write("LLIM?\n")
+    time.sleep(0.05)
+    rcvllim = readllim()
+    time.sleep(0.05)
+    
+    dc.flushInput()
+    dc.flushOutput()
+
+    dc.write("ULIM?\n")
+    time.sleep(0.05)
+    rcvulim = readulim()
+    time.sleep(0.05)
+    
+
+#    print("current = " + str(rcvCurrent) + ", PSHTR = " + str(rcvCurrentPSHTR) + ", VMAG = " + str(rcvvmag) + ", SWEEP = " + str(rcvsweep) + ", LLIM = " + str(rcvllim) + ", ULIM = " + str(rcvulim))
+
+    print("current = " + str(rcvCurrent))
+    print("PSHTR = " + str(rcvCurrentPSHTR))
+    print("VMAG = " + str(rcvvmag))
+    print("SWEEP = " + str(rcvsweep))
+    print("LLIM = " + str(rcvllim))
+    print("ULIM = " + str(rcvulim))
+    
+    dc.flushInput()
+    dc.flushOutput()
+
+
+##############################################################
+
+def readCurrent():
+    rCurrent = ""
+
+    while True: 
+
+        chCurrent = dc.read()
+        rCurrent +=chCurrent
+        if chCurrent=='\n': #and flagA==0:
+            rCurrent = ""
+
+        if chCurrent==' ': #and flagA==1:
+            return rCurrent
+
+def readvmag():
+    rvmag = ""
+    while True: 
+
+        chvmag = dc.read()
+        rvmag +=chvmag
+        if chvmag=='\n': #and flagA==0:
+            rvmag = ""
+
+        if chvmag==' ': #and flagA==1:
+            dc.flushInput()
+            dc.flushOutput()
+            return rvmag
+
+def readsweep():
+    rsweep = ""
+    while True: 
+
+        chsweep = dc.read()
+        #rsweep +=chsweep
+        #if chsweep==' ': #and flagA==0:
+            #rsweep = ""
+
+        if chsweep=='p': #and flagA==1:
+            chsweep = dc.read()
+            rsweep = ""
+            chsweep = dc.read()
+            rsweep +=chsweep
+
+            return rsweep
+
+def readllim():
+    rllim = ""
+    while True: 
+
+        chllim = dc.read()
+        rllim +=chllim
+        if chllim=='\n': #and flagA==0:
+            rllim = ""
+
+        if chllim==' ': #and flagA==1:
+            return rllim
+
+def readulim():
+    rulim = ""
+    while True: 
+
+        chulim = dc.read()
+        rulim +=chulim
+        if chulim=='\n': #and flagA==0:
+            rulim = ""
+
+        if chulim==' ': #and flagA==1:
+            return rulim
+
+
+def readCurrentPSHTR():
+    rCurrent = ""
+    #flagA = 0
+    while True: 
+
+        chCurrent = dc.read()
+        rCurrent +=chCurrent
+        if chCurrent=='R':
+            rCurrent = ""
+            dc.read()
+            dc.read()
+            dc.read()
+            rCurrent = dc.read()
+            return rCurrent
+#        if chCurrent=='0' or chCurrent=='1' and flagA == 1:
+#            return rCurrent
+
+
+def close():
+    dc.close()
+    exit()
+
+#################################################################
+
+
+if __name__=="__main__":
+    
+    dc=serial.Serial("/dev/ttyUSB1", baudrate=9600, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=0.1) #JLab magnet
+
+    print("Do p() to query relevant parameters\n\nType llim(<current>) or ulim(<current>) to change the lower or upper limits\n\nType pson(), psoff() and then sw{u,d,p,z}() to sweep up, down, pause, zero")

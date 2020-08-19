@@ -1,0 +1,362 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>app.gui_tune_tab &mdash; JLab PyNMR 0.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> JLab PyNMR
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">JLab PyNMR</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>app.gui_tune_tab</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for app.gui_tune_tab</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;PyNMR, J.Maxwell 2020</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="k">import</span> <span class="n">QWidget</span><span class="p">,</span> <span class="n">QTabWidget</span><span class="p">,</span> <span class="n">QVBoxLayout</span><span class="p">,</span> <span class="n">QHBoxLayout</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QGroupBox</span><span class="p">,</span> <span class="n">QGridLayout</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QLineEdit</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="p">,</span> <span class="n">QComboBox</span><span class="p">,</span> <span class="n">QSpacerItem</span><span class="p">,</span> <span class="n">QSlider</span><span class="p">,</span> <span class="n">QDoubleSpinBox</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtGui</span> <span class="k">import</span> <span class="n">QIntValidator</span><span class="p">,</span> <span class="n">QDoubleValidator</span><span class="p">,</span> <span class="n">QValidator</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="k">import</span> <span class="n">QThread</span><span class="p">,</span> <span class="n">pyqtSignal</span><span class="p">,</span><span class="n">Qt</span>
+<span class="kn">import</span> <span class="nn">pyqtgraph</span> <span class="k">as</span> <span class="nn">pg</span>
+ 
+<span class="kn">from</span> <span class="nn">app.classes</span> <span class="k">import</span> <span class="n">RunningScan</span>
+<span class="kn">from</span> <span class="nn">app.daq</span> <span class="k">import</span> <span class="n">DAQConnection</span>
+
+  
+<div class="viewcode-block" id="TuneTab"><a class="viewcode-back" href="../../source/app.html#app.gui_tune_tab.TuneTab">[docs]</a><span class="k">class</span> <span class="nc">TuneTab</span><span class="p">(</span><span class="n">QWidget</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Creates tune tab&#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">QWidget</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">running_scan</span> <span class="o">=</span> <span class="n">RunningScan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dio_pen</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">mkPen</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">250</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pha_pen</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">mkPen</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">204</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># Populate Tune Tab</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>            <span class="c1"># main layout</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">tune_box</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s1">&#39;Tune Controls&#39;</span><span class="p">)</span>      <span class="c1"># top tune controls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tune_box</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">QHBoxLayout</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_button</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Run&#39;</span><span class="p">,</span> <span class="n">checkable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tune_box</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_button</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_pushed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Sweeps for Running Average:&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tune_box</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">avg_label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_value</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="s1">&#39;1000&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_value</span><span class="o">.</span><span class="n">setValidator</span><span class="p">(</span><span class="n">QIntValidator</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1000000</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_value</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_avg</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">avg_value</span><span class="o">.</span><span class="n">text</span><span class="p">())))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_value</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg_value</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s1">&#39;QLineEdit { background-color: #ffffff }&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tune_box</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">avg_value</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">lower</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left_layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>     <span class="c1"># Left, Diode Side</span>
+        <span class="c1"># Diode plot</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_wid</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">PlotWidget</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Diode Signal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_wid</span><span class="o">.</span><span class="n">showGrid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_plot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diode_wid</span><span class="o">.</span><span class="n">plot</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">pen</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dio_pen</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">left_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diode_wid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_box</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Diode Tune Control&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_box</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">QHBoxLayout</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diode_box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_slider</span> <span class="o">=</span> <span class="n">QSlider</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_slider</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1400</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_box</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diode_slider</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_spin</span> <span class="o">=</span> <span class="n">QDoubleSpinBox</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_spin</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">14</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_spin</span><span class="o">.</span><span class="n">setSingleStep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_slider</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">diode_spin</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diode_slider</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">/</span><span class="mi">100</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_spin</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">diode_slider</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diode_spin</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">*</span><span class="mi">100</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_box</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diode_spin</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vl1</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Volts&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_box</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vl1</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">right_layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>     <span class="c1"># Right, Phase Side</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_wid</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">PlotWidget</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Phase Signal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_wid</span><span class="o">.</span><span class="n">showGrid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_plot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_wid</span><span class="o">.</span><span class="n">plot</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">pen</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pha_pen</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">right_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase_wid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_box</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Phase Tune Control&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_box</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">QHBoxLayout</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">right_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase_box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_slider</span> <span class="o">=</span> <span class="n">QSlider</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_slider</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1500</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_box</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase_slider</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_spin</span> <span class="o">=</span> <span class="n">QDoubleSpinBox</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_spin</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">15</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_spin</span><span class="o">.</span><span class="n">setSingleStep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_slider</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_spin</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase_slider</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">/</span><span class="mi">100</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_spin</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_slider</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase_spin</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">*</span><span class="mi">100</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_box</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase_spin</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vl2</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Volts&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_box</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vl2</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">lower</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left_layout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lower</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right_layout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tune_box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lower</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="TuneTab.run_pushed"><a class="viewcode-back" href="../../source/app.html#app.gui_tune_tab.TuneTab.run_pushed">[docs]</a>    <span class="k">def</span> <span class="nf">run_pushed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Start tune loop if conditions met&#39;&#39;&#39;</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_button</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+        
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_bar</span><span class="o">.</span><span class="n">showMessage</span><span class="p">(</span><span class="s1">&#39;Running sweeps to tune...&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_button</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Stop&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_thread</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">run_toggle</span><span class="p">()</span>
+                   
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abort_run</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_button</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Run&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">run_toggle</span><span class="p">()</span></div>
+     
+<div class="viewcode-block" id="TuneTab.start_thread"><a class="viewcode-back" href="../../source/app.html#app.gui_tune_tab.TuneTab.start_thread">[docs]</a>    <span class="k">def</span> <span class="nf">start_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Open new event instance, create then start threads for data taking and plotting &#39;&#39;&#39;</span>
+       
+        <span class="bp">self</span><span class="o">.</span><span class="n">running_scan</span> <span class="o">=</span> <span class="n">RunningScan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">avg_value</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tune_thread</span> <span class="o">=</span> <span class="n">TuneThread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tune_thread</span><span class="o">.</span><span class="n">reply</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_sweeps</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tune_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="TuneTab.add_sweeps"><a class="viewcode-back" href="../../source/app.html#app.gui_tune_tab.TuneTab.add_sweeps">[docs]</a>    <span class="k">def</span> <span class="nf">add_sweeps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">new_sigs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Add the tuple of sweeps to event&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running_scan</span><span class="o">.</span><span class="n">running_avg</span><span class="p">(</span><span class="n">new_sigs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_run_plot</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="TuneTab.abort_run"><a class="viewcode-back" href="../../source/app.html#app.gui_tune_tab.TuneTab.abort_run">[docs]</a>    <span class="k">def</span> <span class="nf">abort_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Quit now&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1">#self.tune_thread.terminate()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_bar</span><span class="o">.</span><span class="n">showMessage</span><span class="p">(</span><span class="s1">&#39;Ready.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_run_plot</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="TuneTab.change_avg"><a class="viewcode-back" href="../../source/app.html#app.gui_tune_tab.TuneTab.change_avg">[docs]</a>    <span class="k">def</span> <span class="nf">change_avg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">to_avg</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Set the number to average&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">to_avg</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">running_scan</span><span class="o">.</span><span class="n">to_avg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">to_avg</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="TuneTab.update_run_plot"><a class="viewcode-back" href="../../source/app.html#app.gui_tune_tab.TuneTab.update_run_plot">[docs]</a>    <span class="k">def</span> <span class="nf">update_run_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Update the running plots&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diode_plot</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">running_scan</span><span class="o">.</span><span class="n">freq_list</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">running_scan</span><span class="o">.</span><span class="n">diode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_plot</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">running_scan</span><span class="o">.</span><span class="n">freq_list</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">running_scan</span><span class="o">.</span><span class="n">phase</span><span class="p">)</span></div></div>
+ 
+<div class="viewcode-block" id="TuneThread"><a class="viewcode-back" href="../../source/app.html#app.gui_tune_tab.TuneThread">[docs]</a><span class="k">class</span> <span class="nc">TuneThread</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Thread class for tune loop&#39;&#39;&#39;</span>
+    <span class="n">reply</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span>       <span class="c1"># reply signal</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Make new thread instance for running NMR&#39;&#39;&#39;</span>
+        <span class="n">QThread</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span> 
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">daq</span> <span class="o">=</span> <span class="n">DAQConnection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exception: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        
+        
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">daq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
+<div class="viewcode-block" id="TuneThread.run"><a class="viewcode-back" href="../../source/app.html#app.gui_tune_tab.TuneThread.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Main run loop. Request start of sweeps, receive sweeps, update event, report.&#39;&#39;&#39;</span>
+        
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">daq</span><span class="o">.</span><span class="n">start_sweeps</span><span class="p">()</span>              <span class="c1"># send command to start sweeps</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reply</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">daq</span><span class="o">.</span><span class="n">get_chunk</span><span class="p">())</span></div></div>
+        
+
+
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, James Maxwell
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

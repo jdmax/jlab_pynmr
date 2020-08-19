@@ -1,0 +1,63 @@
+# PyNMR Config file, YAML
+---
+channels:
+    Proton:
+        name: Proton
+        species: proton 
+        cent_freq: 213.0            # Center frequency in MHz   (float)
+        mod_freq: 400.0             # Frequency modulation in kHz   (float)
+        power: 200.0                # RF power in mV  (float)
+        sweep_type: standard        # Sweep type (standard is triangle wave; if file name ending in .txt, reads for arbitrary)
+    Deuteron:
+        name: Deuteron
+        species: deuteron
+        cent_freq: 32.7       
+        mod_freq: 400.0        
+        power: 200.0      
+        sweep_type: standard  
+settings:
+    default_channel: Proton     # Default from channels listed above
+    daq_type: Test              # Select DAQ mode (FPGA, NIDAQ or Test)
+    event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
+    te_dir: te                  # Directory to put te files in, relative to main.py or absolute
+    log_dir: log                # Directory to put log files in, relative to main.py or absolute
+    steps: 500                  # Frequency points per sweep
+    num_per_chunk: 256          # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
+    tune_per_chunk:  64        # Number of sweeps per chunk to take in tune mode
+    epics_temp: 4he             # EPICS channel of temp to use as default 
+    epics_test: True            # If true, doesn't attempt to contact EPICS server
+    fpga_settings:    
+        ip: 1.2.3.9             # Device IP address (str)
+        port: 1028              # Device port  (int)
+        tcp_buffer: 1460        # Default TCP buffer size  (int)
+        dwell: 10               # Settle time in ms between frequency switch and ADC read (int)
+        per_point: 2            # Samples taken and averaged at each frequency point of a sweep (int)
+        test_freqs: True        # Tell FPGA to return test frequencies
+    nidaq_settings:
+        phase_chan: Dev1/ai0
+        diode_chan: Dev1/ai1
+        ao_chan: Dev1/ao0
+        pretris: 10             # Number of pretriangles
+        time_per_pt: 29         # Dwell time at frequency, usecs
+        settling_ratio: 0.5     # Where in the dwell time the read occurs (0 to 1)     
+    RS_settings:
+        ip: 192.168.86.24       # R&S IP
+        power: 100              # RF amplitude in mV
+        timeout: 1              # Telnet timeout in secs
+epics_reads:                    # EPICS channels to read: key is channel name, value is string to display
+    4he: 4He Temp (K)
+    3he: 3He Temp (K)
+    bath_top: Bath Top (K)
+    bath_bot: Bath Bottom (K)
+    uwave_f: uWave Freq (GHz)
+    uwave_p: uWave Power (mW)
+    main_f: Main Flow (slpm)
+    sep_f: Separator Flow (slpm)
+    mag_i: Magnet Current (A)
+    posit: Target Position
+    #test: Test Item
+epics_writes:                   # List of channels to write, key is channel, value is attribute of Event class 
+    targ_pol: pol 
+    targ_area: area
+    targ_time: stop_stamp  
+...
