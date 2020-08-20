@@ -40,7 +40,7 @@ To run the scripts, a number of python modules are required to be installed. In 
 Configuration File
 ==================
 
-The configuration file is in the `YAML <yaml.org>`_ format. The channel list allows any number of NMR channels to be defined for different target positions, for example. EPICS variables to be fetched and included both in the interface and in the event data file are listed under "epics_reads," and attributes of the :class:`Event <app.classes.Event>` class can be sent to EPICS by listing them under "epics_writes." Log files are rotated at midnight and live in the directory specified in the config file.
+The configuration file is in the `YAML <yaml.org>`_ format. The channel list allows any number of NMR channels to be defined for different target positions, for example. One of the channel settings is 'sweep_file,' which will load a sweep profile (a set of integers from -32768 to 32767 for the 16 bit position of the point) from the given file location, or use a standard triangle wave if the file does not exist. EPICS variables to be fetched and included both in the interface and in the event data file are listed under "epics_reads," and attributes of the :class:`Event <app.classes.Event>` class can be sent to EPICS by listing them under "epics_writes." Log files are rotated at midnight and live in the directory specified in the config file.
 
 .. literalinclude:: ../pynmr_config.yaml
    :language: yaml

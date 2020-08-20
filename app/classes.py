@@ -2,6 +2,7 @@
 '''
 from PyQt5.QtGui import QIntValidator, QDoubleValidator, QRegExpValidator
 import random
+import os.path
 import datetime
 import json
 import pytz
@@ -67,7 +68,12 @@ class Config():
         # https://www.rohde-schwarz.com/webhelp/sma100a_webhelp_1/Content/fb359696521a42fa.htm
         # go from 32767 to -32767, convert to bytes        
         # even distribution of steps in range
-        freq_ints = np.linspace(-32768, 32767, num=self.settings['steps']).astype('int32')            # numpy array 
+        if os.path.exists(channel['sweep_file']):
+            freq_ints = np.loadtxt(channel['sweep_file'], dtype=np.int32)
+            print('Using sweep profile from '+channel['sweep_file']+'.')
+        else:
+            print('Using standard sweep profile.')
+            freq_ints = np.linspace(-32768, 32767, num=self.settings['steps']).astype('int32')            # numpy array 
         self.freq_list = self.channel['cent_freq'] + self.channel['mod_freq']/1000*(freq_ints)/32768    # in MHz
         self.freq_bytes = [int(i).to_bytes(2, byteorder='big', signed=True) for i in freq_ints]   # bytes for 16-bit word
            
