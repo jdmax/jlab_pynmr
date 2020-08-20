@@ -1,4 +1,7 @@
 data/*
+!data/.gitkeep
 log/*
+!log/.gitkeep
 te/*
+!te/.gitkeep
 docs/*
