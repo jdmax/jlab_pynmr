@@ -4,4 +4,4 @@ log/*
 !log/.gitkeep
 te/*
 !te/.gitkeep
-docs/*
+docs/
