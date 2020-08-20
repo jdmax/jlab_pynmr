@@ -7,14 +7,14 @@ channels:
         cent_freq: 213.0            # Center frequency in MHz   (float)
         mod_freq: 400.0             # Frequency modulation in kHz   (float)
         power: 200.0                # RF power in mV  (float)
-        sweep_type: standard        # Sweep type (standard is triangle wave; if file name ending in .txt, reads for arbitrary)
+        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
     Deuteron:
         name: Deuteron
         species: deuteron
         cent_freq: 32.7       
         mod_freq: 400.0        
         power: 200.0      
-        sweep_type: standard  
+        sweep_file: app/standard_sweep.txt  
 settings:
     default_channel: Proton     # Default from channels listed above
     daq_type: Test              # Select DAQ mode (FPGA, NIDAQ or Test)
