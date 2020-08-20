@@ -5,7 +5,7 @@ import time
 import pytz
 import numpy as np
 from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QTableView, QAbstractItemView, QAbstractScrollArea
-from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator, QStandardItemModel
+from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator, QStandardItemModel, QStandardItem
 import pyqtgraph as pg
 from scipy import optimize
  

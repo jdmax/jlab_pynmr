@@ -2,10 +2,11 @@
 '''
 import datetime
 import re
+import json
 from dateutil.parser import parse
-from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QTableView, QAbstractItemView, QAbstractScrollArea
+from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QTableView, QAbstractItemView, QAbstractScrollArea, QFileDialog
 from PyQt5.QtCore import QThread, pyqtSignal,Qt
-from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator, QStandardItemModel
+from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator, QStandardItemModel, QStandardItem
 import pyqtgraph as pg
  
 from app.magnet_control import MagnetControl
