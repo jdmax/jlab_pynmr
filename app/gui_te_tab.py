@@ -132,6 +132,8 @@ class TETab(QWidget):
         self.fit1_plot.setData([lo], np.zeros(1))
         self.zoom_data = self.time_data[np.any((self.time_data > lo)&(self.time_data < hi), axis=1), :]   # select rows within
         self.zoom_plot.setData(self.zoom_data)  
+        self.region2.setRegion([self.zoom_data[-1,0] + (self.zoom_data[0,0]-self.zoom_data[-1,0])/4, self.zoom_data[-1,0]])
+        self.fit2_plot.setData([self.zoom_data[0,0]], np.zeros(1))
         
         try:
             pf, pstd = self.fit_exp(self.zoom_data)
