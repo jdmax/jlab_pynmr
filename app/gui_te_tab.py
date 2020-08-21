@@ -34,15 +34,17 @@ class TETab(QWidget):
         # Populate run box, include exp fit from recent history     
         self.run_box = QGroupBox('Area History')
         self.left.addWidget(self.run_box)
-        self.run_box.setLayout(QGridLayout())  
+        self.run_box.setLayout(QVBoxLayout())  
+        self.time_layout = QGridLayout()
+        self.run_box.layout().addLayout(self.time_layout)
         self.range_label = QLabel('History to Show (min):')
-        self.run_box.layout().addWidget(self.range_label, 1, 0) 
+        self.time_layout.addWidget(self.range_label, 1, 0) 
         self.range_value = QLineEdit('60')
         self.range_value.setValidator(QIntValidator(1,10000))
-        self.run_box.layout().addWidget(self.range_value, 1, 1)         
-        self.run_box.layout().addWidget(self.parent.divider(), 2, 1) 
+        self.time_layout.addWidget(self.range_value, 1, 1)         
+        self.run_box.layout().addWidget(self.parent.divider()) 
         self.fit_label = QLabel('Fit info go here when points selected in upper graph')
-        self.run_box.layout().addWidget(self.fit_label, 3, 1)
+        self.run_box.layout().addWidget(self.fit_label)
         
             
         self.calc_box = QGroupBox('TE Calculator')
@@ -133,7 +135,7 @@ class TETab(QWidget):
         pf = self.fit_exp(self.zoom_data)
         space = np.linspace(self.zoom_data[0,0], self.zoom_data[-1,0], 100)
         self.fit1_plot.setData(space, pf[0] + pf[1]*np.exp((space-pf[2])/pf[3]))
-        self.fit_label.setText(f'Fit parameters: {str(pf)}')   
+        self.fit_label.setText(f'Fit relaxation time {pf[3]:.2e} secs, asymptote {pf[0]:.2f}.')   
         
             
     def changed_region2(self, region2):
@@ -145,7 +147,7 @@ class TETab(QWidget):
         pf = self.fit_lin(self.te_data)
         space = np.linspace(self.te_data[0,0], self.te_data[-1,0], 100)
         self.fit2_plot.setData(space, pf[0] + pf[1]*space)
-        self.fitselect_label.setText(f'Double click to remove point. Fit parameters: {str(pf)}')
+        self.fitselect_label.setText(f'Double click to remove point. Fit slope {pf[1]:.2e}.')
         
         self.te_model.setRowCount(0)    # empty table
         for i,stamp in enumerate(list(self.te_data[:,0])):        # put data in table, hist_points keyed on timestamp
