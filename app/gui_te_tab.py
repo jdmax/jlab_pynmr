@@ -129,14 +129,20 @@ class TETab(QWidget):
     def changed_region1(self, region1):
         '''Update zoom plot from selection, fit selection'''
         lo, hi = region1.getRegion()
+        self.fit1_plot.setData([lo], np.zeros(1))
         self.zoom_data = self.time_data[np.any((self.time_data > lo)&(self.time_data < hi), axis=1), :]   # select rows within
         self.zoom_plot.setData(self.zoom_data)  
-       
-        pf = self.fit_exp(self.zoom_data)
-        space = np.linspace(self.zoom_data[0,0], self.zoom_data[-1,0], 100)
-        self.fit1_plot.setData(space, pf[0] + pf[1]*np.exp((space-pf[2])/pf[3]))
-        self.fit_label.setText(f'Fit relaxation time {pf[3]:.2e} secs, asymptote {pf[0]:.2f}.')   
         
+        try:
+            pf, pstd = self.fit_exp(self.zoom_data)
+            space = np.linspace(self.zoom_data[0,0], self.zoom_data[-1,0], 100)
+            self.fit1_plot.setData(space, pf[0] + pf[1]*np.exp((space-pf[2])/pf[3]))
+            self.fit_label.setText(f'Fit relaxation time {pf[3]:.0e} secs ± {pstd[3]:.0e}, asymptote {pf[0]:.2f} ± {pstd[0]:.2f}.')   
+        except RuntimeError as e:
+            self.fit_label.setText(f'Fit failed, max iterations reached.')  
+        except TypeError as e:
+            self.fit_label.setText(f'Fit failed: {e}')          
+            
             
     def changed_region2(self, region2):
         '''Update zoom plot from selection, fit selection'''        
@@ -144,10 +150,10 @@ class TETab(QWidget):
         lo, hi = region2.getRegion()
         self.te_data = self.zoom_data[np.any((self.zoom_data > lo)&(self.zoom_data < hi), axis=1), :]  # select rows 
 
-        pf = self.fit_lin(self.te_data)
+        pf, pstd = self.fit_lin(self.te_data)
         space = np.linspace(self.te_data[0,0], self.te_data[-1,0], 100)
         self.fit2_plot.setData(space, pf[0] + pf[1]*space)
-        self.fitselect_label.setText(f'Double click to remove point. Fit slope {pf[1]:.2e}.')
+        self.fitselect_label.setText(f'Double click to remove point. Fit slope {pf[1]:.2e} ± {pstd[1]:.2e}.')
         
         self.te_model.setRowCount(0)    # empty table
         for i,stamp in enumerate(list(self.te_data[:,0])):        # put data in table, hist_points keyed on timestamp
@@ -170,7 +176,8 @@ class TETab(QWidget):
         self.time_data = np.column_stack((list(hist_data.keys()),[hist_data[k].area for k in hist_data.keys()])) # 2-d nparray to plot 
         lo, hi = self.region1.getRegion()
         if hi < self.time_data[0,0]:
-            self.region1.setRegion([self.time_data[0,0],self.time_data[0,0]])               
+            self.region1.setRegion([self.time_data[0,0],self.time_data[0,0]])     
+            self.fit1_plot.setData([self.time_data[0,0]], np.zeros(1))         
         self.time_plot.setData(self.time_data)   #plot
         self.hist_points = {t:hist_data[t] for t in list(self.time_data[:,0])}    # keyed on timestamp
            
@@ -203,7 +210,7 @@ class TETab(QWidget):
         x, y = np.hsplit(data,2)
         x, y = x.flatten(), y.flatten()
         pf, pcov = optimize.curve_fit(lambda t, a, b, c, d: a + b*np.exp((t-c)/d), x, y, p0 = p0)
-        return pf    
+        return pf, np.sqrt(np.diag(pcov))   
         
     def fit_lin(self,data):
         '''Linear fit to area of time data with scipy
@@ -219,7 +226,7 @@ class TETab(QWidget):
         x, y = np.hsplit(data,2)
         x, y = x.flatten(), y.flatten()
         pf, pcov = optimize.curve_fit(lambda t, a, b: a + t*b, x, y, p0 = p0)
-        return pf   
+        return pf, np.sqrt(np.diag(pcov))   
         
         
         
