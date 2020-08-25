@@ -330,10 +330,10 @@ class RunThread(QThread):
             self.daq = DAQConnection(self.config, 4, False)
         except Exception as e:
             print('Exception: '+str(e))
-        
-        
+                
     def __del__(self):
         self.wait()
+        
     def run(self):
         '''Main run loop. Request start of sweeps, receive sweeps, update event, report.
         

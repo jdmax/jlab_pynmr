@@ -39,8 +39,10 @@ class DAQConnection():
             self.message = 'Connected to: '+str(self.udp.ip)+', port '+str(self.udp.port)+', and set registers and frequency table.'
             
         if self.daq_type=='NIDAQ':          
-            with nidaqmx.Task() as ai, nidaqmx.Task() as ao:
-                setup_chans(self.config,ai,ao)  # test setup of nidaq            
+            try:
+                self.ni = NI_Connection(self.config)
+            except Exception as e:
+                print(e)
             
         elif self.daq_type=='Test':          
             v, self.test_phase, self.test_diode = np.loadtxt("app/test_data.txt", unpack=True)               
@@ -58,6 +60,9 @@ class DAQConnection():
         '''Send command to sending NMR sweeps'''
         if self.daq_type=='FPGA':
             self.udp.act_sweep()
+            
+        if self.daq_type=='NIDAQ':   
+            self.ni.start()
 
     def get_chunk(self):
         '''Receive subset of total sweeps for the event'''
@@ -66,12 +71,7 @@ class DAQConnection():
             return self.tcp.get_chunk()   
             
         if self.daq_type=='NIDAQ':          
-            with nidaqmx.Task() as ai, nidaqmx.Task() as ao:
-                setup_chans(ai,ao)  # setup of nidaq  
-                start(ai,ao)
-                while True:
-                    samples = ai.read(READ_ALL_AVAILABLE, timeout=pretri_delay_s)
-                    print(cutandavg(samples, pts_per_tri))
+            return self.ni.get_chunk()
             
             
         elif self.daq_type=='Test':
