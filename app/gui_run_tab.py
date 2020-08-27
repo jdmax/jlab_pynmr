@@ -345,9 +345,11 @@ class RunThread(QThread):
         self.daq.start_sweeps()              # send command to start sweeps
         while (self.rec_sweeps < self.sweep_num):                 # loop for total set of sweeps
             new_sigs = self.daq.get_chunk()
-            self.reply.emit(new_sigs)
-            self.rec_sweeps += new_sigs[0]
-  
+            if new_sigs[0] > 0:
+                self.reply.emit(new_sigs)
+                self.rec_sweeps += new_sigs[0]
+        self.daq.stop()    
+            
         self.finished.emit()
         del self.daq
    

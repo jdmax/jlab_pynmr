@@ -119,7 +119,15 @@ class Scan():
             # diode_S = [i + num_in_chunk*(j - k)*(j - l) for i,j,k,l in zip(diode_S, diode_chunk, diode_old, diode_set)]
             # phase_std = [math.sqrt(i/rec_sweeps) for i in phase_S]
             # diode_std = [math.sqrt(i/rec_sweeps) for i in diode_S]
-        
+      
+    def change_set(self, new_sigs):
+        '''Accept a new set of points, already averaged. This is used for the NIDAQ, as it accumulates internally
+        '''
+        num_in_chunk, phase_chunk, diode_chunk = new_sigs
+        self.num = num_in_chunk
+        self.phase = phase_chunk
+        self.diode = diode_chunk
+      
         
 class RunningScan():
     '''Data object for averaged set of sweeps, with method to perform running average.
@@ -218,7 +226,10 @@ class Event():
         Args:
             new_sigs: tuple of number of sweeps in the chunk, new phase data list and new diode data list
         '''
-        self.scan.avg_chunks(new_sigs)
+        if 'NIDAQ' in self.config.settings['daq_type']:
+            self.scan.change_set(new_sigs)
+        else:
+            self.scan.avg_chunks(new_sigs)
 
 
     def print_event(self,eventfile):
