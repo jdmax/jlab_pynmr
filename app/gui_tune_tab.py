@@ -157,9 +157,13 @@ class TuneThread(QThread):
     def run(self):
         '''Main run loop. Request start of sweeps, receive sweeps, update event, report.'''
         
-        self.daq.start_sweeps()              # send command to start sweeps
         while self.parent.running:
-            self.reply.emit(self.daq.get_chunk())
+            self.daq.start_sweeps()              # send command to start sweeps
+            new_sigs = self.daq.get_chunk()
+            while new_sigs[0] < self.config.settings['tune_per_chunk']:   # for NIDAQ, we need to wait for all the sweeps
+                new_sigs = self.daq.get_chunk()            
+            self.reply.emit(new_sigs)
+        self.daq.stop()    
         
 
 
