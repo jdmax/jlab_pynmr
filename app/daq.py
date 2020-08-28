@@ -384,7 +384,7 @@ class NI_Connection():
         ai_min_V,ai_max_V = -1 * unyt.V, 1 * unyt.V
 
         phase_chan = config.settings['nidaq_settings']['phase_chan']
-        #diode_chan = config.settings['nidaq_settings']['diode_chan']
+        diode_chan = config.settings['nidaq_settings']['diode_chan']
         ao_chan = config.settings['nidaq_settings']['ao_chan']
 
         self.pts_per_tri = self.pts_per_ramp * 2
@@ -410,7 +410,7 @@ class NI_Connection():
 
         #Setup AI channel
         self.ai.ai_channels.add_ai_voltage_chan(phase_chan, min_val=ai_min_V, max_val=ai_max_V)
-        #self.ai.ai_channels.add_ai_voltage_chan(diode_chan, min_val=ai_min_V, max_val=ai_max_V)
+        self.ai.ai_channels.add_ai_voltage_chan(diode_chan, min_val=ai_min_V, max_val=ai_max_V)
 
         self.ai.timing.delay_from_samp_clk_delay = settling_delay_us.to(unyt.s)
         self.ai.timing.delay_from_samp_clk_delay_units = DigitalWidthUnits.SECONDS
@@ -453,22 +453,22 @@ class NI_Connection():
         
         '''
         samples = self.ai.read(READ_ALL_AVAILABLE, timeout=self.pretri_delay_s)  # list of lists
-        #pchunks, dchunks = samples              # split into phase and diode
-        pchunks = samples    
+        pchunks, dchunks = samples              # split into phase and diode        
         num_in_chunk = len(pchunks)//(self.pts_per_ramp)
         if  num_in_chunk < 1:      
             pchunk = np.zeros(self.pts_per_ramp)
             dchunk = np.zeros(self.pts_per_ramp)
             return num_in_chunk, pchunk, dchunk
-        pchunks = pchunks[:2*(num_in_chunk*self.pts_per_ramp//2)]
+        pchunks = pchunks[:2*(num_in_chunk*self.pts_per_ramp//2)]    # discard extra samples if partially accumulated
+        dchunks = dchunks[:2*(num_in_chunk*self.pts_per_ramp//2)]
         pchunks = np.array(pchunks).reshape(num_in_chunk, self.pts_per_ramp)  # 2D array with steps number of rows
         pchunks[1::2,:] = np.flip(pchunks[1::2,:])  # flip every other row
-        #dchunks = np.array(dchunks).reshape(self.pts_per_ramp, len(dchunks)//self.pts_per_ramp)
-        #dchunks[:,0:-1:2] = np.flip(dchunks[:,0:-1:2])  # flip every other column
+        dchunks = np.array(dchunks).reshape(num_in_chunk, self.pts_per_ramp)  # 2D array with steps number of rows
+        dchunks[1::2,:] = np.flip(dchunks[1::2,:])  # flip every other row
         
         pchunk = np.average(pchunks, axis=0)
-        #dchunk = np.average(dchunks, axis=0)
-        dchunk = np.zeros(len(pchunk))
+        dchunk = np.average(dchunks, axis=0)
+        
         time.sleep(1)
         return num_in_chunk, pchunk, dchunk
 
