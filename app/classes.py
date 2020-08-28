@@ -217,8 +217,7 @@ class Event():
         
         self.base_time = datetime.datetime(2000,1,1)
         self.base_stamp = datetime.datetime(2000,1,1).timestamp()
-        self.base_file = 'None'
-        
+        self.base_file = 'None'        
         
     def update_event(self,new_sigs):  # new_sigs looks like ((p_tup1,d_tup1), (p_tup2,d_tup2)...)
         '''Method to update event with new signal chunk
@@ -230,7 +229,6 @@ class Event():
             self.scan.change_set(new_sigs)
         else:
             self.scan.avg_chunks(new_sigs)
-
 
     def print_event(self,eventfile):
         '''Print out event to eventfile, formatting to dict to write to json line.

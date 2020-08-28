@@ -378,7 +378,7 @@ class NI_Connection():
         ramp_min_V,ramp_max_V = -1 * unyt.V, 1 * unyt.V
         self.pts_per_ramp = config.settings['steps']
         self.pretris = config.settings['nidaq_settings']['pretris']
-        self.tris_per_scan = config.controls['sweeps'].value
+        self.tris_per_scan = config.controls['sweeps'].value//2
         time_per_pt_us = config.settings['nidaq_settings']['time_per_pt'] * unyt.us
         settling_delay_ratio = config.settings['nidaq_settings']['settling_ratio']
         ai_min_V,ai_max_V = -1 * unyt.V, 1 * unyt.V

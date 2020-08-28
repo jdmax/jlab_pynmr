@@ -23,7 +23,7 @@ settings:
     log_dir: log                # Directory to put log files in, relative to main.py or absolute
     steps: 500                  # Frequency points per sweep
     num_per_chunk: 256          # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
-    tune_per_chunk:  64        # Number of sweeps per chunk to take in tune mode
+    tune_per_chunk:  64         # Number of sweeps per chunk to take in tune mode
     epics_temp: 4he             # EPICS channel of temp to use as default 
     epics_test: True            # If true, doesn't attempt to contact EPICS server
     fpga_settings:    

@@ -347,7 +347,10 @@ class RunThread(QThread):
             new_sigs = self.daq.get_chunk()
             if new_sigs[0] > 0:
                 self.reply.emit(new_sigs)
-                self.rec_sweeps += new_sigs[0]
+                if 'NIDAQ' in self.config.settings['daq_type']:
+                    self.rec_sweeps = new_sigs[0]
+                else:
+                    self.rec_sweeps += new_sigs[0]
         self.daq.stop()    
             
         self.finished.emit()
