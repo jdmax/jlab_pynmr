@@ -157,8 +157,8 @@ class TuneThread(QThread):
     def run(self):
         '''Main run loop. Request start of sweeps, receive sweeps, update event, report.'''
         
+        self.daq.start_sweeps()              # send command to start sweeps
         while self.parent.running:
-            self.daq.start_sweeps()              # send command to start sweeps
             self.reply.emit(self.daq.get_chunk())
         
 
