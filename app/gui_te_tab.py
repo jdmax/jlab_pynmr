@@ -207,7 +207,7 @@ class TETab(QWidget):
             pf: Tuple of final fit coefficient list 
         
         '''
-        now = datetime.datetime.now(tz=pytz.timezone('US/Eastern')).timestamp()
+        now = datetime.datetime.utcnow().timestamp()
         p0 = [0.05, 0.05, now, 10000]  # initial guess
         x, y = np.hsplit(data,2)
         x, y = x.flatten(), y.flatten()

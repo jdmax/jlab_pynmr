@@ -379,7 +379,7 @@ class HistPoint():
 class History():
     '''Contains polarization history since start, methods for returning subset of points'''
     def __init__(self):
-        self.data = {}              # dict of HistPoints keyed on dt
+        self.data = {}              # dict of HistPoints keyed on dt stamp
     def add_hist(self, hp):
         self.data[hp.dt_stamp] = hp
     def to_plot(self, start_stamp=0, stop_stamp=0):

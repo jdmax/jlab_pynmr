@@ -274,8 +274,9 @@ class RunTab(QWidget):
         self.dt_value.setText(self.parent.event.stop_time.strftime("%m/%d/%Y\n%H:%M:%S"))
         
         hist_data = self.parent.history.to_plot(datetime.datetime.utcnow().timestamp() - 60*int(self.range_value.text()), datetime.datetime.utcnow().timestamp())                                  
-        pol_data = np.column_stack((list(hist_data.keys()),[hist_data[k].pol for k in hist_data.keys()]))
-        self.pol_time_plot.setData(pol_data)    #  FIX TIMESTAMP CONVERSION!
+        pol_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
+        # This time fix is now permanent. Graphs always seem to be one hour off.
+        self.pol_time_plot.setData(pol_data)    
         self.progress_bar.setValue(0)
     
     def changed_range(self):

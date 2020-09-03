@@ -17,11 +17,11 @@ channels:
         sweep_file: app/standard_sweep.txt  
 settings:
     default_channel: Proton     # Default from channels listed above
-    daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ or Test)
+    daq_type: Test              # Select DAQ mode (FPGA, NIDAQ or Test)
     event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
     log_dir: log                # Directory to put log files in, relative to main.py or absolute
-    steps: 512                  # Frequency points per sweep
+    steps: 500                  # Frequency points per sweep (must be 500 for test sweeps)
     num_per_chunk: 256          # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
     tune_per_chunk:  64         # Number of sweeps per chunk to take in tune mode
     epics_temp: 4he             # EPICS channel of temp to use as default 
