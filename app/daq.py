@@ -27,7 +27,7 @@ class DAQConnection():
         if self.daq_type=='FPGA':
             
             try:
-                self.udp = UDP(self.config)
+                self.udp = UDP(self.config, tune_mode)
                 self.tcp = TCP(self.config, timeout)
                 
             except socket.error as e:
@@ -105,8 +105,9 @@ class UDP():
     Args:
         config: Config object with settings
     '''
-    def __init__(self,config):
+    def __init__(self, config, tune_mode):
         '''Start connection, send nmr_settings dict'''
+        self.tune_mode = tune_mode
         self.ok = bytes.fromhex('0300FA')
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
         self.s.settimeout(1)

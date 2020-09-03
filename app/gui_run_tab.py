@@ -108,6 +108,10 @@ class RunTab(QWidget):
         # self.reload_button = QPushButton("Reload Settings",checkable=False)
         # self.reload_button.clicked.connect(self.reload_pushed)
         # self.controls_layout.layout().addWidget(self.reload_button, len(self.parent.config.controls), 0)
+                
+        self.settings_box.layout().addWidget(self.parent.divider())
+        self.baseline_label = QLabel('Baseline: None selected')
+        self.settings_box.layout().addWidget(self.baseline_label)
         
         
         # Populate pol v time plot

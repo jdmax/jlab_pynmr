@@ -51,10 +51,10 @@ class BaseTab(QWidget):
         self.base_box.layout().addWidget(self.parent.divider()) 
         self.button_layout = QHBoxLayout()
         self.base_box.layout().addLayout(self.button_layout)
-        self.open_but = QPushButton('Choose New Eventfile')
+        self.open_but = QPushButton('Eventfile Selection Dialog')
         self.open_but.clicked.connect(self.pick_basefile) 
         self.button_layout.addWidget(self.open_but)
-        self.last_but = QPushButton('Use This Eventfile')
+        self.last_but = QPushButton('Select Current Eventfile')
         self.last_but.clicked.connect(self.use_last) 
         self.button_layout.addWidget(self.last_but)        
         # Selection list
@@ -130,8 +130,8 @@ class BaseTab(QWidget):
         '''Send baseline chosen to be set as the baseline for future events'''
         try:
             self.parent.new_base(self.events[self.base_stamp])
-        except:
-            self.status_bar.showMessage('Error setting baseline: '+self.events[self.base_stamp]['read_time'])
+        except Exception as e:
+            self.status_bar.showMessage(f"Error setting baseline: {self.events[self.base_stamp]['read_time']} {e}")
         filename = re.findall('data.*\.txt', self.parent.event.base_file)
         self.curr_base_line.setText(filename[0]+', '+ str(self.parent.event.base_time))
 
