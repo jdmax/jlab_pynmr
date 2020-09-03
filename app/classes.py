@@ -267,7 +267,7 @@ class Event():
                 json_dict[key] = entry.tolist()    
         json_record = json.dumps(json_dict)
         eventfile.write(json_record+'\n')               # write to file as json line
-    
+            
     def close_event(self, epics_reads, eventfile):
         '''Closes event, calls fits and plots, writes to disk, history and EPICS
         
@@ -332,6 +332,7 @@ class Baseline():
     def __init__(self, config, dict):
         self.config = config
         self.stop_stamp = 0
+        self.stop_time = datetime.datetime(2000,1,1)
         self.base_file = ''
         self.phase = np.zeros(self.config.settings['steps'])
         self.__dict__.update(dict)	# update with attributes from passed event

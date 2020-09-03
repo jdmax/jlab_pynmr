@@ -59,7 +59,7 @@ class BaseTab(QWidget):
         self.button_layout.addWidget(self.last_but)        
         # Selection list
         self.event_model = QStandardItemModel()
-        self.event_model.setHorizontalHeaderLabels(['UTC Timestamp','Date/Time','Sweep Count','Center (MHz)','Modulation (kHz)'])
+        self.event_model.setHorizontalHeaderLabels(['UTC Timestamp','Time','Sweep Count','Center (MHz)','Modulation (kHz)'])
         self.event_table = QTableView()
         self.event_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.event_table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
@@ -107,7 +107,7 @@ class BaseTab(QWidget):
                     dt = parse(jd['stop_time'])
                     time = dt.strftime("%H:%M:%S")
                     utcstamp = str(jd['stop_stamp'])
-                    self.events.update({utcstamp: {'freq_list':jd['freq_list'], 'sweeps':jd['sweeps'], 'phase':jd['phase'], 'cent_freq':jd['channel']['cent_freq'], 'mod_freq':jd['channel']['mod_freq'], 'stop_time':jd['stop_time'],'read_time':time, 'stop_stamp':jd['stop_stamp'], 'base_file':self.basefile_path}})
+                    self.events.update({utcstamp: {'freq_list':jd['freq_list'], 'sweeps':jd['sweeps'], 'phase':jd['phase'], 'cent_freq':jd['channel']['cent_freq'], 'mod_freq':jd['channel']['mod_freq'], 'stop_time':dt, 'read_time':time, 'stop_stamp':jd['stop_stamp'], 'base_file':self.basefile_path}})
                       
             self.status_bar.showMessage('Opened event file '+self.basefile_path)
             for i,stamp in enumerate(self.events.keys()):
