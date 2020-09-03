@@ -98,7 +98,7 @@ class MainWindow(QMainWindow):
     def new_eventfile(self):
         '''Open new eventfile'''
         self.close_eventfile()    # try to close previous eventfile
-        now = datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
+        now = datetime.datetime.utcnow()
         self.eventfile_start = now.strftime("%Y-%m-%d_%H-%M-%S")
         self.eventfile_name = os.path.join(self.config.settings["event_dir"], f'current_{self.eventfile_start}.txt')
         self.eventfile = open(self.eventfile_name, "w")
@@ -109,7 +109,7 @@ class MainWindow(QMainWindow):
         '''Try to close and rename eventfile'''
         try:
             self.eventfile.close()
-            now = datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
+            now = datetime.datetime.utcnow()
             new = f'{self.eventfile_start}__{now.strftime("%Y-%m-%d_%H-%M-%S")}.txt'
             os.rename(self.eventfile_name, os.path.join(self.config.settings["event_dir"], new))
             logging.info(f"Closed eventfile and moved to {new}.")

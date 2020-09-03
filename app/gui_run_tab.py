@@ -232,7 +232,7 @@ class RunTab(QWidget):
     def abort_run(self):
         '''Quit now'''
         self.run_thread.terminate()
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
         self.parent.status_bar.showMessage('Aborted at '+now.strftime("%H:%M:%S")+'.')
         self.abort_button.setEnabled(False)
         self.run_button.setText('Run')
@@ -246,7 +246,7 @@ class RunTab(QWidget):
         '''Finished sweeps: close event. If stop button checked, reset buttons, else run again.'''
         self.parent.end_event()
         
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
         if not self.run_button.isChecked():     # done and stop
             self.parent.status_bar.showMessage('Finished event at '+now.strftime("%H:%M:%S")+'.')
             self.abort_button.setEnabled(False)
@@ -273,14 +273,14 @@ class RunTab(QWidget):
         self.area_value.setText('{:.6f}'.format(self.parent.event.area))
         self.dt_value.setText(self.parent.event.stop_time.strftime("%m/%d/%Y\n%H:%M:%S"))
         
-        hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=pytz.timezone('US/Eastern')).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=pytz.timezone('US/Eastern')).timestamp())                                  
+        hist_data = self.parent.history.to_plot(datetime.datetime.utcnow().timestamp() - 60*int(self.range_value.text()), datetime.datetime.utcnow().timestamp())                                  
         pol_data = np.column_stack((list(hist_data.keys()),[hist_data[k].pol for k in hist_data.keys()]))
         self.pol_time_plot.setData(pol_data)    #  FIX TIMESTAMP CONVERSION!
         self.progress_bar.setValue(0)
     
     def changed_range(self):
         '''Change time range of pol v time plot'''
-        hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=pytz.timezone('US/Eastern')).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=pytz.timezone('US/Eastern')).timestamp())               
+        hist_data = self.parent.history.to_plot(datetime.datetime.utcnow().timestamp() - 60*int(self.range_value.text()), datetime.datetime.utcnow().timestamp())               
         pol_data = np.column_stack((list(hist_data.keys()),[hist_data[k].pol for k in hist_data.keys()]))
         self.pol_time_plot.setData(pol_data) 
     

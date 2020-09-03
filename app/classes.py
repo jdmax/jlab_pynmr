@@ -199,7 +199,8 @@ class Event():
         self.config = config
         self.scan = Scan(self.config)
         
-        self.start_time =  datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
+        #self.start_time =  datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
+        self.start_time =  datetime.datetime.utcnow()        
         self.start_stamp = self.start_time.timestamp()
         #self.start_stamp = (datetime.datetime.utcnow() - datetime.datetime(1970,1,1,0,0,0)).total_seconds()
         
@@ -277,8 +278,8 @@ class Event():
         Todo:
             * Send data to EPICS, history
         '''
-        #self.stop_time = datetime.datetime.now()
         self.stop_time =  datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
+        self.stop_time =  datetime.datetime.utcnow()
         self.stop_stamp = self.stop_time.timestamp()
         #self.stop_stamp =  str((datetime.datetime.now(tz=pytz.timezone('US/Eastern')) - datetime.datetime(1970,1,1,0,0,0)).total_seconds())
         self.basesub = self.scan.phase - self.basesweep
