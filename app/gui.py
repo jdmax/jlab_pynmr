@@ -19,6 +19,7 @@ from app.gui_run_tab import RunTab
 from app.gui_base_tab import BaseTab
 from app.gui_tune_tab import TuneTab
 from app.gui_te_tab import TETab
+from app.gui_anal_tab import AnalTab
 from app.daq import DAQConnection, UDP, TCP, RS_Connection, NI_Connection
 from app.magnet_control import MagnetControl
 
@@ -83,13 +84,22 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.base_tab, "Baseline")
         self.te_tab = TETab(self)
         self.tab_widget.addTab(self.te_tab, "TE")
-        # self.anal_tab = QWidget()
-        # self.tab_widget.addTab(self.anal_tab, "Analysis")
+        self.anal_tab = AnalTab(self)
+        self.tab_widget.addTab(self.anal_tab, "Analysis")
         # self.viewer_tab = QWidget()
         # self.tab_widget.addTab(self.viewer_tab, "Event Viewer")   
-        #self.settings_tab = SettingsTab(self)
-        #self.tab_widget.addTab(self.settings_tab,"Settings")
+        
+    def load_settings(self):
+        '''Load settings from YAML config file'''
 
+        with open(self.config_filename) as f:                           # Load settings from YAML files
+           self.config_dict = yaml.load(f, Loader=yaml.FullLoader)
+        self.channels = list(self.config_dict['channels'].keys())     # list of channels in config file
+        self.settings = self.config_dict['settings']                    # dict of settings
+        self.epics_reads = self.config_dict['epics_reads']              # dict of epics channels: name string
+        self.epics_writes = self.config_dict['epics_writes']              # dict of epics channels: name string
+        self.status_bar.showMessage(f"Loaded settings from {self.config_filename}.")
+        
     def new_event(self):
         '''Create new event instance'''
         self.event = Event(self.config)
@@ -211,17 +221,6 @@ class MainWindow(QMainWindow):
             else:
                 color = '#f6989d' # red
             sender.setStyleSheet('QLineEdit { background-color: %s }' % color)
-
-    def load_settings(self):
-        '''Load settings from YAML config file'''
-
-        with open(self.config_filename) as f:                           # Load settings from YAML files
-           self.config_dict = yaml.load(f, Loader=yaml.FullLoader)
-        self.channels = list(self.config_dict['channels'].keys())     # list of channels in config file
-        self.settings = self.config_dict['settings']                    # dict of settings
-        self.epics_reads = self.config_dict['epics_reads']              # dict of epics channels: name string
-        self.epics_writes = self.config_dict['epics_writes']              # dict of epics channels: name string
-        self.status_bar.showMessage(f"Loaded settings from {self.config_filename}.")
 
     def start_logger(self):
         '''Start logger

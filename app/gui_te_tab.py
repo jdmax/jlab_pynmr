@@ -24,7 +24,6 @@ class TETab(QWidget):
         self.zoom_pen = pg.mkPen(color=(0, 180, 0), width=1)
         self.fit2_pen = pg.mkPen(color=(0, 130, 0), width=1)
         
-        # Populate Settings Tab 
         self.main = QHBoxLayout()            # main layout
         
         # Left Side

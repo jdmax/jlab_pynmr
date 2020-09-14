@@ -273,6 +273,7 @@ class Event():
         '''Closes event, calls fits and plots, writes to disk, history and EPICS
         
         Args:
+            epics_reads: Return of read_all of EPICS class, Dict
             eventfile: File object to write event to
         
         Todo:
@@ -282,6 +283,10 @@ class Event():
         self.stop_time =  datetime.datetime.utcnow()
         self.stop_stamp = self.stop_time.timestamp()
         #self.stop_stamp =  str((datetime.datetime.now(tz=pytz.timezone('US/Eastern')) - datetime.datetime(1970,1,1,0,0,0)).total_seconds())
+                
+        # try:
+            # self.base_method = 
+        # except:
         self.basesub = self.scan.phase - self.basesweep
         
         self.fit_params = self.fit_wings(self.wings,self.basesub)          # perform fit to wings
@@ -290,6 +295,7 @@ class Event():
         for x in self.polysub: self.area+=x             # sum area under fit subtracted curve
         self.area = self.polysub.sum()
         self.pol = self.area*self.cc
+        
         self.epics_reads = epics_reads       
         self.print_event(eventfile)
             
@@ -302,7 +308,7 @@ class Event():
         '''
         return p[0] + p[1]*x + p[2]*np.power(x,2) + p[3]*np.power(x,3) #+ p[4]*np.power(x,4)
         
-    def fit_wings(self,wings,sweep):
+    def fit_wings(self, wings, sweep):
         '''Fit to wings with scipy
         
         Args:

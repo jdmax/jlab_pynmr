@@ -5,7 +5,7 @@ import time
 import math
 from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QProgressBar
 from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator
-from PyQt5.QtCore import QThread, pyqtSignal,Qt
+from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from prettyprinter import pprint
 import pyqtgraph as pg
  
@@ -275,7 +275,7 @@ class RunTab(QWidget):
         
         hist_data = self.parent.history.to_plot(datetime.datetime.utcnow().timestamp() - 60*int(self.range_value.text()), datetime.datetime.utcnow().timestamp())                                  
         pol_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
-        # This time fix is now permanent. Graphs always seem to be one hour off.
+        # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone.
         self.pol_time_plot.setData(pol_data)    
         self.progress_bar.setValue(0)
     
