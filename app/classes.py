@@ -269,12 +269,14 @@ class Event():
         json_record = json.dumps(json_dict)
         eventfile.write(json_record+'\n')               # write to file as json line
             
-    def close_event(self, epics_reads, eventfile):
+    def close_event(self, epics_reads, eventfile, base_method, sub_method):
         '''Closes event, calls fits and plots, writes to disk, history and EPICS
         
         Args:
             epics_reads: Return of read_all of EPICS class, Dict
             eventfile: File object to write event to
+            base_method: method to produce baseline subtracted signal given event instance
+            sub_method: method to produce fit subtracted signal and area given event instance
         
         Todo:
             * Send data to EPICS, history
@@ -285,7 +287,7 @@ class Event():
         #self.stop_stamp =  str((datetime.datetime.now(tz=pytz.timezone('US/Eastern')) - datetime.datetime(1970,1,1,0,0,0)).total_seconds())
                 
         # try:
-            # self.base_method = 
+            # self.basesub = 
         # except:
         self.basesub = self.scan.phase - self.basesweep
         

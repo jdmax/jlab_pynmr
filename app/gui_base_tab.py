@@ -14,7 +14,7 @@ from app.magnet_control import MagnetControl
 class BaseTab(QWidget): 
     '''Creates baseline tab'''   
     def __init__(self, parent):
-        super(QWidget,self).__init__(parent)
+        super(QWidget, self).__init__(parent)
         self.__dict__.update(parent.__dict__)  
         
         self.parent = parent
