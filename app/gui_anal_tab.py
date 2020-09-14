@@ -85,12 +85,12 @@ class AnalTab(QWidget):
     def change_base(self, i):
         '''Set base_chosen to correct baseline class instance
         '''
-        self.base_chosen = self.base_opts[i]
+        self.base_chosen = self.base_opts[i].result
         
     def change_sub(self, i):
         '''Set sub_chosen to correct subtraction class instance
         '''
-        self.sub_chosen = self.sub_opts[i]
+        self.sub_chosen = self.sub_opts[i].result
 
     
 
@@ -107,8 +107,10 @@ class PolyFitBase(QWidget):
         self.space.addWidget(self.poly_label)
     
     
-    def fit(self, wings, sweep):
+    def result(self, event):
     
+        sweep = event.scan.phase
+        wings = [0, .25, .75, 1]
         bounds = [x*len(sweep) for x in wings]
         data = [(x,y) for x,y in enumerate(sweep) if (bounds[0]<x<bounds[1] or bounds[2]<x<bounds[3])]
         x = np.array([x for x,y in data])
@@ -137,11 +139,14 @@ class PolyFitSub(QWidget):
         self.poly_label = QLabel("Polynomial order")
         self.space.addWidget(self.poly_label)
     
-            
+    def result(self, event):
+        sub = event.sweep
+        area = sub.sum()
+        return sub, area
         
         
 
-def poly3(self,p,x):
+def poly3(self, p, x):
     '''Third order polynomial for fitting
     
     Args:
@@ -150,7 +155,7 @@ def poly3(self,p,x):
     '''
     return p[0] + p[1]*x + p[2]*np.power(x,2) + p[3]*np.power(x,3) #+ p[4]*np.power(x,4)
     
-def poly4(self,p,x):
+def poly4(self, p, x):
     '''Fourth order polynomial for fitting
     
     Args:

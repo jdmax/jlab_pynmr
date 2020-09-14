@@ -286,10 +286,11 @@ class Event():
         self.stop_stamp = self.stop_time.timestamp()
         #self.stop_stamp =  str((datetime.datetime.now(tz=pytz.timezone('US/Eastern')) - datetime.datetime(1970,1,1,0,0,0)).total_seconds())
                 
-        # try:
-            # self.basesub = 
-        # except:
-        self.basesub = self.scan.phase - self.basesweep
+        #try:
+        self.basesub = base_method(self)
+        #except:
+        #    print("Used fall back baseline method")
+         #   self.basesub = self.scan.phase - self.basesweep
         
         self.fit_params = self.fit_wings(self.wings,self.basesub)          # perform fit to wings
         self.poly_curve = np.fromiter((self.poly(self.fit_params,float(x)) for x in range(len(self.basesub))), np.double)   # points of curve
@@ -327,7 +328,7 @@ class Event():
         Y = np.array([y for x,y in data])
         
         errfunc = lambda p, x, y: self.poly(p,x) - y
-        pi = [0.01, 0.8, 0.01, 0.001,0.00001]  # initial guess
+        pi = [0.01, 0.8, 0.01, 0.001, 0.00001]  # initial guess
         pf, success = optimize.leastsq(errfunc, pi[:], args=(X,Y))  # perform fit
         return pf
         
