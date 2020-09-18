@@ -39,6 +39,7 @@ class AnalTab(QWidget):
         
         # Set up list of baseline options, putting instances into stack
         self.base_opts = []
+        self.base_opts.append(StandardBaseline(self))   
         self.base_opts.append(PolyFitBase(self))        
         for o in self.base_opts:
             self.base_combo.addItem(o.name)
@@ -86,14 +87,30 @@ class AnalTab(QWidget):
         '''Set base_chosen to correct baseline class instance
         '''
         self.base_chosen = self.base_opts[i].result
+        self.base_stack.setCurrentIndex(i)
         
     def change_sub(self, i):
         '''Set sub_chosen to correct subtraction class instance
         '''
         self.sub_chosen = self.sub_opts[i].result
+        self.sub_stack.setCurrentIndex(i)
 
     
 
+class StandardBaseline(QWidget):
+    '''Layout and method for standard baseline subtract based on selected baseline from baseline tab
+    '''
+    
+    def __init__(self, parent):
+        super(QWidget, self).__init__(parent)
+        self.space = QVBoxLayout()
+        self.setLayout(self.space)
+        self.name = "Baseline Selected from Baseline Tab"
+        
+        
+    def result(self, event):
+        return event.scan.phase - event.basesweep
+    
 class PolyFitBase(QWidget):
     '''Layout for polynomial fit to the background wings, including methods to produce fits
     '''
@@ -113,18 +130,42 @@ class PolyFitBase(QWidget):
         wings = [0, .25, .75, 1]
         bounds = [x*len(sweep) for x in wings]
         data = [(x,y) for x,y in enumerate(sweep) if (bounds[0]<x<bounds[1] or bounds[2]<x<bounds[3])]
-        x = np.array([x for x,y in data])
-        y = np.array([y for x,y in data])
+        X = np.array([x for x,y in data])
+        Y = np.array([y for x,y in data])
         
-        p0 = [0.01, 0.8, 0.01, 0.001, 0.00001]  # initial guess
-        pf, pcov = optimize.curve_fit(poly4, x, y, p0 = p0)
-        pstd = np.sqrt(np.diag(pcov))
-        string = f"Parameters: "
-        for p, std in zip(pf, pstd):
-            string += f"{p} ± {std}, "
-        string = string[:-2]    
+        errfunc = lambda p, x, y: self.poly3(p,x) - y
+        pi = [0.01, 0.8, 0.01, 0.001, 0.00001]  # initial guess
+        pf, success = optimize.leastsq(errfunc, pi[:], args=(X,Y))  # perform fit
         
-        return sweep - poly4(pf, range(0, len(sweep))), string
+        return sweep - self.poly3(pf, range(len(sweep)))
+        
+        
+    def poly2(self, p, x):
+        '''Third order polynomial for fitting
+        
+        Args:
+            p: List of polynomial coefficients
+            x: Sample point
+        '''
+        return p[0] + p[1]*x + p[2]*np.power(x,2) #+ p[3]*np.power(x,3) #+ p[4]*np.power(x,4)
+        
+    def poly3(self, p, x):
+        '''Third order polynomial for fitting
+        
+        Args:
+            p: List of polynomial coefficients
+            x: Sample point
+        '''
+        return p[0] + p[1]*x + p[2]*np.power(x,2) + p[3]*np.power(x,3) #+ p[4]*np.power(x,4)
+        
+    def poly4(self, p, x):
+        '''Third order polynomial for fitting
+        
+        Args:
+            p: List of polynomial coefficients
+            x: Sample point
+        '''
+        return p[0] + p[1]*x + p[2]*np.power(x,2) + p[3]*np.power(x,3) + p[4]*np.power(x,4)
         
 
 class PolyFitSub(QWidget):
