@@ -127,9 +127,10 @@ class MainWindow(QMainWindow):
             pass
 
     def end_event(self):
-        '''End event, closing the event instance and calling updates for each tab'''
-
-        self.event.close_event(self.epics.read_all(), self.eventfile, self.anal_tab.base_chosen, self.anal_tab.sub_chosen)
+        '''End event, closing the event instance and calling updates for each tab. Updates plots, prints to file, makes new eventfile if lines are more than 500.
+        '''
+        self.event.close_event(self.epics.read_all(), self.anal_tab.base_chosen, self.anal_tab.sub_chosen)
+        self.event.print_event(self.eventfile)
         self.eventfile_lines += 1
         if self.eventfile_lines > 500:            # open new eventfile once the current one has a number of entries
             self.new_eventfile()
@@ -137,6 +138,8 @@ class MainWindow(QMainWindow):
 
         self.run_tab.update_event_plots()
         self.te_tab.update_event_plots()
+        self.anal_tab.update_event_plots()
+          
 
     def new_base(self, basedict):
         '''Choose eventfile and event to act as baseline for this and future events
@@ -154,7 +157,8 @@ class MainWindow(QMainWindow):
         self.event.base_stamp = self.baseline.stop_stamp
         self.event.base_time = self.baseline.stop_time
         self.event.base_file = self.baseline.base_file
-        self.event.basesweep = self.baseline.phase
+        self.event.baseline = self.baseline.phase
+        #self.event.basesweep = self.baseline.phase
 
     def set_cc(self, cc):
         '''Set new Calibration Constant

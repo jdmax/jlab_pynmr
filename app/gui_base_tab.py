@@ -123,9 +123,7 @@ class BaseTab(QWidget):
         self.base_plot.setData(self.events[self.base_stamp]['freq_list'],self.events[self.base_stamp]['phase'])  
         sub = self.parent.event.scan.phase - self.events[self.base_stamp]['phase']        
         self.sub_plot.setData(self.events[self.base_stamp]['freq_list'],sub)
-        
-        
-        
+
     def set_base(self):
         '''Send baseline chosen to be set as the baseline for future events'''
         try:

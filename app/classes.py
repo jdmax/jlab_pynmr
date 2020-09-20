@@ -183,7 +183,8 @@ class Event():
         start_stamp: Timestamp int for starting datetime
         stop_time: Datetime object for time event stopped accumulating measurements
         stop_stamp: Timestamp int for stop datetime
-        basesweep: Baseline phase sweep list
+        baseline: Baseline phase sweep list selected from baseline tab
+        basesweep: Baseline used, varies based on chosen method from analysis tab
         basesub: Baseline subtracted phase sweep list for event
         polysub: Polyfit subtracted basesub list
         wings: Portion of sweep to use for fit, 4 long list giving position of left start, left stop, right start and right stop positions as a decimal from 0 to 1
@@ -204,7 +205,8 @@ class Event():
         self.start_stamp = self.start_time.timestamp()
         #self.start_stamp = (datetime.datetime.utcnow() - datetime.datetime(1970,1,1,0,0,0)).total_seconds()
         
-        self.basesweep = []
+        self.baseline  = np.zeros(len(self.scan.phase))
+        self.basesweep = np.zeros(len(self.scan.phase))
         self.basesub = []
         self.polysub = []
         self.wings = [0.01,0.25,.75,0.99]  # portion of sweep to use for fit
@@ -269,14 +271,13 @@ class Event():
         json_record = json.dumps(json_dict)
         eventfile.write(json_record+'\n')               # write to file as json line
             
-    def close_event(self, epics_reads, eventfile, base_method, sub_method):
-        '''Closes event, calls fits and plots, writes to disk, history and EPICS
+    def close_event(self, epics_reads, base_method, sub_method):
+        '''Closes event, calls for signal analysis, adds epics reads to event
         
         Args:
             epics_reads: Return of read_all of EPICS class, Dict
-            eventfile: File object to write event to
-            base_method: method to produce baseline subtracted signal given event instance
-            sub_method: method to produce fit subtracted signal and area given event instance
+            base_method: method to produce baseline subtracted signal given event instance, return baseline and subtracted
+            sub_method: method to produce fit subtracted signal and area given event instance, return fit, subtracted, sum
         
         Todo:
             * Send data to EPICS, history
@@ -284,24 +285,24 @@ class Event():
         self.stop_time =  datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
         self.stop_time =  datetime.datetime.utcnow()
         self.stop_stamp = self.stop_time.timestamp()
-        #self.stop_stamp =  str((datetime.datetime.now(tz=pytz.timezone('US/Eastern')) - datetime.datetime(1970,1,1,0,0,0)).total_seconds())
-                
-        #try:
-        self.basesub = base_method(self)
-        #except:
-        #    print("Used fall back baseline method")
-         #   self.basesub = self.scan.phase - self.basesweep
+         
+        self.signal_analysis(base_method, sub_method)        
+        self.epics_reads = epics_reads     
+    
+    def signal_analysis(self, base_method, sub_method):
+        '''Perform analysis on signal
+        '''
+        self.basesweep, self.basesub  = base_method(self)
         
-        self.fit_params = self.fit_wings(self.wings,self.basesub)          # perform fit to wings
-        self.poly_curve = np.fromiter((self.poly(self.fit_params,float(x)) for x in range(len(self.basesub))), np.double)   # points of curve
-        self.polysub = self.basesub - self.poly_curve        # fit subtracted
-        for x in self.polysub: self.area+=x             # sum area under fit subtracted curve
-        self.area = self.polysub.sum()
+        # self.fit_params = self.fit_wings(self.wings,self.basesub)          # perform fit to wings
+        # self.poly_curve = np.fromiter((self.poly(self.fit_params,float(x)) for x in range(len(self.basesub))), np.double)   # points of curve
+        # self.polysub = self.basesub - self.poly_curve        # fit subtracted
+        # for x in self.polysub: self.area+=x             # sum area under fit subtracted curve
+        # self.area = self.polysub.sum()
+        
+        self.poly_curve, self.polysub, self.area = sub_method(self)
         self.pol = self.area*self.cc
-        
-        self.epics_reads = epics_reads       
-        self.print_event(eventfile)
-            
+    
     def poly(self,p,x):
         '''Third order polynomial for fitting
         
@@ -346,6 +347,7 @@ class Baseline():
         self.base_file = ''
         self.phase = np.zeros(self.config.settings['steps'])
         self.__dict__.update(dict)	# update with attributes from passed event
+        self.phase = np.array(self.phase)
         
   
  
