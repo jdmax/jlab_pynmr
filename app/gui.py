@@ -129,7 +129,7 @@ class MainWindow(QMainWindow):
     def end_event(self):
         '''End event, closing the event instance and calling updates for each tab. Updates plots, prints to file, makes new eventfile if lines are more than 500.
         '''
-        self.event.close_event(self.epics.read_all(), self.anal_tab.base_chosen, self.anal_tab.sub_chosen)
+        self.event.close_event(self.epics.read_all(), self.anal_tab.base_chosen, self.anal_tab.sub_chosen, self.anal_tab.res_chosen)
         self.event.print_event(self.eventfile)
         self.eventfile_lines += 1
         if self.eventfile_lines > 500:            # open new eventfile once the current one has a number of entries

@@ -271,7 +271,7 @@ class Event():
         json_record = json.dumps(json_dict)
         eventfile.write(json_record+'\n')               # write to file as json line
             
-    def close_event(self, epics_reads, base_method, sub_method):
+    def close_event(self, epics_reads, base_method, sub_method, res_method):
         '''Closes event, calls for signal analysis, adds epics reads to event
         
         Args:
@@ -286,23 +286,23 @@ class Event():
         self.stop_time =  datetime.datetime.utcnow()
         self.stop_stamp = self.stop_time.timestamp()
          
-        self.signal_analysis(base_method, sub_method)        
+        self.signal_analysis(base_method, sub_method, res_method)        
         self.epics_reads = epics_reads     
     
-    def signal_analysis(self, base_method, sub_method):
+    def signal_analysis(self, base_method, sub_method, res_method):
         '''Perform analysis on signal
         '''
-        self.basesweep, self.basesub  = base_method(self)
-        
-        # self.fit_params = self.fit_wings(self.wings,self.basesub)          # perform fit to wings
-        # self.poly_curve = np.fromiter((self.poly(self.fit_params,float(x)) for x in range(len(self.basesub))), np.double)   # points of curve
-        # self.polysub = self.basesub - self.poly_curve        # fit subtracted
-        # for x in self.polysub: self.area+=x             # sum area under fit subtracted curve
-        # self.area = self.polysub.sum()
-        
-        self.poly_curve, self.polysub, self.area = sub_method(self)
-        self.pol = self.area*self.cc
-    
+        if np.any(self.scan.phase):  # do the thing
+            self.basesweep, self.basesub  = base_method(self)        
+            self.poly_curve, self.polysub = sub_method(self)
+            self.area, self.pol = res_method(self)            
+        else:               # unless the phase signal is zeroes, then set all to zeroes
+            self.basesweep = np.zeros(len(self.basesweep))
+            self.basesub = np.zeros(len(self.basesweep))
+            self.poly_curve = np.zeros(len(self.basesweep))
+            self.polysub = np.zeros(len(self.basesweep))
+            self.pol, self.area = 0, 0
+            
     def poly(self,p,x):
         '''Third order polynomial for fitting
         
