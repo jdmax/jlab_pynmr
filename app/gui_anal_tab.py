@@ -4,6 +4,7 @@ import numpy as np
 from scipy import optimize
 from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QProgressBar, QStackedWidget, QDoubleSpinBox
 import pyqtgraph as pg
+from lmfit import Model
 
 class AnalTab(QWidget):
     '''Creates analysis tab. Starts threads for run and to update plots'''
@@ -103,7 +104,9 @@ class AnalTab(QWidget):
         # Set up list of baseline options, putting instances into stack
         self.base_opts = []
         self.base_opts.append(StandardBaseline(self))   
-        self.base_opts.append(PolyFitBase(self))        
+        self.base_opts.append(PolyFitBase(self))  
+        self.base_opts.append(CircuitBase(self))  
+        self.base_opts.append(NoBase(self))        
         for o in self.base_opts:
             self.base_combo.addItem(o.name)
             self.base_stack.addWidget(o)
@@ -167,8 +170,8 @@ class AnalTab(QWidget):
         
         #print(self.parent.event.basesub, self.parent.event.poly_curve, self.parent.event.polysub)
         self.sub_plot.setData(self.parent.event.scan.freq_list, self.parent.event.basesub - self.parent.event.basesub.max())
-        self.fit_plot.setData(self.parent.event.scan.freq_list, self.parent.event.poly_curve - self.parent.event.poly_curve.max())
-        self.fitsub_plot.setData(self.parent.event.scan.freq_list, self.parent.event.polysub)
+        self.fit_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitcurve - self.parent.event.fitcurve.max())
+        self.fitsub_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitsub)
         
 class StandardBaseline(QWidget):
     '''Layout and method for standard baseline subtract based on selected baseline from baseline tab
@@ -200,6 +203,8 @@ class StandardBaseline(QWidget):
         '''      
         
         basesweep = event.baseline
+        self.message.setText(f"Baseline from {event.base_time.strftime('%D %H:%M:%S')} UTC")
+        
         
         return basesweep, event.scan.phase - basesweep
     
@@ -306,6 +311,161 @@ class PolyFitBase(QWidget):
     def poly4(self, x, *p): return p[0] + p[1]*x + p[2]*np.power(x,2) + p[3]*np.power(x,3) + p[4]*np.power(x,4)
         
 
+   
+class CircuitBase(QWidget):
+    '''Layout for circuit model fit to the background wings, including methods to produce fits
+    '''
+    
+    def __init__(self, parent):
+        super(QWidget, self).__init__(parent)
+        self.parent = parent
+        self.name = "Circuit Model Fit"
+        self.wings = [0.05, 0.2, 0.8, 0.95]
+                        
+        self.space = QVBoxLayout()
+        self.setLayout(self.space)        
+        self.grid = QGridLayout()
+        
+        self.grid2 = QGridLayout()
+        self.space.addLayout(self.grid2)
+        self.bounds_label = QLabel("Fit bounds (0 to 1):")
+        self.grid2.addWidget(self.bounds_label, 0, 0)
+        self.bounds_sb = []
+        for i, n in enumerate([0.05, 0.2, 0.8, 0.95]):    # setup spin boxes for each bound
+            self.bounds_sb.append(QDoubleSpinBox())
+            self.bounds_sb[i].setValue(n)
+            self.bounds_sb[i].setSingleStep(0.01)
+            self.bounds_sb[i].valueChanged.connect(self.change_wings)
+            
+            self.grid2.addWidget(self.bounds_sb[i], 0, i+1)
+        self.change_wings()    
+        
+        self.message = QLabel()
+        self.space.layout().addWidget(self.message)
+    
+    def switch_here(self):
+        '''Things to do when this stack is chosen'''
+        self.parent.base_region1.setBrush(pg.mkBrush(0, 0, 180, 0))
+        self.parent.base_region2.setBrush(pg.mkBrush(0, 0, 180, 0))
+            
+    def change_wings(self):
+        '''Choose fit frequency bounds'''
+        wings = [n.value() for n in self.bounds_sb]     
+        self.wings =  sorted(wings)
+        for w, b in zip(self.wings, self.bounds_sb):
+            b.setValue(w)      
+        min = self.parent.parent.event.scan.freq_list.min()
+        max = self.parent.parent.event.scan.freq_list.max() 
+        
+        bounds = [w*(max-min)+min for w in self.wings]  
+        self.parent.base_region1.setRegion(bounds[:2])
+        self.parent.base_region2.setRegion(bounds[2:])
+        self.parent.run_analysis()
+        
+    def result(self, event):
+        '''Perform circuit model fit baseline subtraction
+        
+        Arguments:
+            event: Event instance with sweeps to subtract
+            
+        Returns:
+            fit used, baseline subtracted sweep 
+        '''
+        sweep = event.scan.phase
+        bounds = [x*len(sweep) for x in self.wings]
+        data = [(x,y) for x,y in enumerate(sweep) if (bounds[0]<x<bounds[1] or bounds[2]<x<bounds[3])]
+        f = np.array([x for x,y in data])
+        Y = np.array([y for x,y in data])        
+            
+        mod = Model(self.real_curve)
+        params = mod.make_params()
+        params.add('cap', value=18.62, min=1.0, max=60.0)
+        params.add('phase', value=-140, min=-180, max=180)
+        params.add('coil_l', value=30, min=1.0, max=120)
+        params.add('offset', value=0.19, min=-10, max=10)
+        params.add('scale', value=5, min=4.99, max=5.001)
+                
+        result = mod.fit(Y, params, f=f)
+        print(result.best_values)      
+        fit = self.real_curve(range(len(event.scan.phase)), **result.best_values)
+        sub = sweep - fit
+        #text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]
+        #self.message.setText("Fit coefficients:\n"+"\n".join(text_list))
+        return fit, sub
+
+    def full_curve(self, f, cap, phase, coil_l):
+        '''
+        Returns full complex voltage out of Q-curve.  
+        
+        Arguments:
+            f: frequency f in MHz
+            cap: tuning capacitance in pF
+            phase: phase in degrees
+            coil_l: coil inductance in nanoHenries
+        '''
+        w = 2*np.pi*f*1e6         # angular frequency 
+        c = cap*1e-12             # Cap in F
+        u = 0.6                   # Input RF voltage
+        r_cc = 681                # Constant current resistor
+        i = u/r_cc                # Constant current
+        c_stray = 0.0000001e-12   # Stray capacitance
+        l_coil = coil_l*1e-9      # Inductance of coil
+        r_coil = 0.3              # Resistance of coil
+        r_amp = 50                # Impedance of detector
+        r = 10                    # Damping resistor
+
+        zc = 1/np.complex(0,w*c)                     # impedance of cap
+        zc_stray = 1/np.complex(0,w*c_stray)         # impedance of stray cap
+        zl_pure  = np.complex(r_coil,w*l_coil)       # impedance of coil only
+        zl = zl_pure*zc_stray/(zl_pure+zc_stray)     # impedance of coil and stray capacitance
+        z_leg = r + zc + zl                          # impedance of the damping resistor, cap, coil
+        z_tot = r_amp/(1+r_amp/z_leg)                # total impedance of coil, trans line and detector (voltage divider)
+
+        phi = phase*np.pi/180                        # phase bet. constant current and output voltage
+        v_out = i*z_tot*np.exp(np.complex(0,phi))
+        return (v_out)
+        
+    def mag_curve(self, f, cap, phase, coil_l, offset=0, scale=1):
+        ''' Passed list of frequency points, calls full_curve at each point to get magnitude of Q-curve'''
+        v_out = [np.absolute(self.full_curve(k, cap, phase, coil_l)) for k in f]
+        return ([vout*scale+offset for vout in v_out])
+        
+    def real_curve(self, f, cap, phase, coil_l, offset=0, scale=1):
+        ''' Passed list of frequency points, calls full_curve at each point to get real portion of Q-curve'''
+        v_out = [-np.real(self.full_curve(k, cap, phase, coil_l)) for k in f]
+        return ([vout*scale+offset for vout in v_out])
+
+
+
+class NoBase(QWidget):
+    '''Layout for no fit to the background wings, including methods to produce fits
+    '''
+    
+    def __init__(self, parent):
+        super(QWidget, self).__init__(parent)
+        self.parent = parent
+        self.space = QVBoxLayout()
+        self.setLayout(self.space)
+        self.name = "No Baseline Subtraction"
+        self.poly_label = QLabel("No baseline subtraction")
+        self.space.addWidget(self.poly_label)
+        self.message = QLabel()
+        self.space.layout().addWidget(self.message)
+    
+    def switch_here(self):
+        '''Things to do when this stack is chosen'''
+        self.parent.base_region1.setBrush(pg.mkBrush(0, 0, 180, 0))
+        self.parent.base_region2.setBrush(pg.mkBrush(0, 0, 180, 0))        
+        
+    def result(self, event):        
+        '''Only performs sum
+        '''
+        sweep = event.scan.phase
+        fitcurve = np.zeros(len(sweep))
+        sub = sweep - fitcurve
+        area = sub.sum()
+        return fitcurve, sub        
+
 class PolyFitSub(QWidget):
     '''Layout for polynomial fit to the background wings, including methods to produce fits
     '''
@@ -389,7 +549,7 @@ class PolyFitSub(QWidget):
             polyfit used, baseline subtracted sweep 
         '''
     
-        sweep = event.scan.phase
+        sweep = event.basesub
         bounds = [x*len(sweep) for x in self.wings]
         data = [(x,y) for x,y in enumerate(sweep) if (bounds[0]<x<bounds[1] or bounds[2]<x<bounds[3])]
         X = np.array([x for x,y in data])
@@ -412,7 +572,7 @@ class PolyFitSub(QWidget):
 
 
 class NoFit(QWidget):
-    '''Layout for polynomial fit to the background wings, including methods to produce fits
+    '''Layout for no fit to the background wings, including methods to produce fits
     '''
     
     def __init__(self, parent):
@@ -420,8 +580,8 @@ class NoFit(QWidget):
         self.parent = parent
         self.space = QVBoxLayout()
         self.setLayout(self.space)
-        self.name = "Just Integrate"
-        self.poly_label = QLabel("No fit subtraction, just sum")
+        self.name = "No Fit Subtraction"
+        self.poly_label = QLabel("No fit subtraction")
         self.space.addWidget(self.poly_label)
         self.message = QLabel()
         self.space.layout().addWidget(self.message)
@@ -462,11 +622,12 @@ class SumAll(QWidget):
     def result(self, event):        
         '''Only performs sum
         '''
-        sweep = event.basesub
+        sweep = event.fitsub
         fitcurve = np.zeros(len(sweep))
         sub = sweep - fitcurve
         area = sub.sum()
         pol = area*event.cc
+        self.message.setText(f"Area: {area}")
         return area, pol
         
 
@@ -526,10 +687,11 @@ class SumRange(QWidget):
             polyfit used, baseline subtracted sweep 
         '''
     
-        sweep = event.scan.phase
+        sweep = event.fitsub
         bounds = [x*len(sweep) for x in self.wings]
         data = [(x,y) for x,y in enumerate(sweep) if bounds[0]<x<bounds[1]]
         Y = np.array([y for x,y in data])
         area = Y.sum()
         pol = area*event.cc
+        self.message.setText(f"Area: {area}")
         return area, pol

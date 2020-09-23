@@ -144,7 +144,7 @@ class RunTab(QWidget):
         self.dt_box = QGroupBox("Timestamp")
         self.dt_box.setLayout(QVBoxLayout())
         self.results_lay.addWidget(self.dt_box)
-        self.dt_value = QLabel(self.parent.event.stop_time.strftime("%m/%d/%Y\n%H:%M:%S"))
+        self.dt_value = QLabel(self.parent.event.stop_time.strftime("%m/%d/%Y\n%H:%M:%S")+" UTC")
         self.dt_value.setStyleSheet("font:14pt")
         self.dt_value.setAlignment(Qt.AlignCenter)
         self.dt_box.layout().addWidget(self.dt_value)          
@@ -233,7 +233,7 @@ class RunTab(QWidget):
         '''Quit now'''
         self.run_thread.terminate()
         now = datetime.datetime.utcnow()
-        self.parent.status_bar.showMessage('Aborted at '+now.strftime("%H:%M:%S")+'.')
+        self.parent.status_bar.showMessage('Aborted at '+now.strftime("%H:%M:%S")+' UTC.')
         self.abort_button.setEnabled(False)
         self.run_button.setText('Run')
         self.run_button.setEnabled(True)
@@ -248,7 +248,7 @@ class RunTab(QWidget):
         
         now = datetime.datetime.utcnow()
         if not self.run_button.isChecked():     # done and stop
-            self.parent.status_bar.showMessage('Finished event at '+now.strftime("%H:%M:%S")+'.')
+            self.parent.status_bar.showMessage('Finished event at '+now.strftime("%H:%M:%S")+' UTC.')
             self.abort_button.setEnabled(False)
             self.lock_button.setEnabled(True)
             self.run_button.setText('Run')
@@ -257,7 +257,7 @@ class RunTab(QWidget):
             self.update_run_plot()
             self.parent.run_toggle()
         else:                                    # done, continue running
-            self.parent.status_bar.showMessage('Finished event at '+now.strftime("%H:%M:%S")+'. Running sweeps...')
+            self.parent.status_bar.showMessage('Finished event at '+now.strftime("%H:%M:%S")+' UTC. Running sweeps...')
             self.start_thread()
         
     
@@ -266,12 +266,12 @@ class RunTab(QWidget):
         freqs = self.parent.event.scan.freq_list        
         self.raw_plot.setData(self.parent.event.scan.freq_list, self.parent.event.scan.phase)
         self.sub_plot.setData(self.parent.event.scan.freq_list, self.parent.event.basesub)
-        self.fit_plot.setData(self.parent.event.scan.freq_list, self.parent.event.poly_curve)
-        self.fin_plot.setData(self.parent.event.scan.freq_list, self.parent.event.polysub)
+        self.fit_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitcurve)
+        self.fin_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitsub)
               
         self.pol_value.setText('{:.1%}'.format(self.parent.event.pol))                    # updates indicators
         self.area_value.setText('{:.6f}'.format(self.parent.event.area))
-        self.dt_value.setText(self.parent.event.stop_time.strftime("%m/%d/%Y\n%H:%M:%S"))
+        self.dt_value.setText(self.parent.event.stop_time.strftime("%m/%d/%Y\n%H:%M:%S")+" UTC")
         
         hist_data = self.parent.history.to_plot(datetime.datetime.utcnow().timestamp() - 60*int(self.range_value.text()), datetime.datetime.utcnow().timestamp())                                  
         pol_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))

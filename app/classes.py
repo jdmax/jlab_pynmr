@@ -208,7 +208,7 @@ class Event():
         self.baseline  = np.zeros(len(self.scan.phase))
         self.basesweep = np.zeros(len(self.scan.phase))
         self.basesub = []
-        self.polysub = []
+        self.fitsub = []
         self.wings = [0.01,0.25,.75,0.99]  # portion of sweep to use for fit
         
 
@@ -294,13 +294,13 @@ class Event():
         '''
         if np.any(self.scan.phase):  # do the thing
             self.basesweep, self.basesub  = base_method(self)        
-            self.poly_curve, self.polysub = sub_method(self)
+            self.fitcurve, self.fitsub = sub_method(self)
             self.area, self.pol = res_method(self)            
         else:               # unless the phase signal is zeroes, then set all to zeroes
             self.basesweep = np.zeros(len(self.basesweep))
             self.basesub = np.zeros(len(self.basesweep))
-            self.poly_curve = np.zeros(len(self.basesweep))
-            self.polysub = np.zeros(len(self.basesweep))
+            self.fitcurve = np.zeros(len(self.basesweep))
+            self.fitsub = np.zeros(len(self.basesweep))
             self.pol, self.area = 0, 0
             
     def poly(self,p,x):
