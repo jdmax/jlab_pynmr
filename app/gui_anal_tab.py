@@ -69,9 +69,10 @@ class AnalTab(QWidget):
         
         self.base_wid = pg.PlotWidget(title='Baseline Subtraction')
         self.base_wid.showGrid(True,True)
-        self.raw_plot = self.base_wid.plot([], [], pen=self.base_pen) 
-        self.base_plot = self.base_wid.plot([], [], pen=self.base2_pen) 
-        self.basesub_plot = self.base_wid.plot([], [], pen=self.base3_pen) 
+        self.base_wid.addLegend(offset=(0.5, 0))
+        self.raw_plot = self.base_wid.plot([], [], pen=self.base_pen, name='Raw Signal') 
+        self.base_plot = self.base_wid.plot([], [], pen=self.base2_pen, name='Baseline') 
+        self.basesub_plot = self.base_wid.plot([], [], pen=self.base3_pen, name='Subtracted') 
         self.base_region1 = pg.LinearRegionItem(pen=pg.mkPen(0, 180, 0, 0), brush=pg.mkBrush(0, 180, 0, 0))
         self.base_region1.setMovable(False)
         self.base_region1.setRegion([self.parent.event.scan.freq_list.min(), self.parent.event.scan.freq_list.min()])
@@ -82,11 +83,12 @@ class AnalTab(QWidget):
         self.base_wid.addItem(self.base_region2)
         self.right.addWidget(self.base_wid)
 
-        self.sub_wid = pg.PlotWidget(title='Fit Subtraction')
+        self.sub_wid = pg.PlotWidget(title='Fit Subtraction and Results')
         self.sub_wid.showGrid(True,True)
-        self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen) 
-        self.fit_plot = self.sub_wid.plot([], [], pen=self.sub2_pen) 
-        self.fitsub_plot = self.sub_wid.plot([], [], pen=self.sub3_pen) 
+        self.sub_wid.addLegend(offset=(0.5, 0))
+        self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen, name='Unchanged') 
+        self.fit_plot = self.sub_wid.plot([], [], pen=self.sub2_pen, name='Fit') 
+        self.fitsub_plot = self.sub_wid.plot([], [], pen=self.sub3_pen, name='Subtracted') 
         self.sub_region1 = pg.LinearRegionItem(pen=pg.mkPen(0, 180, 0, 0), brush=pg.mkBrush(0, 0, 180, 0))
         self.sub_region1.setMovable(False)
         self.sub_region1.setRegion([self.parent.event.scan.freq_list.min(), self.parent.event.scan.freq_list.min()])
@@ -125,11 +127,14 @@ class AnalTab(QWidget):
         
         # Setup default methods
         self.base_combo.currentIndexChanged.connect(self.change_base)
+        self.base_combo.setCurrentIndex(self.event.config.settings['analysis']['base_def'])
+        self.change_base(self.event.config.settings['analysis']['base_def'])
         self.sub_combo.currentIndexChanged.connect(self.change_sub)
+        self.sub_combo.setCurrentIndex(self.event.config.settings['analysis']['sub_def'])
+        self.change_sub(self.event.config.settings['analysis']['sub_def'])
         self.res_combo.currentIndexChanged.connect(self.change_res)
-        self.change_base(0)
-        self.change_sub(0)
-        self.change_res(0)
+        self.res_combo.setCurrentIndex(self.event.config.settings['analysis']['res_def'])
+        self.change_res(self.event.config.settings['analysis']['res_def'])
     
     def change_base(self, i):
         '''Set base_chosen to correct baseline class instance
@@ -216,7 +221,7 @@ class PolyFitBase(QWidget):
         super(QWidget, self).__init__(parent)
         self.parent = parent
         self.name = "Polynomial Fit to Wings"
-        self.wings = [0.05, 0.2, 0.8, 0.95]
+        self.wings = self.parent.event.config.settings['analysis']['wings']
                         
         self.space = QVBoxLayout()
         self.setLayout(self.space)        
@@ -237,7 +242,7 @@ class PolyFitBase(QWidget):
         self.bounds_label = QLabel("Fit bounds (0 to 1):")
         self.grid2.addWidget(self.bounds_label, 0, 0)
         self.bounds_sb = []
-        for i, n in enumerate([0.05, 0.2, 0.8, 0.95]):    # setup spin boxes for each bound
+        for i, n in enumerate(self.wings):    # setup spin boxes for each bound
             self.bounds_sb.append(QDoubleSpinBox())
             self.bounds_sb[i].setValue(n)
             self.bounds_sb[i].setSingleStep(0.01)
@@ -300,8 +305,14 @@ class PolyFitBase(QWidget):
         pstd = np.sqrt(np.diag(pcov))
         fit = self.poly(range(len(sweep)), *pf)
         sub = sweep - fit
+        
+        residuals = Y - self.poly(X, *pf)
+        ss_res = np.sum(residuals**2)
+        ss_tot = np.sum((Y - np.mean(Y))**2)
+        r_squared = 1 - (ss_res / ss_tot)        
+        
         text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]
-        self.message.setText("Fit coefficients:\n"+"\n".join(text_list))
+        self.message.setText(f"Fit coefficients: \t \t \t R-squared: {r_squared:.2f}\n"+"\n".join(text_list))
         return fit, sub
         
     def poly2(self, x, *p): return p[0] + p[1]*x + p[2]*np.power(x,2)   
@@ -323,7 +334,7 @@ class CircuitBase(QWidget):
         super(QWidget, self).__init__(parent)
         self.parent = parent
         self.name = "Circuit Model Fit"
-        self.wings = [0.05, 0.2, 0.8, 0.95]
+        self.wings = self.parent.event.config.settings['analysis']['wings']
                         
         self.space = QVBoxLayout()
         self.setLayout(self.space)        
@@ -334,7 +345,7 @@ class CircuitBase(QWidget):
         self.bounds_label = QLabel("Fit bounds (0 to 1):")
         self.grid2.addWidget(self.bounds_label, 0, 0)
         self.bounds_sb = []
-        for i, n in enumerate([0.05, 0.2, 0.8, 0.95]):    # setup spin boxes for each bound
+        for i, n in enumerate(self.wings):    # setup spin boxes for each bound
             self.bounds_sb.append(QDoubleSpinBox())
             self.bounds_sb[i].setValue(n)
             self.bounds_sb[i].setSingleStep(0.01)
@@ -477,7 +488,7 @@ class PolyFitSub(QWidget):
         super(QWidget, self).__init__(parent)
         self.parent = parent
         self.name = "Polynomial Fit to Wings"
-        self.wings = [0.05, 0.2, 0.8, 0.95]
+        self.wings = self.parent.event.config.settings['analysis']['wings']
         
         self.space = QVBoxLayout()
         self.setLayout(self.space)        
@@ -498,7 +509,7 @@ class PolyFitSub(QWidget):
         self.bounds_label = QLabel("Fit bounds (0 to 1):")
         self.grid2.addWidget(self.bounds_label, 0, 0)
         self.bounds_sb = []
-        for i, n in enumerate([0.05, 0.2, 0.8, 0.95]):    # setup spin boxes for each bound
+        for i, n in enumerate(self.wings):    # setup spin boxes for each bound
             self.bounds_sb.append(QDoubleSpinBox())
             self.bounds_sb[i].setValue(n)
             self.bounds_sb[i].setSingleStep(0.01)
@@ -562,8 +573,14 @@ class PolyFitSub(QWidget):
         fit = self.poly(range(len(sweep)), *pf)
         sub = sweep - fit 
         area = sub.sum()
+        
+        residuals = Y - self.poly(X, *pf)
+        ss_res = np.sum(residuals**2)
+        ss_tot = np.sum((Y - np.mean(Y))**2)
+        r_squared = 1 - (ss_res / ss_tot)    
+        
         text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]
-        self.message.setText("Fit coefficients:\n"+"\n".join(text_list))
+        self.message.setText(f"Fit coefficients: \t \t \t R-squared: {r_squared:.2f}\n"+"\n".join(text_list))
         return fit, sub
         
     def poly2(self, x, *p): return p[0] + p[1]*x + p[2]*np.power(x,2)   
@@ -575,7 +592,7 @@ class PolyFitSub(QWidget):
 
 
 class NoFit(QWidget):
-    '''Layout for no fit to the background wings, including methods to produce fits
+    '''Layout for no fit to the background wings, including methods 
     '''
     
     def __init__(self, parent):
@@ -604,7 +621,7 @@ class NoFit(QWidget):
         return fitcurve, sub
         
 class SumAll(QWidget):
-    '''Layout for polynomial fit to the background wings, including methods to produce fits
+    '''Layout and methods for integrtation over full signal range
     '''
     
     def __init__(self, parent):
@@ -635,14 +652,14 @@ class SumAll(QWidget):
         
 
 class SumRange(QWidget):
-    '''Layout for polynomial fit to the background wings, including methods to produce fits
+    '''Layout and methods for integration within a given range
     '''
     
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
         self.parent = parent
         self.name = "Integrate within Range"
-        self.wings = [0.05, 0.2, 0.8, 0.95]
+        self.range = self.parent.event.config.settings['analysis']['sum_range']
         
         self.space = QVBoxLayout()
         self.setLayout(self.space)      
@@ -652,7 +669,7 @@ class SumRange(QWidget):
         self.bounds_label = QLabel("Integration bounds (0 to 1):")
         self.grid2.addWidget(self.bounds_label, 0, 0)
         self.bounds_sb = []
-        for i, n in enumerate([0.4, 0.6]):    # setup spin boxes for each bound
+        for i, n in enumerate(self.range):    # setup spin boxes for each bound
             self.bounds_sb.append(QDoubleSpinBox())
             self.bounds_sb[i].setValue(n)
             self.bounds_sb[i].setSingleStep(0.01)
@@ -698,3 +715,35 @@ class SumRange(QWidget):
         pol = area*event.cc
         self.message.setText(f"Area: {area}")
         return area, pol
+        
+class PeakHeight(QWidget):
+    '''Layout and methods for peak height results method
+    '''
+    
+    def __init__(self, parent):
+        super(QWidget, self).__init__(parent)
+        self.parent = parent
+        self.space = QVBoxLayout()
+        self.setLayout(self.space)
+        self.name = "Peak Height"
+        self.poly_label = QLabel("Sum Full Range")
+        self.space.addWidget(self.poly_label)
+        self.message = QLabel()
+        self.space.layout().addWidget(self.message)
+    
+    def switch_here(self):
+        '''Things to do when this stack is chosen'''
+        self.parent.res_region.setBrush(pg.mkBrush(0, 0, 180, 0))   
+        
+    def result(self, event):        
+        '''Find peak height
+        '''
+        sweep = event.fitsub
+        fitcurve = np.zeros(len(sweep))
+        sub = sweep - fitcurve
+        area = sub.sum()
+        pol = area*event.cc
+        self.message.setText(f"Area: {area}")
+        return area, pol
+                
+        

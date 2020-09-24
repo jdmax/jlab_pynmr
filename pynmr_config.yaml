@@ -44,6 +44,18 @@ settings:
         ip: 192.168.86.24       # R&S IP
         power: 100              # RF amplitude in mV
         timeout: 1              # Telnet timeout in secs
+    analysis:
+        base_def: 0             # index of default baseline subtraction method      
+        sub_def: 0              # index of default fit subtraction method   
+        res_def: 0              # index of default results analysis method   
+        wings:                  # default bounds for fit wings, must be four numbers between 0 and 1
+            - 0.01
+            - 0.30
+            - 0.70
+            - 0.99
+        sum_range:              # default bounds for range integration option
+            - 0.35
+            - 0.65
 epics_reads:                    # EPICS channels to read: key is channel name, value is string to display
     4he: 4He Temp (K)
     3he: 3He Temp (K)
