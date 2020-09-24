@@ -105,7 +105,7 @@ class AnalTab(QWidget):
         self.base_opts = []
         self.base_opts.append(StandardBaseline(self))   
         self.base_opts.append(PolyFitBase(self))  
-        self.base_opts.append(CircuitBase(self))  
+        # self.base_opts.append(CircuitBase(self))   Not ready for prime time
         self.base_opts.append(NoBase(self))        
         for o in self.base_opts:
             self.base_combo.addItem(o.name)
