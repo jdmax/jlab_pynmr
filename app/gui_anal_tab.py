@@ -314,6 +314,9 @@ class PolyFitBase(QWidget):
    
 class CircuitBase(QWidget):
     '''Layout for circuit model fit to the background wings, including methods to produce fits
+    
+    NOT IMPLEMENTED. Fits not quite converging, slow.
+    
     '''
     
     def __init__(self, parent):
