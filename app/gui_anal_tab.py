@@ -121,6 +121,7 @@ class AnalTab(QWidget):
         self.res_opts = []
         self.res_opts.append(SumAll(self))
         self.res_opts.append(SumRange(self))
+        self.res_opts.append(PeakHeight(self))
         for o in self.res_opts:
             self.res_combo.addItem(o.name)
             self.res_stack.addWidget(o)
@@ -717,7 +718,7 @@ class SumRange(QWidget):
         return area, pol
         
 class PeakHeight(QWidget):
-    '''Layout and methods for peak height results method
+    '''Layout and methods for peak height results method. Area attribute is filled with peak height instead.
     '''
     
     def __init__(self, parent):
@@ -726,7 +727,7 @@ class PeakHeight(QWidget):
         self.space = QVBoxLayout()
         self.setLayout(self.space)
         self.name = "Peak Height"
-        self.poly_label = QLabel("Sum Full Range")
+        self.poly_label = QLabel("When using this method, the peak height replaces\nthe area throughout the application.")
         self.space.addWidget(self.poly_label)
         self.message = QLabel()
         self.space.layout().addWidget(self.message)
@@ -739,11 +740,12 @@ class PeakHeight(QWidget):
         '''Find peak height
         '''
         sweep = event.fitsub
-        fitcurve = np.zeros(len(sweep))
-        sub = sweep - fitcurve
-        area = sub.sum()
+        max = np.max(sweep)
+        min = np.min(sweep)        
+        area = max if abs(max)>abs(min) else min   # Using peak height represent area
+        
         pol = area*event.cc
-        self.message.setText(f"Area: {area}")
+        self.message.setText(f"Peak height: {area}")
         return area, pol
                 
         
