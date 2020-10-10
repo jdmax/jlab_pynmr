@@ -7,7 +7,7 @@ import pyqtgraph as pg
 from lmfit import Model
 
 class AnalTab(QWidget):
-    '''Creates analysis tab. Starts threads for run and to update plots'''
+    '''Creates analysis tab. '''
 
     def __init__(self, parent):
         super(QWidget,self).__init__(parent)

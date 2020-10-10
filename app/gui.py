@@ -185,7 +185,7 @@ class MainWindow(QMainWindow):
     def connect_daq(self):
         '''Try test connect to DAQ devices, turn on run buttons if successful'''
         try:
-            self.daq = DAQConnection(self.config, 1, False)     # open connection to DAQ of choice
+            self.daq = DAQConnection(self.config, 1)     # open connection to DAQ of choice
 
             self.status_bar.showMessage(self.daq.message)
             logging.info(self.daq.message)

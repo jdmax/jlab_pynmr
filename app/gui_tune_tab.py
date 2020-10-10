@@ -17,9 +17,12 @@ class TuneTab(QWidget):
         super(QWidget,self).__init__(parent)
         self.__dict__.update(parent.__dict__)
         self.parent = parent
-        self.running = False
         
-        self.running_scan = RunningScan(self.config,1000)
+        self.running = False   # False will stop the running thread
+        self.dac_value = 0     # Starting DAC channel voltage   
+        self.dac_c = 3
+        
+        self.running_scan = RunningScan(self.config, 1000)
         
         self.dio_pen = pg.mkPen(color=(250, 0, 0), width=1)
         self.pha_pen = pg.mkPen(color=(0, 0, 204), width=1)
@@ -57,8 +60,8 @@ class TuneTab(QWidget):
         self.diode_spin = QDoubleSpinBox()
         self.diode_spin.setRange(0,14)
         self.diode_spin.setSingleStep(0.01)
-        self.diode_slider.valueChanged.connect(lambda: self.diode_spin.setValue(float(self.diode_slider.value()/100)))
-        self.diode_spin.valueChanged.connect(lambda: self.diode_slider.setValue(int(self.diode_spin.value()*100)))
+        self.diode_slider.valueChanged.connect(self.diode_slider_changed)
+        self.diode_spin.valueChanged.connect(self.diode_spin_changed)
         self.diode_box.layout().addWidget(self.diode_spin)
         self.vl1 = QLabel('Volts')
         self.diode_box.layout().addWidget(self.vl1)
@@ -77,8 +80,8 @@ class TuneTab(QWidget):
         self.phase_spin = QDoubleSpinBox()
         self.phase_spin.setRange(0,15)
         self.phase_spin.setSingleStep(0.01)
-        self.phase_slider.valueChanged.connect(lambda: self.phase_spin.setValue(float(self.phase_slider.value()/100)))
-        self.phase_spin.valueChanged.connect(lambda: self.phase_slider.setValue(int(self.phase_spin.value()*100)))
+        self.phase_slider.valueChanged.connect(self.phase_slider_changed)
+        self.phase_spin.valueChanged.connect(self.phase_spin_changed)
         self.phase_box.layout().addWidget(self.phase_spin)
         self.vl2 = QLabel('Volts')
         self.phase_box.layout().addWidget(self.vl2)
@@ -89,6 +92,47 @@ class TuneTab(QWidget):
         self.main.addLayout(self.lower)
         self.setLayout(self.main)
         
+    def phase_slider_changed(self):
+        '''Slider value changed'''
+        self.phase_spin.setValue(float(self.phase_slider.value()/100))
+        
+    def phase_spin_changed(self):
+        '''Spinbox value changed'''
+        self.phase_slider.setValue(int(self.phase_spin.value()*100))
+        self.parent.config.phase_vout = self.phase_spin.value()
+        self.send_to_daq(self.parent.config.phase_vout, 2)
+        
+    def diode_slider_changed(self):
+        '''Slider value changed'''
+        self.diode_spin.setValue(float(self.diode_slider.value()/100))
+        #self.parent.config.diode_vout = float(self.diode_slider.value()/100)
+        #self.send_to_daq(self.parent.config.diode_vout, 1)
+        
+    def diode_spin_changed(self):
+        '''Spinbox value changed'''
+        self.diode_slider.setValue(int(self.diode_spin.value()*100))
+        self.parent.config.diode_vout = self.diode_spin.value()
+        self.send_to_daq(self.parent.config.diode_vout, 1)
+        
+    def send_to_daq(self, volt, dac_c):
+        '''Send DAC voltage to DAQ, check to see if tune is running. If not, start DAQConnection to send.
+        
+        Arguments:
+            value: Voltage to send
+            dac_c: channel, 1 (diode), 2 (phase), or 3 (both same)
+        
+        '''
+        self.dac_v = volt
+        self.dac_c = dac_c
+        
+        if not self.running:
+            self.daq = DAQConnection(self.config, 4, True)
+            if self.daq.set_dac(self.dac_v, self.dac_c):
+                print("Set DAC:", self.dac_c,  self.dac_v)
+            else:
+                print("Error setting DAC.")
+            del self.daq
+ 
     def run_pushed(self):
         '''Start tune loop if conditions met'''
         
@@ -144,6 +188,8 @@ class TuneThread(QThread):
         QThread.__init__(self)
         self.config = config
         self.parent = parent 
+        self.dac_v = 0
+        self.dac_c = 0
         try:
             self.daq = DAQConnection(self.config, 4, True)
         except Exception as e:
@@ -158,6 +204,10 @@ class TuneThread(QThread):
         '''Main run loop. Request start of sweeps, receive sweeps, update event, report.'''
         
         while self.parent.running:
+            if (self.dac_v != self.parent.dac_value) or (self.dac_c != self.parent.dac_c):
+                self.dac_v = self.parent.dac_value
+                self.dac_c = self.parent.dac_c
+                self.daq.set_dac(self.dac_v, self.dac_c)               
             self.daq.start_sweeps()              # send command to start sweeps
             new_sigs = self.daq.get_chunk()
             while new_sigs[0] < self.config.settings['tune_per_chunk']:   # for NIDAQ, we need to wait for all the sweeps

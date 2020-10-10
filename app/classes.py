@@ -23,12 +23,6 @@ class ConfigItem():
         self.value = value
         self.text = text
         self.valid = valid
-        #self.line_edit = QLineEdit(str(value))
-        #self.line_edit.setValidator(valid)
-        #self.line_edit.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        #self.line_edit.setMinimumWidth(60)
-        #self.label = QLabel(text)
-
     def set_config(self, value):
         '''Change config settings to those in the LineEdit boxes, changing string to correct type based on validator
         
@@ -53,12 +47,16 @@ class Config():
         channel: Dict of channel settings; keys are species, cent_freq, mod_freq, power
         controls: Dict of ConfigItems for controls
         freq_list: 1D Numpy array of frequency points in sweep as a float, in MHz
-        freq_bytes: List of frequency steps, as bytes of 16 bit binary word for R&S:        https://www.rohde-schwarz.com/webhelp/sma100a_webhelp_1/Content/fb359696521a42fa.htm
+        freq_bytes: List of frequency steps, as bytes of 16 bit binary word for R&S: https://www.rohde-schwarz.com/webhelp/sma100a_webhelp_1/Content/fb359696521a42fa.htm        
+        diode_vout: Voltage on tank circuit varactor capacitor for tuning 
+        phase_vout: Voltage on electronic phase adjust for tuning 
     '''
     def __init__(self, channel, settings):
     
         self.channel = channel
         self.settings = settings  
+        self.diode_vout = 0
+        self.phase_vout = 0
 
         self.controls = {}          # NMR setings requiring control on run tab     
         self.controls['sweeps'] = ConfigItem(640, 'Sweeps per Event', QIntValidator(10, 1000000))

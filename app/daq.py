@@ -19,11 +19,12 @@ class DAQConnection():
         tune_mode: Use tune mode, with only one chuck
     '''
     
-    def __init__(self, config, timeout, tune_mode):
+    def __init__(self, config, timeout, tune_mode=False):
         
         self.daq_type = config.settings['daq_type']
         self.tune_mode = tune_mode
         self.config = config
+        
         if self.daq_type=='FPGA':
             
             try:
@@ -99,6 +100,18 @@ class DAQConnection():
             d_test = -self.test_diode + np.random.rand(len(self.test_diode))*0.00001*num_in_chunk 
             return (num_in_chunk, p_test, d_test)
       
+    def set_dac(self, dac_v, dac_c):
+        '''Set DAC voltage for tuning diode or phase
+        '''
+        if self.daq_type=='FPGA':
+            self.udp.dac_v = dac_v 
+            self.udp.dac_c = dac_c
+            return self.udp.set_register()
+            
+      
+        if self.daq_type=='Test':
+            print("DAC", dac_v, dac_c)
+            return
 class UDP():
     '''Handle UDP commands and responses
     
@@ -112,6 +125,8 @@ class UDP():
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
         self.s.settimeout(1)
         self.config = config
+        self.dac_v = 0
+        self.dac_c = 0
         self.ip = config.settings['fpga_settings']['ip']
         self.port = config.settings['fpga_settings']['port']
         self.s.connect((self.ip, self.port))
@@ -146,26 +161,32 @@ class UDP():
         return data.hex()
         
     def set_register(self):
-        '''Send set register command and string
+        '''Send set register command and string        
         Returns:
             Boolean denoting success
             '''
             
         # Make ADC Config int from list of bools
-        test_mode = True
+        test_mode = False
+        reset = False
         phase_drate1 = False
         phase_drate0 = False
-        phase_fpath = True
-        diode_drate1 = True
+        phase_fpath = False
+        diode_drate1 = False
         diode_drate0 = False
         diode_fpath = False
-        states = [test_mode, False, False, False, False, False, False, False, False, False, phase_drate1, phase_drate0, phase_fpath, diode_drate1, diode_drate0, diode_fpath]
+        rf_off = False
+        states = [test_mode, reset, False, False, False, False, False, False, False, rf_off, phase_drate1, phase_drate0, phase_fpath, diode_drate1, diode_drate0, diode_fpath]
         adcbits = ''.join([str(int(i)) for i in states])
-        ADCConfig = int(adcbits,2)
-            
+        #ADCConfig = int(adcbits,2)
+        ADCConfig = 0x0036
+        RegSetoHost_To_RESET_SWEEP = bytes.fromhex('0F00 02        0A00    0200    8002     0001            0C40               FF00')
+        # Set up DAC value from desired voltage: Vout =  5 * (DacValue / 65535) * 3.2037
+        dac_value = int(self.dac_v * (65535/5/3.2037))
+                    
         # Make Resiter byte string from other inputs
-        # Number Bytes LSB, Nymber Bytes MSB, LSByte GenSetTime, MSByte GenSetTime, LSByte NumOfSamToAve, MByte NumOfSamToAve, LSByte TotSweepCycle, MSByte TotSweepCycle, LSByte IntSweepCycle, MSByte IntSweepCycle, LSByte AdcConfig, MSByte AdcConfig
-        RegSets = [bytes.fromhex('0F00'),bytes.fromhex('02')]
+        # Number Bytes LSB, Nymber Bytes MSB, LSByte GenSetTime, MSByte GenSetTime, LSByte NumOfSamToAve, MByte NumOfSamToAve, LSByte TotSweepCycle, MSByte TotSweepCycle, LSByte IntSweepCycle, MSByte IntSweepCycle, LSByte AdcConfig, MSByte AdcConfig, LSByte Dac Value, MSByte Dac Value, LSByte Dac Config, MSByte Dac Config
+        RegSets = [bytes.fromhex('1100'),bytes.fromhex('02')]
         RegSets.append(self.config.settings['fpga_settings']['dwell'].to_bytes(2,'little'))
         RegSets.append(self.config.settings['fpga_settings']['per_point'].to_bytes(2,'little'))
         if self.tune_mode:
@@ -174,8 +195,9 @@ class UDP():
         else:
             RegSets.append(self.config.controls['sweeps'].value.to_bytes(2,'little'))
             RegSets.append(self.config.settings['num_per_chunk'].to_bytes(2,'little'))
-        RegSets.append(ADCConfig.to_bytes(2,'little'))
-        RegSets.append(bytes.fromhex('FF00'))
+        RegSets.append(ADCConfig.to_bytes(2,'little'))        
+        RegSets.append(dac_value.to_bytes(2,'little'))
+        RegSets.append(self.dac_c.to_bytes(2,'little'))
         RegSetString = b''.join(RegSets)
         
         self.s.send(RegSetString)
@@ -200,10 +222,12 @@ class UDP():
             NumBytes_byte = (self.config.settings['steps']*2+3).to_bytes(2,'little')
             FreqList = range(1,self.config.settings['steps']+1)
             FreqBytes = [b.to_bytes(2,'little') for b in FreqList]
-            TestTable = NumBytes_byte + bytes.fromhex('04') + b''.join(FreqBytes)
+            TestTable = NumBytes_byte + bytes.fromhex('04') + b''.join(FreqBytes)            
             self.s.send(TestTable)
+            #print("Set Freq: ", TestTable.hex())
         else:
             self.s.send(freqs)
+            #print("Set Freq: ", freqs.hex())
         data, addr = self.s.recvfrom(1024)    # buffer size is 1024
         #print("Set Freq Message: ", data.hex())
         if data == self.ok:
@@ -292,7 +316,7 @@ class TCP():
         pchunk = np.fromiter(((int.from_bytes(i,'little'))/(num_in_chunk*2) for i in pchunk_byte_list), np.int64)   # average (number of sweeps times two for up and down) and put in numpy array
         dchunk = np.fromiter(((int.from_bytes(i,'little'))/(num_in_chunk*2) for i in dchunk_byte_list), np.int64)
                         
-        return (num_in_chunk, pchunk, dchunk)
+        return (num_in_chunk, pchunk*3/8388607/0.5845, dchunk*3/8388607/0.5845)  # converting value to voltage
         
 class RS_Connection():
     '''Handle connection to Rohde and Schwarz SMA100A via Telnet. 

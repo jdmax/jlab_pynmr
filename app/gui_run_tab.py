@@ -332,7 +332,7 @@ class RunThread(QThread):
         self.sweep_num = config.controls['sweeps'].value
         self.rec_sweeps = 0     # number of total sweeps in set that we have received
         try:
-            self.daq = DAQConnection(self.config, 4, False)
+            self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_run'], False)
         except Exception as e:
             print('Exception: '+str(e))
                 
