@@ -5,3 +5,4 @@ log/*
 te/*
 !te/.gitkeep
 docs/
+app/__pycache__/*
