@@ -73,7 +73,7 @@ class Config():
             print('Using standard sweep profile.')
             freq_ints = np.linspace(-32768, 32767, num=self.settings['steps']).astype('int32')            # numpy array 
         self.freq_list = self.channel['cent_freq'] + self.channel['mod_freq']/1000*(freq_ints)/32768    # in MHz
-        self.freq_bytes = [int(i).to_bytes(2, byteorder='big', signed=True) for i in freq_ints]   # bytes for 16-bit word
+        self.freq_bytes = [int(i).to_bytes(2, byteorder='little', signed=True) for i in freq_ints]   # bytes for 16-bit word
            
 class Scan():
     '''Data object for averaged set of sweeps, with method to average.

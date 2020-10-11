@@ -167,19 +167,19 @@ class UDP():
             '''
             
         # Make ADC Config int from list of bools
-        test_mode = False
+        test_mode = True
         reset = False
-        phase_drate1 = False
-        phase_drate0 = False
+        phase_drate1 = True
+        phase_drate0 = True
         phase_fpath = False
-        diode_drate1 = False
-        diode_drate0 = False
+        diode_drate1 = True
+        diode_drate0 = True
         diode_fpath = False
         rf_off = False
         states = [test_mode, reset, False, False, False, False, False, False, False, rf_off, phase_drate1, phase_drate0, phase_fpath, diode_drate1, diode_drate0, diode_fpath]
         adcbits = ''.join([str(int(i)) for i in states])
-        #ADCConfig = int(adcbits,2)
-        ADCConfig = 0x0036
+        ADCConfig = int(adcbits,2)
+        #ADCConfig = 0x0036
         RegSetoHost_To_RESET_SWEEP = bytes.fromhex('0F00 02        0A00    0200    8002     0001            0C40               FF00')
         # Set up DAC value from desired voltage: Vout =  5 * (DacValue / 65535) * 3.2037
         dac_value = int(self.dac_v * (65535/5/3.2037))
@@ -195,7 +195,8 @@ class UDP():
         else:
             RegSets.append(self.config.controls['sweeps'].value.to_bytes(2,'little'))
             RegSets.append(self.config.settings['num_per_chunk'].to_bytes(2,'little'))
-        RegSets.append(ADCConfig.to_bytes(2,'little'))        
+        RegSets.append(ADCConfig.to_bytes(2,'little'))  
+        print(ADCConfig.to_bytes(2,'little'))
         RegSets.append(dac_value.to_bytes(2,'little'))
         RegSets.append(self.dac_c.to_bytes(2,'little'))
         RegSetString = b''.join(RegSets)
@@ -218,6 +219,7 @@ class UDP():
       
         NumBytes_byte = (self.config.settings['steps']*2+3).to_bytes(2,'little')
         freqs = NumBytes_byte + bytes.fromhex('04') + b''.join(freq_bytes)
+        #[print(f.hex()) for f in freq_bytes]
         if self.config.settings['fpga_settings']['test_freqs']:
             NumBytes_byte = (self.config.settings['steps']*2+3).to_bytes(2,'little')
             FreqList = range(1,self.config.settings['steps']+1)

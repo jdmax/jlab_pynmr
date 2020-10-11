@@ -32,7 +32,7 @@ settings:
         tcp_buffer: 1460        # Default TCP buffer size  (int)
         dwell: 10               # Settle time in ms between frequency switch and ADC read (int)
         per_point: 2            # Samples taken and averaged at each frequency point of a sweep (int)
-        test_freqs: True        # Send test frequencies to FPGA
+        test_freqs: False        # Send test frequencies to FPGA
         timeout_run: 20         # TCP timeout for running sweeps
     nidaq_settings:
         phase_chan: Dev1/ai0
