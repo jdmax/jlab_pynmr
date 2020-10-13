@@ -14,7 +14,7 @@ channels:
         cent_freq: 32.7       
         mod_freq: 400.0        
         power: 200.0      
-        sweep_file: app/standard_sweep.txt  
+        sweep_file: tri  
 settings:
     default_channel: Proton     # Default from channels listed above
     daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ or Test)
@@ -31,8 +31,8 @@ settings:
         port: 1028              # Device port  (int)
         tcp_buffer: 1460        # Default TCP buffer size  (int)
         dwell: 10               # Settle time in ms between frequency switch and ADC read (int)
+        test_freqs: False       # Send test frequencies to FPGA
         per_point: 2            # Samples taken and averaged at each frequency point of a sweep (int)
-        test_freqs: False        # Send test frequencies to FPGA
         timeout_run: 20         # TCP timeout for running sweeps
     nidaq_settings:
         phase_chan: Dev1/ai0

@@ -64,7 +64,7 @@ class Config():
         
         # Make list of frequencies and list of bytes to send to R&S
         # https://www.rohde-schwarz.com/webhelp/sma100a_webhelp_1/Content/fb359696521a42fa.htm
-        # go from 32767 to -32767, convert to bytes        
+        # go from -32768 to 32767, convert to bytes twqs complement        
         # even distribution of steps in range
         if os.path.exists(channel['sweep_file']):
             freq_ints = np.loadtxt(channel['sweep_file'], dtype=np.int32)

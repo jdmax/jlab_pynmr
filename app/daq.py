@@ -180,7 +180,7 @@ class UDP():
         adcbits = ''.join([str(int(i)) for i in states])
         ADCConfig = int(adcbits,2)
         #ADCConfig = 0x0036
-        RegSetoHost_To_RESET_SWEEP = bytes.fromhex('0F00 02        0A00    0200    8002     0001            0C40               FF00')
+        
         # Set up DAC value from desired voltage: Vout =  5 * (DacValue / 65535) * 3.2037
         dac_value = int(self.dac_v * (65535/5/3.2037))
                     
@@ -196,7 +196,6 @@ class UDP():
             RegSets.append(self.config.controls['sweeps'].value.to_bytes(2,'little'))
             RegSets.append(self.config.settings['num_per_chunk'].to_bytes(2,'little'))
         RegSets.append(ADCConfig.to_bytes(2,'little'))  
-        print(ADCConfig.to_bytes(2,'little'))
         RegSets.append(dac_value.to_bytes(2,'little'))
         RegSets.append(self.dac_c.to_bytes(2,'little'))
         RegSetString = b''.join(RegSets)
@@ -222,8 +221,9 @@ class UDP():
         #[print(f.hex()) for f in freq_bytes]
         if self.config.settings['fpga_settings']['test_freqs']:
             NumBytes_byte = (self.config.settings['steps']*2+3).to_bytes(2,'little')
-            FreqList = range(1,self.config.settings['steps']+1)
-            FreqBytes = [b.to_bytes(2,'little') for b in FreqList]
+            #FreqList = range(1,self.config.settings['steps']+1)
+            FreqList = range(-self.config.settings['steps'],0)
+            FreqBytes = [b.to_bytes(2,'little', signed=True) for b in FreqList]
             TestTable = NumBytes_byte + bytes.fromhex('04') + b''.join(FreqBytes)            
             self.s.send(TestTable)
             #print("Set Freq: ", TestTable.hex())
@@ -315,9 +315,8 @@ class TCP():
                     
         pchunk_byte_list = [chunk['phase'][i:i + 5] for i in range(0, len(chunk['phase']), 5)]
         dchunk_byte_list = [chunk['diode'][i:i + 5] for i in range(0, len(chunk['diode']), 5)]
-        pchunk = np.fromiter(((int.from_bytes(i,'little'))/(num_in_chunk*2) for i in pchunk_byte_list), np.int64)   # average (number of sweeps times two for up and down) and put in numpy array
-        dchunk = np.fromiter(((int.from_bytes(i,'little'))/(num_in_chunk*2) for i in dchunk_byte_list), np.int64)
-                        
+        pchunk = np.fromiter(((int.from_bytes(i, 'little', signed=True))/(num_in_chunk*2) for i in pchunk_byte_list), np.int64)   # average (number of sweeps times two for up and down) and put in numpy array
+        dchunk = np.fromiter(((int.from_bytes(i, 'little', signed=True))/(num_in_chunk*2) for i in dchunk_byte_list), np.int64)
         return (num_in_chunk, pchunk*3/8388607/0.5845, dchunk*3/8388607/0.5845)  # converting value to voltage
         
 class RS_Connection():
