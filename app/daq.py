@@ -167,7 +167,7 @@ class UDP():
             '''
             
         # Make ADC Config int from list of bools
-        test_mode = True
+        test_mode = self.config.settings['fpga_settings']['adc_test']
         reset = False
         phase_drate1 = True
         phase_drate0 = True

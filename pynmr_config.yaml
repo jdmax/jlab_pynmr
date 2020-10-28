@@ -31,9 +31,10 @@ settings:
         port: 1028              # Device port  (int)
         tcp_buffer: 1460        # Default TCP buffer size  (int)
         dwell: 10               # Settle time in ms between frequency switch and ADC read (int)
-        test_freqs: False       # Send test frequencies to FPGA
         per_point: 2            # Samples taken and averaged at each frequency point of a sweep (int)
         timeout_run: 20         # TCP timeout for running sweeps
+        test_freqs: False       # Send test frequencies to FPGA
+        adc_test: False         # ADC test mode flag
     nidaq_settings:
         phase_chan: Dev1/ai0
         diode_chan: Dev1/ai1
