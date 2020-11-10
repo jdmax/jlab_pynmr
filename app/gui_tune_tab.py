@@ -19,7 +19,7 @@ class TuneTab(QWidget):
         self.parent = parent
         
         self.running = False   # False will stop the running thread
-        self.dac_value = 0     # Starting DAC channel voltage   
+        self.dac_v = 0     # Starting DAC channel voltage   
         self.dac_c = 3
         
         self.running_scan = RunningScan(self.config, 1000)
@@ -204,8 +204,8 @@ class TuneThread(QThread):
         '''Main run loop. Request start of sweeps, receive sweeps, update event, report.'''
         
         while self.parent.running:
-            if (self.dac_v != self.parent.dac_value) or (self.dac_c != self.parent.dac_c):
-                self.dac_v = self.parent.dac_value
+            if (self.dac_v != self.parent.dac_v) or (self.dac_c != self.parent.dac_c):
+                self.dac_v = self.parent.dac_v
                 self.dac_c = self.parent.dac_c
                 self.daq.set_dac(self.dac_v, self.dac_c)               
             self.daq.start_sweeps()              # send command to start sweeps
