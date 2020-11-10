@@ -22,8 +22,8 @@ settings:
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
     log_dir: log                # Directory to put log files in, relative to main.py or absolute
     steps: 512                  # Frequency points per sweep (must be 500 for test sweeps)
-    num_per_chunk: 128          # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
-    tune_per_chunk:  64         # Number of sweeps per chunk to take in tune mode
+    num_per_chunk: 64          # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
+    tune_per_chunk:  32         # Number of sweeps per chunk to take in tune mode
     epics_temp: 4he             # EPICS channel of temp to use as default 
     epics_test: True            # If true, doesn't attempt to contact EPICS server
     fpga_settings:    
@@ -43,7 +43,7 @@ settings:
         time_per_pt: 29         # Dwell time at frequency, usecs
         settling_ratio: 0.5     # Where in the dwell time the read occurs (0 to 1)     
     RS_settings:
-        ip: 192.168.86.24       # R&S IP
+        ip: 1.2.3.8             # R&S IP
         power: 100              # RF amplitude in mV
         timeout: 1              # Telnet timeout in secs
     analysis:

@@ -104,7 +104,7 @@ class TETab(QWidget):
         self.time_wid.showGrid(True,True)
         self.time_plot = self.time_wid.plot([], [], pen=self.time_pen) 
         self.region1 = pg.LinearRegionItem(brush=pg.mkBrush(0, 0, 204, 30))
-        self.region1.setRegion([datetime.datetime.utcnow().timestamp(), datetime.datetime.utcnow().timestamp()+60])
+        self.region1.setRegion([datetime.datetime.now(tz=datetime.timezone.utc).timestamp(), datetime.datetime.now(tz=datetime.timezone.utc).timestamp()+60])
         self.region1.sigRegionChangeFinished.connect(self.changed_region1)
         self.time_wid.addItem(self.region1)
         self.right.addWidget(self.time_wid)  
@@ -114,7 +114,7 @@ class TETab(QWidget):
         self.zoom_wid.showGrid(True,True)
         self.zoom_plot = self.zoom_wid.plot([], [], pen=self.zoom_pen) 
         self.region2 = pg.LinearRegionItem(brush=pg.mkBrush(0, 180, 0, 30))
-        self.region2.setRegion([datetime.datetime.utcnow().timestamp(),datetime.datetime.utcnow().timestamp()+60])
+        self.region2.setRegion([datetime.datetime.now(tz=datetime.timezone.utc).timestamp(),datetime.datetime.now(tz=datetime.timezone.utc).timestamp()+60])
         self.region2.sigRegionChangeFinished.connect(self.changed_region2)
         self.zoom_wid.addItem(self.region2)
         self.right.addWidget(self.zoom_wid)  
@@ -173,7 +173,7 @@ class TETab(QWidget):
     
     def update_event_plots(self): 
         '''Update time plot as running'''
-        hist_data = self.parent.history.to_plot(datetime.datetime.utcnow().timestamp() - 60*int(self.range_value.text()), datetime.datetime.utcnow().timestamp())  # dict of Hist objects keyed on stamps 
+        hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())  # dict of Hist objects keyed on stamps 
         self.time_data = np.column_stack((list(hist_data.keys()),[hist_data[k].area for k in hist_data.keys()])) # 2-d nparray to plot 
         lo, hi = self.region1.getRegion()
         if hi < self.time_data[0,0]:
@@ -206,7 +206,7 @@ class TETab(QWidget):
             pf: Tuple of final fit coefficient list 
         
         '''
-        now = datetime.datetime.utcnow().timestamp()
+        now = datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
         p0 = [0.05, 0.05, now, 10000]  # initial guess
         x, y = np.hsplit(data,2)
         x, y = x.flatten(), y.flatten()

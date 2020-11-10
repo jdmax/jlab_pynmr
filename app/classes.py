@@ -74,6 +74,7 @@ class Config():
             freq_ints = np.linspace(-32768, 32767, num=self.settings['steps']).astype('int32')            # numpy array 
         self.freq_list = self.channel['cent_freq'] + self.channel['mod_freq']/1000*(freq_ints)/32768    # in MHz
         self.freq_bytes = [int(i).to_bytes(2, byteorder='little', signed=True) for i in freq_ints]   # bytes for 16-bit word
+        #self.adc_timing = [i*36.72 for i,e in enumerate(self.freq_list)]   # timing of adc measurements in us, assuming 36.72 us between
            
 class Scan():
     '''Data object for averaged set of sweeps, with method to average.
@@ -199,9 +200,9 @@ class Event():
         self.scan = Scan(self.config)
         
         #self.start_time =  datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
-        self.start_time =  datetime.datetime.utcnow()        
+        self.start_time =  datetime.datetime.now(tz=datetime.timezone.utc)        
         self.start_stamp = self.start_time.timestamp()
-        #self.start_stamp = (datetime.datetime.utcnow() - datetime.datetime(1970,1,1,0,0,0)).total_seconds()
+        #self.start_stamp = (datetime.datetime.now(tz=datetime.timezone.utc) - datetime.datetime(1970,1,1,0,0,0)).total_seconds()
         
         self.baseline  = np.zeros(len(self.scan.phase))
         self.basesweep = np.zeros(len(self.scan.phase))
@@ -280,8 +281,8 @@ class Event():
         Todo:
             * Send data to EPICS, history
         '''
-        self.stop_time =  datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
-        self.stop_time =  datetime.datetime.utcnow()
+        #self.stop_time =  datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
+        self.stop_time =  datetime.datetime.now(tz=datetime.timezone.utc)
         self.stop_stamp = self.stop_time.timestamp()
          
         self.signal_analysis(base_method, sub_method, res_method)        

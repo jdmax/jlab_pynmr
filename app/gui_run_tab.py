@@ -231,7 +231,7 @@ class RunTab(QWidget):
     def abort_run(self):
         '''Quit now'''
         self.run_thread.terminate()
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(tz=datetime.timezone.utc)
         self.parent.status_bar.showMessage('Aborted at '+now.strftime("%H:%M:%S")+' UTC.')
         self.abort_button.setEnabled(False)
         self.run_button.setText('Run')
@@ -245,7 +245,7 @@ class RunTab(QWidget):
         '''Finished sweeps: close event. If stop button checked, reset buttons, else run again.'''
         self.parent.end_event()
         
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(tz=datetime.timezone.utc)
         if not self.run_button.isChecked():     # done and stop
             self.parent.status_bar.showMessage('Finished event at '+now.strftime("%H:%M:%S")+' UTC.')
             self.abort_button.setEnabled(False)
@@ -267,12 +267,13 @@ class RunTab(QWidget):
         self.sub_plot.setData(self.parent.event.scan.freq_list, self.parent.event.basesub)
         self.fit_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitcurve)
         self.fin_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitsub)
+        #self.fin_plot.setData(self.parent.config.adc_timing, self.parent.event.fitsub)
               
         self.pol_value.setText('{:.1%}'.format(self.parent.event.pol))                    # updates indicators
         self.area_value.setText('{:.6f}'.format(self.parent.event.area))
         self.dt_value.setText(self.parent.event.stop_time.strftime("%m/%d/%Y\n%H:%M:%S")+" UTC")
         
-        hist_data = self.parent.history.to_plot(datetime.datetime.utcnow().timestamp() - 60*int(self.range_value.text()), datetime.datetime.utcnow().timestamp())                                  
+        hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())                                  
         pol_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
         # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone.
         self.pol_time_plot.setData(pol_data)    
@@ -280,7 +281,7 @@ class RunTab(QWidget):
     
     def changed_range(self):
         '''Change time range of pol v time plot'''
-        hist_data = self.parent.history.to_plot(datetime.datetime.utcnow().timestamp() - 60*int(self.range_value.text()), datetime.datetime.utcnow().timestamp())               
+        hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())               
         pol_data = np.column_stack((list(hist_data.keys()),[hist_data[k].pol for k in hist_data.keys()]))
         self.pol_time_plot.setData(pol_data) 
     
