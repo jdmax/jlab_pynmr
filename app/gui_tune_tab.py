@@ -60,7 +60,7 @@ class TuneTab(QWidget):
         self.diode_spin = QDoubleSpinBox()
         self.diode_spin.setRange(0,14)
         self.diode_spin.setSingleStep(0.01)
-        self.diode_slider.valueChanged.connect(self.diode_slider_changed)
+        self.diode_slider.sliderReleased.connect(self.diode_slider_changed)
         self.diode_spin.valueChanged.connect(self.diode_spin_changed)
         self.diode_box.layout().addWidget(self.diode_spin)
         self.vl1 = QLabel('Volts')
@@ -80,7 +80,7 @@ class TuneTab(QWidget):
         self.phase_spin = QDoubleSpinBox()
         self.phase_spin.setRange(0,15)
         self.phase_spin.setSingleStep(0.01)
-        self.phase_slider.valueChanged.connect(self.phase_slider_changed)
+        self.phase_slider.sliderReleased.connect(self.phase_slider_changed)
         self.phase_spin.valueChanged.connect(self.phase_spin_changed)
         self.phase_box.layout().addWidget(self.phase_spin)
         self.vl2 = QLabel('Volts')
@@ -100,21 +100,21 @@ class TuneTab(QWidget):
         '''Spinbox value changed'''
         self.phase_slider.setValue(int(self.phase_spin.value()*100))
         self.parent.config.phase_vout = self.phase_spin.value()
-        self.send_to_daq(self.parent.config.phase_vout, 2)
+        self.send_to_dac(self.parent.config.phase_vout, 2)
         
     def diode_slider_changed(self):
         '''Slider value changed'''
         self.diode_spin.setValue(float(self.diode_slider.value()/100))
         #self.parent.config.diode_vout = float(self.diode_slider.value()/100)
-        #self.send_to_daq(self.parent.config.diode_vout, 1)
+        #self.send_to_dac(self.parent.config.diode_vout, 1)
         
     def diode_spin_changed(self):
         '''Spinbox value changed'''
         self.diode_slider.setValue(int(self.diode_spin.value()*100))
         self.parent.config.diode_vout = self.diode_spin.value()
-        self.send_to_daq(self.parent.config.diode_vout, 1)
+        self.send_to_dac(self.parent.config.diode_vout, 1)
         
-    def send_to_daq(self, volt, dac_c):
+    def send_to_dac(self, volt, dac_c):
         '''Send DAC voltage to DAQ, check to see if tune is running. If not, start DAQConnection to send.
         
         Arguments:

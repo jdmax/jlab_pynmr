@@ -111,7 +111,7 @@ class DAQConnection():
       
         if self.daq_type=='Test':
             print("DAC", dac_v, dac_c)
-            return
+            return True
 class UDP():
     '''Handle UDP commands and responses
     
