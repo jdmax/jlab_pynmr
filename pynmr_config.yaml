@@ -17,7 +17,7 @@ channels:
         sweep_file: tri  
 settings:
     default_channel: Proton     # Default from channels listed above
-    daq_type: Test              # Select DAQ mode (FPGA, NIDAQ or Test)
+    daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ or Test)
     event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
     log_dir: log                # Directory to put log files in, relative to main.py or absolute

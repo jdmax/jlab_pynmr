@@ -31,10 +31,9 @@ class DAQConnection():
                 self.udp = UDP(self.config, tune_mode)
                 self.tcp = TCP(self.config, timeout)
                 
-            except socket.error as e:
-                print("Error creating socket:",e)
-            except socket.gaierror as e:
-                print("Address related error connecting:",e)
+            except Exception as e:
+                raise
+                
                 
             self.name = str(self.udp.ip)
             self.message = 'Connected to: '+str(self.udp.ip)+', port '+str(self.udp.port)+', and set registers and frequency table.'
@@ -62,8 +61,13 @@ class DAQConnection():
     def __del__(self):
         '''Stop Connections'''
         if self.daq_type=='FPGA':
-            del self.udp
-            del self.tcp
+            try:
+                del self.udp
+                del self.tcp
+            except AttributeError:
+                pass
+            except Exception as e:
+                raise
 
     def start_sweeps(self):
         '''Send command to sending NMR sweeps'''
@@ -129,16 +133,23 @@ class UDP():
         self.dac_c = 0
         self.ip = config.settings['fpga_settings']['ip']
         self.port = config.settings['fpga_settings']['port']
-        self.s.connect((self.ip, self.port))
-        if not self.set_register(): print("Set register error")
-        #print(self.read_stat())
-        if not self.set_freq(config.freq_bytes): print("Set frequency error")
-        self.read_freq()
+        try:
+            self.s.connect((self.ip, self.port))
+            if not self.set_register(): print("Set register error")
+            #print(self.read_stat())
+            if not self.set_freq(config.freq_bytes): print("Set frequency error")
+            self.read_freq()
+        except Exception as e:
+            print("Error connecting to DAQ at", self.ip, ":", e)
+            raise
         
         
     def __del__(self):
         '''Stop connection'''
-        self.s.close()
+        try:
+            self.s.close()
+        except Exception as e:
+            raise
     
     def read_stat(self):
         '''Read status command
@@ -280,7 +291,10 @@ class TCP():
         
     def __del__(self):
         '''Stop connection'''
-        self.s.close()
+        try:
+            self.s.close()
+        except Exception as e:
+            raise
         
     def get_chunk(self):
         '''Receive chunks over tcp
