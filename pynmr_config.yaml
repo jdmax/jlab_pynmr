@@ -26,6 +26,7 @@ settings:
     tune_per_chunk:  32         # Number of sweeps per chunk to take in tune mode
     epics_temp: 4he             # EPICS channel of temp to use as default 
     epics_test: True            # If true, doesn't attempt to contact EPICS server
+    screenshots_on: False       # Put screenshots of run tab after each event in screenshots/  if True
     fpga_settings:    
         ip: 1.2.3.9             # Device IP address (str)
         port: 1028              # Device port  (int)

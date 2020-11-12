@@ -2,6 +2,8 @@ data/*
 !data/.gitkeep
 log/*
 !log/.gitkeep
+screenshots/*
+!screenshots/.gitkeep
 te/*
 !te/.gitkeep
 docs/

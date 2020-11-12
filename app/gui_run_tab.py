@@ -18,6 +18,7 @@ class RunTab(QWidget):
         self.__dict__.update(parent.__dict__)
         
         self.parent = parent
+        self.abort_now = False
                
         # pyqtgrph styles        
         pg.setConfigOptions(antialias=True)
@@ -206,7 +207,7 @@ class RunTab(QWidget):
         self.parent.new_event()                 # start new event in main window
         #self.event = self.parent.event          # set this event in this tab
         self.parent.set_event_base()            # set current basline to this event
-        self.run_thread = RunThread(self.parent.event.config)
+        self.run_thread = RunThread(self, self.parent.config)
         self.run_thread.finished.connect(self.done)
         self.run_thread.reply.connect(self.add_sweeps)
         self.run_thread.start()
@@ -230,6 +231,7 @@ class RunTab(QWidget):
     
     def abort_run(self):
         '''Quit now'''
+        self.abort_now = True
         self.run_thread.terminate()
         now = datetime.datetime.now(tz=datetime.timezone.utc)
         self.parent.status_bar.showMessage('Aborted at '+now.strftime("%H:%M:%S")+' UTC.')
@@ -326,9 +328,10 @@ class RunThread(QThread):
     '''
     reply = pyqtSignal(tuple)       # reply signal
     finished = pyqtSignal()       # finished signal
-    def __init__(self, config):
+    def __init__(self, parent, config):
         QThread.__init__(self)
         self.config = config
+        self.parent = parent 
         self.sweep_num = config.controls['sweeps'].value
         self.rec_sweeps = 0     # number of total sweeps in set that we have received
         try:
@@ -347,8 +350,17 @@ class RunThread(QThread):
         '''
         #self.test_data = TestUDP(self.sweep_num)
         
-        self.daq.start_sweeps()              # send command to start sweeps
+        try: 
+            self.daq.start_sweeps()              # send command to start sweeps
+        except AttributeError as e:   
+            self.finished.emit()
+            self.terminate()
+        
+        
         while (self.rec_sweeps < self.sweep_num):                 # loop for total set of sweeps
+            if self.parent.abort_now:
+                self.daq.abort()
+                self.rec_sweeps = self.sweep_num
             new_sigs = self.daq.get_chunk()
             if new_sigs[0] > 0:
                 self.reply.emit(new_sigs)

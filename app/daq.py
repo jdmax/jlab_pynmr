@@ -78,9 +78,18 @@ class DAQConnection():
             self.ni.start()
             
             
-    def stop(self):
-        '''Send command to sending NMR sweeps'''
+    def abort(self):
+        '''Send command to abort NMR sweeps'''
             
+        if self.daq_type=='FPGA':
+            try:
+                self.udp.int_sweep()
+            except Exception as e:
+                raise
+            
+    def stop(self):
+        '''Send command to stop sending NMR sweeps'''
+        
         if self.daq_type=='NIDAQ':   
             self.ni.stop()
 
@@ -379,7 +388,7 @@ class RS_Connection():
             
             tn.close()
         except Exception as e:
-            print("Telnet connection failed:",e)
+            print(f"R&S connection failed on {self.host}: {e}")
         
     def rf_off(self):
         '''Connect to turn off RF, then close.'''        

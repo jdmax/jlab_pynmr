@@ -153,7 +153,7 @@ class TuneTab(QWidget):
        
         self.running_scan = RunningScan(self.config, int(self.avg_value.text()))
         self.running = True
-        self.tune_thread = TuneThread(self, self.event.config)
+        self.tune_thread = TuneThread(self, self.parent.config)
         self.tune_thread.reply.connect(self.add_sweeps)
         self.tune_thread.start()
     

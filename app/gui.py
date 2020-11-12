@@ -140,9 +140,10 @@ class MainWindow(QMainWindow):
         self.te_tab.update_event_plots()
         self.anal_tab.update_event_plots()
         
-        screenshot = self.run_tab.grab()
-        now = datetime.datetime.now(tz=datetime.timezone.utc)
-        screenshot.save(f'screenshots/{now.strftime("%Y-%m-%d_%H-%M-%S")}.png')
+        if self.config.settings["screenshots_on"]
+            screenshot = self.run_tab.grab()
+            now = datetime.datetime.now(tz=datetime.timezone.utc)
+            screenshot.save(f'screenshots/{now.strftime("%Y-%m-%d_%H-%M-%S")}.png')
           
 
     def new_base(self, basedict):

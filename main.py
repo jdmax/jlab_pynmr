@@ -10,7 +10,7 @@ def main():
     '''Main executable calls main gui
     '''
     app = QtWidgets.QApplication([])
-    app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
+    #app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
     app.setApplicationName("JLab Polarization Display")
     gui = MainWindow()
     gui.show()
