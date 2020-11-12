@@ -397,7 +397,7 @@ class RS_Connection():
             tn.write(b"FM:STATE OFF\n")
             tn.close()
         except Exception as e:
-            print("Telnet connection failed:",e)
+            print(f"R&S connection failed on {self.host}: {e}")
         
     def rf_on(self):
         '''Connect to turn on RF, then close.'''
@@ -406,7 +406,7 @@ class RS_Connection():
             tn.write(b"FM:STATE ON\n")
             tn.close()
         except Exception as e:
-            print("Telnet connection failed:",e)
+            print(f"R&S connection failed on {self.host}: {e}")
         
         
         

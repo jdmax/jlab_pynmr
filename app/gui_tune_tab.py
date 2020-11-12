@@ -193,7 +193,7 @@ class TuneThread(QThread):
         try:
             self.daq = DAQConnection(self.config, 4, True)
         except Exception as e:
-            print('Exception: '+str(e))
+            print('Exception in tune thread: '+str(e))
         
         
     def __del__(self):
