@@ -177,6 +177,7 @@ class MainWindow(QMainWindow):
         name = self.channels[i]
         self.config = Config(self.config_dict['channels'][name], self.settings)           # new configuration
         self.event = Event(self.config)      # open empty event
+        self.rs = RS_Connection(self.config)   # send new settings to R&S
         self.run_tab.combo_changed()
         logging.info(f"Changed channel to {self.config.channel['name']}.")
 
@@ -184,7 +185,7 @@ class MainWindow(QMainWindow):
         '''Initialize connections to required instruments, EPICS server
         '''
         self.epics = EPICS(self.settings['epics_test'], self.epics_reads, self.epics_writes)  # open EPICS
-        self.rs = RS_Connection(self.config)            # open conenction to Rohde and Schwarz
+        self.rs = RS_Connection(self.config)            # open connection to Rohde and Schwarz, set stuff
 
     def connect_daq(self):
         '''Try test connect to DAQ devices, turn on run buttons if successful'''
