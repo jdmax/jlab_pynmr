@@ -248,8 +248,9 @@ class RunTab(QWidget):
         self.parent.end_event()
         
         now = datetime.datetime.now(tz=datetime.timezone.utc)
+        elapsed = self.parent.event.stop_time - self.parent.event.start_time
         if not self.run_button.isChecked():     # done and stop
-            self.parent.status_bar.showMessage('Finished event at '+now.strftime("%H:%M:%S")+' UTC.')
+            self.parent.status_bar.showMessage(f'Finished event at {now:%H:%M:%S} UTC. Event took {elapsed.seconds}s.')
             self.abort_button.setEnabled(False)
             self.lock_button.setEnabled(True)
             self.run_button.setText('Run')
@@ -258,7 +259,7 @@ class RunTab(QWidget):
             self.update_run_plot()
             self.parent.run_toggle()
         else:                                    # done, continue running
-            self.parent.status_bar.showMessage('Finished event at '+now.strftime("%H:%M:%S")+' UTC. Running sweeps...')
+            self.parent.status_bar.showMessage(f'Finished event at  at {now:%H:%M:%S} UTC. Event took {elapsed.seconds}s. Running sweeps...')
             self.start_thread()
         
     
