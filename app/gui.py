@@ -204,6 +204,15 @@ class MainWindow(QMainWindow):
 
         except Exception as e:
             self.error_dialog.showMessage('DAQ socket not connected: '+str(e))
+            
+    def disconnected_daq(self):
+        '''DAQ has been disconnected, reset buttons'''
+
+        self.run_tab.run_button.setEnabled(False)                   # turn on buttons
+        self.tune_tab.run_button.setEnabled(False)
+        self.run_tab.connect_button.setEnabled(True)
+        self.run_tab.connect_button.setText('Connect')
+
 
     def run_toggle(self):
         '''Disable or enable buttons on other tabs when one tab is running'''

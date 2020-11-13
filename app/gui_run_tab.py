@@ -231,8 +231,8 @@ class RunTab(QWidget):
     
     def abort_run(self):
         '''Quit now'''
+        print("abort_run")
         self.abort_now = True
-        self.run_thread.terminate()
         now = datetime.datetime.now(tz=datetime.timezone.utc)
         self.parent.status_bar.showMessage('Aborted at '+now.strftime("%H:%M:%S")+' UTC.')
         self.abort_button.setEnabled(False)
@@ -338,6 +338,9 @@ class RunThread(QThread):
             self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_run'], False)
         except Exception as e:
             print('Exception in run thread, lost connection: '+str(e))
+            self.finished.emit()
+            self.terminate()
+            
                 
     def __del__(self):
         self.wait()
@@ -359,9 +362,17 @@ class RunThread(QThread):
         
         while (self.rec_sweeps < self.sweep_num):                 # loop for total set of sweeps
             if self.parent.abort_now:
+                print("Abort in run thread")
                 self.daq.abort()
-                self.rec_sweeps = self.sweep_num
+                try:
+                    new_sigs = self.daq.get_chunk()
+                except Exception as e:
+                    print("On abort:", e)
+                self.parent.abort_now = False
+                break
+            #start_time = time.time()    
             new_sigs = self.daq.get_chunk()
+            #print(f"get_chunk took {time.time() - start_time }s")
             if new_sigs[0] > 0:
                 self.reply.emit(new_sigs)
                 if 'NIDAQ' in self.config.settings['daq_type']:
