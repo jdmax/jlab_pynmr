@@ -218,8 +218,16 @@ class MainWindow(QMainWindow):
         '''Disable or enable buttons on other tabs when one tab is running'''
         if self.run_tab.run_button.isChecked():
             self.tune_tab.run_button.setEnabled(False)
+            self.tune_tab.phase_spin.setEnabled(False)
+            self.tune_tab.phase_slider.setEnabled(False)
+            self.tune_tab.diode_spin.setEnabled(False)
+            self.tune_tab.diode_slider.setEnabled(False)
         else:
             self.tune_tab.run_button.setEnabled(True)
+            self.tune_tab.phase_spin.setEnabled(True)
+            self.tune_tab.phase_slider.setEnabled(True)
+            self.tune_tab.diode_spin.setEnabled(True)
+            self.tune_tab.diode_slider.setEnabled(True)
         if self.tune_tab.run_button.isChecked():
             self.run_tab.run_button.setEnabled(False)
         else:
