@@ -358,8 +358,7 @@ class RunThread(QThread):
             self.daq.start_sweeps()              # send command to start sweeps
         except AttributeError as e:   
             self.finished.emit()
-            self.terminate()
-        
+            self.terminate()        
         
         while (self.rec_sweeps < self.sweep_num):                 # loop for total set of sweeps
             if self.parent.abort_now:

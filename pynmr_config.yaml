@@ -22,8 +22,8 @@ settings:
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
     log_dir: log                # Directory to put log files in, relative to main.py or absolute
     steps: 512                  # Frequency points per sweep (must be 500 for test sweeps)
-    num_per_chunk: 4          # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
-    tune_per_chunk:  32         # Number of sweeps per chunk to take in tune mode
+    num_per_chunk: 32          # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
+    tune_per_chunk:  16         # Number of sweeps per chunk to take in tune mode
     epics_temp: 4he             # EPICS channel of temp to use as default 
     epics_test: True            # If true, doesn't attempt to contact EPICS server
     screenshots_on: False       # Put screenshots of run tab after each event in screenshots if True

@@ -215,13 +215,15 @@ class UDP():
         else:
             RegSets.append(self.config.controls['sweeps'].value.to_bytes(2,'little'))
             RegSets.append(self.config.settings['num_per_chunk'].to_bytes(2,'little'))
+        #print(RegSets[-2].hex(), RegSets[-1].hex())    
         RegSets.append(ADCConfig.to_bytes(2,'little'))  
         RegSets.append(dac_value.to_bytes(2,'little'))
         RegSets.append(self.dac_c.to_bytes(2,'little'))
         RegSetString = b''.join(RegSets)
-        
+        #print(RegSetString.hex())
         self.s.send(RegSetString)
         data, addr = self.s.recvfrom(1024)    # buffer size is 1024
+        #print(self.read_stat())
         if data == self.ok:
             return True
         else:
@@ -321,6 +323,7 @@ class TCP():
             response = self.s.recv(self.buffer_size)
             if (sweep_type == ''):   # first packet has 3 init bytes: 2 for chucks sw cyc, 1 for aa, bb
                 num_in_chunk = int.from_bytes(response[:2],'little')
+                #print(num_in_chunk, response[:2].hex())
                 response = response[3:]
                 sweep_type = 'phase'
                        
