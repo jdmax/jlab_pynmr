@@ -2,7 +2,7 @@
 '''
 import datetime
 import time
-from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout, QHBoxLayout, QPushButton, QGroupBox, QGridLayout, QLabel, QLineEdit, QSizePolicy, QComboBox, QSpacerItem, QSlider, QDoubleSpinBox
+from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout, QHBoxLayout, QPushButton, QGroupBox, QGridLayout, QLabel, QLineEdit, QSizePolicy, QComboBox, QSpacerItem, QSlider, QDoubleSpinBox, QProgressBar
 from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator
 from PyQt5.QtCore import QThread, pyqtSignal,Qt
 import pyqtgraph as pg
@@ -26,6 +26,7 @@ class TuneTab(QWidget):
         
         self.dio_pen = pg.mkPen(color=(250, 0, 0), width=1)
         self.pha_pen = pg.mkPen(color=(0, 0, 204), width=1)
+        self.progress = 0
         
         # Populate Tune Tab
         self.main = QVBoxLayout()            # main layout
@@ -36,6 +37,9 @@ class TuneTab(QWidget):
         self.tune_box.layout().addWidget(self.run_button)
         self.run_button.clicked.connect(self.run_pushed)
         self.run_button.setEnabled(False)
+        self.progress_bar = QProgressBar()                                  # Progress bar
+        self.progress_bar.setTextVisible(False)
+        self.tune_box.layout().addWidget(self.progress_bar)
         self.avg_label = QLabel('Sweeps for Running Average:')
         self.tune_box.layout().addWidget(self.avg_label)
         self.avg_value = QLineEdit('1000')
@@ -155,19 +159,29 @@ class TuneTab(QWidget):
         self.running = True
         self.tune_thread = TuneThread(self, self.parent.config)
         self.tune_thread.reply.connect(self.add_sweeps)
+        self.tune_thread.finished.connect(self.finished)
         self.tune_thread.start()
     
     def add_sweeps(self,new_sigs):
         '''Add the tuple of sweeps to event'''
         self.running_scan.running_avg(new_sigs)
         self.update_run_plot()
+        if self.progress<100:
+            self.progress+=10
+        else:
+            self.progress = 0
+        self.progress_bar.setValue(self.progress)   
+        
+    def finished(self):
+        '''Run when thread done'''
+        self.progress = 0
+        self.progress_bar.setValue(self.progress)  
+        self.status_bar.showMessage('Ready.')
+        self.update_run_plot()
         
     def abort_run(self):
         '''Quit now'''
         self.running = False
-        #self.tune_thread.terminate()
-        self.status_bar.showMessage('Ready.')
-        self.update_run_plot()
         
     def change_avg(self,to_avg):
         '''Set the number to average'''
@@ -197,7 +211,6 @@ class TuneThread(QThread):
         
         
     def __del__(self):
-        del self.daq
         self.wait()
 
     def run(self):
@@ -211,9 +224,11 @@ class TuneThread(QThread):
             self.daq.start_sweeps()              # send command to start sweeps
             new_sigs = self.daq.get_chunk()
             while new_sigs[0] < self.config.settings['tune_per_chunk']:   # for NIDAQ, we need to wait for all the sweeps
-                new_sigs = self.daq.get_chunk()            
+                new_sigs = self.daq.get_chunk()   
             self.reply.emit(new_sigs)
-        self.daq.stop()    
+        self.daq.stop()   
+        self.finished.emit()
+        del self.daq 
         
 
 

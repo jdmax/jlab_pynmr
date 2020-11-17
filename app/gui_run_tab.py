@@ -379,8 +379,7 @@ class RunThread(QThread):
                     self.rec_sweeps = new_sigs[0]
                 else:
                     self.rec_sweeps += new_sigs[0]
-        self.daq.stop()    
-            
+        self.daq.stop()                
         self.finished.emit()
         del self.daq
    
