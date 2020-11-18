@@ -102,7 +102,7 @@ class Scan():
             new_sigs: tuple of number of sweeps in the chunk, new phase data list and new diode data list
                 
         '''
-        num_in_chunk, phase_chunk, diode_chunk = new_sigs
+        chunk_num, num_in_chunk, phase_chunk, diode_chunk = new_sigs
         self.num += num_in_chunk
            
         self.phase = self.phase + (num_in_chunk/self.num)*(phase_chunk - self.phase)
@@ -155,7 +155,7 @@ class RunningScan():
         Args:
             new_sigs: tuple of number of sweeps in the chunk, new phase data list and new diode data list
         '''
-        num_in_chunk, new_phase, new_diode = new_sigs
+        chunk_num, num_in_chunk, new_phase, new_diode = new_sigs
         if self.points_in < self.to_avg:
             self.points_in += num_in_chunk
         else:

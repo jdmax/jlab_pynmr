@@ -321,10 +321,13 @@ class TCP():
         
         while not (len(chunk['phase'])==512*5 and len(chunk['diode'])==512*5):       # loop for chunk packets
             response = self.s.recv(self.buffer_size)
-            if (sweep_type == ''):   # first packet has 3 init bytes: 2 for chucks sw cyc, 1 for aa, bb
-                num_in_chunk = int.from_bytes(response[:2],'little')
+            if (sweep_type == ''):   # first packet has FF FF FF FF FF then 2 chunk number bytes, then 2 chunk sw cyc bytes, then an aa or bb byte to denote phase or diode 
+                if b'\xff\xff\xff\xff\xff' == response[:5]:
+                    chunk_num = int.from_bytes(response[5:7],'little')
+                    num_in_chunk = int.from_bytes(response[7:9],'little')
+                    print("got start of chunk", chunk_num, num_in_chunk)
                 #print(num_in_chunk, response[:2].hex())
-                response = response[3:]
+                response = response[9:]
                 sweep_type = 'phase'
                        
             res_list = [response[i:i+1] for i in range(len(response))]
@@ -343,7 +346,7 @@ class TCP():
         dchunk_byte_list = [chunk['diode'][i:i + 5] for i in range(0, len(chunk['diode']), 5)]
         pchunk = np.fromiter(((int.from_bytes(i, 'little', signed=True))/(num_in_chunk*2) for i in pchunk_byte_list), np.int64)   # average (number of sweeps times two for up and down) and put in numpy array
         dchunk = np.fromiter(((int.from_bytes(i, 'little', signed=True))/(num_in_chunk*2) for i in dchunk_byte_list), np.int64)
-        return (num_in_chunk, pchunk*3/8388607/0.5845, dchunk*3/8388607/0.5845)  # converting value to voltage
+        return (chunk_num, num_in_chunk, pchunk*3/8388607/0.5845, dchunk*3/8388607/0.5845)  # converting value to voltage
         
 class RS_Connection():
     '''Handle connection to Rohde and Schwarz SMA100A via Telnet. 
@@ -522,6 +525,6 @@ class NI_Connection():
         dchunk = np.average(dchunks, axis=0)
         
         time.sleep(1)
-        return num_in_chunk, pchunk, dchunk
+        return 0, num_in_chunk, pchunk, dchunk
 
      

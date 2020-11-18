@@ -373,12 +373,12 @@ class RunThread(QThread):
             #start_time = time.time()    
             new_sigs = self.daq.get_chunk()
             #print(f"get_chunk took {time.time() - start_time }s")
-            if new_sigs[0] > 0:
+            if new_sigs[1] > 0:
                 self.reply.emit(new_sigs)
                 if 'NIDAQ' in self.config.settings['daq_type']:
-                    self.rec_sweeps = new_sigs[0]
+                    self.rec_sweeps = new_sigs[1]
                 else:
-                    self.rec_sweeps += new_sigs[0]
+                    self.rec_sweeps += new_sigs[1]
         self.daq.stop()                
         self.finished.emit()
         del self.daq
