@@ -334,6 +334,7 @@ class RunThread(QThread):
         self.config = config
         self.parent = parent 
         self.sweep_num = config.controls['sweeps'].value
+        self.num_per_chunk = config.settings['num_per_chunk']
         self.rec_sweeps = 0     # number of total sweeps in set that we have received
         try:
             self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_run'], False)
@@ -359,7 +360,8 @@ class RunThread(QThread):
         except AttributeError as e:   
             self.finished.emit()
             self.terminate()        
-        
+            
+        rec_chunks = 0                              #  count of chunks we have received
         while (self.rec_sweeps < self.sweep_num):                 # loop for total set of sweeps
             if self.parent.abort_now:
                 print("Abort in run thread")
@@ -372,13 +374,18 @@ class RunThread(QThread):
                 break
             #start_time = time.time()    
             new_sigs = self.daq.get_chunk()
+            chunk_num, num_in_chunk, pchunk, dchunk = new_sigs
             #print(f"get_chunk took {time.time() - start_time }s")
-            if new_sigs[1] > 0:
+            if num_in_chunk > 0:
                 self.reply.emit(new_sigs)
+                rec_chunks += 1
                 if 'NIDAQ' in self.config.settings['daq_type']:
-                    self.rec_sweeps = new_sigs[1]
+                    self.rec_sweeps = num_in_chunk
                 else:
-                    self.rec_sweeps += new_sigs[1]
+                    self.rec_sweeps += num_in_chunk
+            if not chunk_num + 1 == rec_chunks:
+                print(f"Lost chunk. Expecting {rec_chunks}, got {chunk_num + 1}")
+                    
         self.daq.stop()                
         self.finished.emit()
         del self.daq

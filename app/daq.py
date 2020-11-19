@@ -325,7 +325,6 @@ class TCP():
                 if b'\xff\xff\xff\xff\xff' == response[:5]:
                     chunk_num = int.from_bytes(response[5:7],'little')
                     num_in_chunk = int.from_bytes(response[7:9],'little')
-                    print("got start of chunk", chunk_num, num_in_chunk)
                 #print(num_in_chunk, response[:2].hex())
                 response = response[9:]
                 sweep_type = 'phase'
@@ -346,7 +345,7 @@ class TCP():
         dchunk_byte_list = [chunk['diode'][i:i + 5] for i in range(0, len(chunk['diode']), 5)]
         pchunk = np.fromiter(((int.from_bytes(i, 'little', signed=True))/(num_in_chunk*2) for i in pchunk_byte_list), np.int64)   # average (number of sweeps times two for up and down) and put in numpy array
         dchunk = np.fromiter(((int.from_bytes(i, 'little', signed=True))/(num_in_chunk*2) for i in dchunk_byte_list), np.int64)
-        return (chunk_num, num_in_chunk, pchunk*3/8388607/0.5845, dchunk*3/8388607/0.5845)  # converting value to voltage
+        return chunk_num, num_in_chunk, pchunk*3/8388607/0.5845, dchunk*3/8388607/0.5845  # converting value to voltage
         
 class RS_Connection():
     '''Handle connection to Rohde and Schwarz SMA100A via Telnet. 
