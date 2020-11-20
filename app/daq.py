@@ -321,13 +321,14 @@ class TCP():
         
         while not (len(chunk['phase'])==512*5 and len(chunk['diode'])==512*5):       # loop for chunk packets
             response = self.s.recv(self.buffer_size)
+            
             if (sweep_type == ''):   # first packet has FF FF FF FF FF then 2 chunk number bytes, then 2 chunk sw cyc bytes, then an aa or bb byte to denote phase or diode 
                 if b'\xff\xff\xff\xff\xff' == response[:5]:
                     chunk_num = int.from_bytes(response[5:7],'little')
                     num_in_chunk = int.from_bytes(response[7:9],'little')
-                #print(num_in_chunk, response[:2].hex())
-                response = response[9:]
-                sweep_type = 'phase'
+                    #print(num_in_chunk, response[:2].hex())
+                    response = response[9:]
+                    sweep_type = 'phase'
                        
             res_list = [response[i:i+1] for i in range(len(response))]
             for b in res_list:
