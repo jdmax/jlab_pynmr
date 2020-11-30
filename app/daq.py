@@ -209,7 +209,7 @@ class UDP():
         # Set up DAC value from desired percentage:
         # 13.9 V is A900, A900 is 43264, which will be 100%. 11/23/2020
         dac_value = int(self.dac_v * 43264)
-        print(self.dac_v, dac_value, dac_value.to_bytes(2,'little').hex())
+        #print(self.dac_v, dac_value, dac_value.to_bytes(2,'little').hex())
                     
         # Make Resiter byte string from other inputs
         # Number Bytes LSB, Nymber Bytes MSB, LSByte GenSetTime, MSByte GenSetTime, LSByte NumOfSamToAve, MByte NumOfSamToAve, LSByte TotSweepCycle, MSByte TotSweepCycle, LSByte IntSweepCycle, MSByte IntSweepCycle, LSByte AdcConfig, MSByte AdcConfig, LSByte Dac Value, MSByte Dac Value, LSByte Dac Config, MSByte Dac Config
@@ -225,9 +225,8 @@ class UDP():
         RegSets.append(ADCConfig.to_bytes(2,'little'))  
         RegSets.append(dac_value.to_bytes(2,'little'))
         RegSets.append(self.dac_c.to_bytes(2,'little'))
-        print("Last two reg bytes:",RegSets[-2].hex(), RegSets[-1].hex())    
+        #print("Last two reg bytes:",RegSets[-2].hex(), RegSets[-1].hex())    
         RegSetString = b''.join(RegSets)
-        print(RegSetString.hex())
         self.s.send(RegSetString)
         data, addr = self.s.recvfrom(1024)    # buffer size is 1024
         #print(self.read_stat())
