@@ -48,14 +48,14 @@ class Config():
         controls: Dict of ConfigItems for controls
         freq_list: 1D Numpy array of frequency points in sweep as a float, in MHz
         freq_bytes: List of frequency steps, as bytes of 16 bit binary word for R&S: https://www.rohde-schwarz.com/webhelp/sma100a_webhelp_1/Content/fb359696521a42fa.htm        
-        diode_vout: Voltage on tank circuit varactor capacitor for tuning 
-        phase_vout: Voltage on electronic phase adjust for tuning 
+        diode_vout: DAC percentage on tank circuit varactor capacitor for tuning. 100% value is seet in DAQ routine.
+        phase_vout: DAC percentage on electronic phase adjust for tuning. 100% value is seet in DAQ routine.
     '''
     def __init__(self, channel, settings):
     
         self.channel = channel
         self.settings = settings  
-        self.diode_vout = 0
+        self.diode_vout = 0   
         self.phase_vout = 0
 
         self.controls = {}          # NMR setings requiring control on run tab     

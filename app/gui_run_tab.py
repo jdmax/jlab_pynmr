@@ -383,7 +383,7 @@ class RunThread(QThread):
                     self.rec_sweeps = num_in_chunk
                 else:
                     self.rec_sweeps += num_in_chunk
-            if not chunk_num + 1 == rec_chunks:
+            if not chunk_num + 1 == rec_chunks and not chunk_num == 0:
                 print(f"Lost chunk. Expecting {rec_chunks}, got {chunk_num + 1}. Aborting run.") 
                 self.daq.abort()
                 try:

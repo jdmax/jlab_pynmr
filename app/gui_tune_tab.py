@@ -19,7 +19,7 @@ class TuneTab(QWidget):
         self.parent = parent
         
         self.running = False   # False will stop the running thread
-        self.dac_v = 0     # Starting DAC channel voltage   
+        self.dac_v = 0     # Starting DAC channel value   
         self.dac_c = 3
         
         self.running_scan = RunningScan(self.config, 1000)
@@ -59,15 +59,15 @@ class TuneTab(QWidget):
         self.diode_box.setLayout(QHBoxLayout())
         self.left_layout.addWidget(self.diode_box)
         self.diode_slider = QSlider(Qt.Horizontal)
-        self.diode_slider.setRange(0,1400)
+        self.diode_slider.setRange(0,1000)
         self.diode_box.layout().addWidget(self.diode_slider)
         self.diode_spin = QDoubleSpinBox()
-        self.diode_spin.setRange(0,14)
-        self.diode_spin.setSingleStep(0.01)
+        self.diode_spin.setRange(0,100)
+        self.diode_spin.setSingleStep(0.1)
         self.diode_slider.sliderReleased.connect(self.diode_slider_changed)
         self.diode_spin.valueChanged.connect(self.diode_spin_changed)
         self.diode_box.layout().addWidget(self.diode_spin)
-        self.vl1 = QLabel('Volts')
+        self.vl1 = QLabel('Percent')
         self.diode_box.layout().addWidget(self.vl1)
         
         self.right_layout = QVBoxLayout()     # Right, Phase Side
@@ -79,15 +79,15 @@ class TuneTab(QWidget):
         self.phase_box.setLayout(QHBoxLayout())
         self.right_layout.addWidget(self.phase_box)
         self.phase_slider = QSlider(Qt.Horizontal)
-        self.phase_slider.setRange(0,1500)
+        self.phase_slider.setRange(0,1000)
         self.phase_box.layout().addWidget(self.phase_slider)
         self.phase_spin = QDoubleSpinBox()
-        self.phase_spin.setRange(0,15)
-        self.phase_spin.setSingleStep(0.01)
+        self.phase_spin.setRange(0,100)
+        self.phase_spin.setSingleStep(0.1)
         self.phase_slider.sliderReleased.connect(self.phase_slider_changed)
         self.phase_spin.valueChanged.connect(self.phase_spin_changed)
         self.phase_box.layout().addWidget(self.phase_spin)
-        self.vl2 = QLabel('Volts')
+        self.vl2 = QLabel('Percent')
         self.phase_box.layout().addWidget(self.vl2)
         
         self.lower.addLayout(self.left_layout)
@@ -98,35 +98,35 @@ class TuneTab(QWidget):
         
     def phase_slider_changed(self):
         '''Slider value changed'''
-        self.phase_spin.setValue(float(self.phase_slider.value()/100))
+        self.phase_spin.setValue(float(self.phase_slider.value()/10))
         
     def phase_spin_changed(self):
         '''Spinbox value changed'''
-        self.phase_slider.setValue(int(self.phase_spin.value()*100))
-        self.parent.config.phase_vout = self.phase_spin.value()
+        self.phase_slider.setValue(int(self.phase_spin.value()*10))
+        self.parent.config.phase_vout = self.phase_spin.value()/100
         self.send_to_dac(self.parent.config.phase_vout, 2)
         
     def diode_slider_changed(self):
         '''Slider value changed'''
-        self.diode_spin.setValue(float(self.diode_slider.value()/100))
+        self.diode_spin.setValue(float(self.diode_slider.value()/10))
         #self.parent.config.diode_vout = float(self.diode_slider.value()/100)
         #self.send_to_dac(self.parent.config.diode_vout, 1)
         
     def diode_spin_changed(self):
         '''Spinbox value changed'''
-        self.diode_slider.setValue(int(self.diode_spin.value()*100))
-        self.parent.config.diode_vout = self.diode_spin.value()
+        self.diode_slider.setValue(int(self.diode_spin.value()*10))
+        self.parent.config.diode_vout = self.diode_spin.value()/100
         self.send_to_dac(self.parent.config.diode_vout, 1)
         
-    def send_to_dac(self, volt, dac_c):
+    def send_to_dac(self, value, dac_c):
         '''Send DAC voltage to DAQ, check to see if tune is running. If not, start DAQConnection to send.
         
         Arguments:
-            value: Voltage to send
+            value: Relative value to send (0 is no voltage to 1 is max)
             dac_c: channel, 1 (diode), 2 (phase), or 3 (both same)
         
         '''
-        self.dac_v = volt
+        self.dac_v = value
         self.dac_c = dac_c
         
         if not self.running:

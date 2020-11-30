@@ -111,10 +111,10 @@ class DAQConnection():
             
             p_test = self.test_phase + np.random.rand(len(self.test_phase))*0.00001*num_in_chunk   # numpy arrays
             d_test = -self.test_diode + np.random.rand(len(self.test_diode))*0.00001*num_in_chunk 
-            return (num_in_chunk, p_test, d_test)
+            return (0, num_in_chunk, p_test, d_test)
       
     def set_dac(self, dac_v, dac_c):
-        '''Set DAC voltage for tuning diode or phase
+        '''Set DAC value for tuning diode or phase
         '''
         if self.daq_type=='FPGA':
             self.udp.dac_v = dac_v 
@@ -130,6 +130,10 @@ class UDP():
     
     Args:
         config: Config object with settings
+        
+    Attributes:
+        dac_v: DAC value for given dac_c channel to set, from 0 (off) to 1 (max)
+        dac_c: DAC channel to set (1 is diode, 2 is phase, 3 is both)
     '''
     def __init__(self, config, tune_mode):
         '''Start connection, send nmr_settings dict'''
@@ -201,8 +205,11 @@ class UDP():
         ADCConfig = int(adcbits,2)
         #ADCConfig = 0x0036
         
-        # Set up DAC value from desired voltage: Vout =  5 * (DacValue / 65535) * 3.2037
-        dac_value = int(self.dac_v * (65535/5/3.2037))
+        #dac_value = int(self.dac_v * (65535/5/3.2037))
+        # Set up DAC value from desired percentage:
+        # 13.9 V is A900, A900 is 43264, which will be 100%. 11/23/2020
+        dac_value = int(self.dac_v * 43264)
+        print(self.dac_v, dac_value, dac_value.to_bytes(2,'little').hex())
                     
         # Make Resiter byte string from other inputs
         # Number Bytes LSB, Nymber Bytes MSB, LSByte GenSetTime, MSByte GenSetTime, LSByte NumOfSamToAve, MByte NumOfSamToAve, LSByte TotSweepCycle, MSByte TotSweepCycle, LSByte IntSweepCycle, MSByte IntSweepCycle, LSByte AdcConfig, MSByte AdcConfig, LSByte Dac Value, MSByte Dac Value, LSByte Dac Config, MSByte Dac Config
@@ -215,12 +222,12 @@ class UDP():
         else:
             RegSets.append(self.config.controls['sweeps'].value.to_bytes(2,'little'))
             RegSets.append(self.config.settings['num_per_chunk'].to_bytes(2,'little'))
-        #print(RegSets[-2].hex(), RegSets[-1].hex())    
         RegSets.append(ADCConfig.to_bytes(2,'little'))  
         RegSets.append(dac_value.to_bytes(2,'little'))
         RegSets.append(self.dac_c.to_bytes(2,'little'))
+        print("Last two reg bytes:",RegSets[-2].hex(), RegSets[-1].hex())    
         RegSetString = b''.join(RegSets)
-        #print(RegSetString.hex())
+        print(RegSetString.hex())
         self.s.send(RegSetString)
         data, addr = self.s.recvfrom(1024)    # buffer size is 1024
         #print(self.read_stat())
@@ -329,6 +336,8 @@ class TCP():
                     #print(num_in_chunk, response[:2].hex())
                     response = response[9:]
                     sweep_type = 'phase'
+                    
+                # add in check if we don't have the type set and it's not the beginning of the chunk  
                        
             res_list = [response[i:i+1] for i in range(len(response))]
             for b in res_list:
