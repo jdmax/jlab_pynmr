@@ -104,7 +104,6 @@ class Scan():
         '''
         chunk_num, num_in_chunk, phase_chunk, diode_chunk = new_sigs
         self.num += num_in_chunk
-           
         self.phase = self.phase + (num_in_chunk/self.num)*(phase_chunk - self.phase)
         self.diode = self.diode + (num_in_chunk/self.num)*(diode_chunk - self.diode)
         

@@ -244,8 +244,8 @@ class UDP():
             Boolean denoting success
         '''
       
-        NumBytes_byte = (self.config.settings['steps']*2+3).to_bytes(2,'little')
-        freqs = NumBytes_byte + bytes.fromhex('04') + b''.join(freq_bytes)
+        NumBytes_byte = (self.config.settings['steps']*2+3).to_bytes(2,'little')   # number of bytes to send
+        freqs = NumBytes_byte + bytes.fromhex('04') + b''.join(freq_bytes)         # freq string to send, including
         #[print(f.hex()) for f in freq_bytes]
         if self.config.settings['fpga_settings']['test_freqs']:
             NumBytes_byte = (self.config.settings['steps']*2+3).to_bytes(2,'little')
@@ -305,6 +305,7 @@ class TCP():
         self.port = config.settings['fpga_settings']['port']
         self.buffer_size = config.settings['fpga_settings']['tcp_buffer']
         self.s.connect((self.ip, self.port))
+        self.freq_num = config.settings['steps']
         
     def __del__(self):
         '''Stop connection'''
@@ -325,7 +326,8 @@ class TCP():
         chunk['diode'] = bytearray()
         sweep_type = ''    # phase or diode, starts as ''
         
-        while not (len(chunk['phase'])==512*5 and len(chunk['diode'])==512*5):       # loop for chunk packets
+        while not (len(chunk['phase'])==self.freq_num*5 and len(chunk['diode'])==self.freq_num*5):    
+        # loop for chunk packets
             response = self.s.recv(self.buffer_size)
             
             if (sweep_type == ''):   # first packet has FF FF FF FF FF then 2 chunk number bytes, then 2 chunk sw cyc bytes, then an aa or bb byte to denote phase or diode 
@@ -347,14 +349,18 @@ class TCP():
                     continue
                 #if sweep_type == 'diode': print(b.hex())
                 chunk[sweep_type] += bytearray(b)
-                if (len(chunk[sweep_type]) == 512*5):             # filled up chunk
+                if (len(chunk[sweep_type]) == self.freq_num*5):             # filled up chunk
                     sweep_type = ''                   # unset type
                     
         pchunk_byte_list = [chunk['phase'][i:i + 5] for i in range(0, len(chunk['phase']), 5)]
         dchunk_byte_list = [chunk['diode'][i:i + 5] for i in range(0, len(chunk['diode']), 5)]
         pchunk = np.fromiter(((int.from_bytes(i, 'little', signed=True))/(num_in_chunk*2) for i in pchunk_byte_list), np.int64)   # average (number of sweeps times two for up and down) and put in numpy array
         dchunk = np.fromiter(((int.from_bytes(i, 'little', signed=True))/(num_in_chunk*2) for i in dchunk_byte_list), np.int64)
-        return chunk_num, num_in_chunk, pchunk*3/8388607/0.5845, dchunk*3/8388607/0.5845  # converting value to voltage
+        #print("phase average", np.average(pchunk))
+        #print("diode average", np.average(dchunk))
+        return chunk_num, num_in_chunk, pchunk/211692085, dchunk/829421  # converting value to voltage
+        # 11/20/2020: phase 1V is roughly 211692085, diode 1V is 829421
+        #return chunk_num, num_in_chunk, pchunk*3/8388607/0.5845, dchunk*3/8388607/0.5845  # converting value to voltage
         
 class RS_Connection():
     '''Handle connection to Rohde and Schwarz SMA100A via Telnet. 
