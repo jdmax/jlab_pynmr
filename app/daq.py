@@ -388,7 +388,7 @@ class RS_Connection():
             else:
                 tn.write(b"FM:SOUR EXT\n")  
             tn.write(bytes(f"FM:EXT:DEV {config.channel['mod_freq']*1000}\n", 'ascii'))
-            tn.write(b"FM:EXT:DIG:BFOR BOFF\n")
+            tn.write(b"FM:EXT:DIG:BFOR DCOD\n")
             tn.write(b"FM:STATE ON\n")
             tn.write(b"OUTP ON\n")
             tn.write(b"FREQ?\n")
