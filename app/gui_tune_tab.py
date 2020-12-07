@@ -220,7 +220,11 @@ class TuneThread(QThread):
             if (self.dac_v != self.parent.dac_v) or (self.dac_c != self.parent.dac_c):
                 self.dac_v = self.parent.dac_v
                 self.dac_c = self.parent.dac_c
-                self.daq.set_dac(self.dac_v, self.dac_c)               
+                try:
+                    self.daq.set_dac(self.dac_v, self.dac_c)   
+                    print("Set DAC:", self.dac_c,  self.dac_v)  
+                except Exception as e:
+                    print("Exception setting DAC value: "+str(e))
             self.daq.start_sweeps()              # send command to start sweeps
             new_sigs = self.daq.get_chunk()
             while new_sigs[1] < self.config.settings['tune_per_chunk']:   # for NIDAQ, we need to wait for all the sweeps
