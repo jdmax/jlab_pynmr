@@ -407,6 +407,8 @@ class RS_Connection():
             outp = tn.read_some().decode('ascii')
             
             tn.close()
+            print(f"Successfully sent settings to R&S on {self.host}")
+            
         except Exception as e:
             print(f"R&S connection failed on {self.host}: {e}")
         
