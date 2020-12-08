@@ -42,7 +42,7 @@ class TuneTab(QWidget):
         self.tune_box.layout().addWidget(self.progress_bar)
         self.avg_label = QLabel('Sweeps for Running Average:')
         self.tune_box.layout().addWidget(self.avg_label)
-        self.avg_value = QLineEdit('1000')
+        self.avg_value = QLineEdit('100')
         self.avg_value.setValidator(QIntValidator(1,1000000))
         self.avg_value.textChanged.connect(lambda: self.change_avg(int(self.avg_value.text())))
         self.avg_value.editingFinished.connect(lambda: self.avg_value.setStyleSheet('QLineEdit { background-color: #ffffff }'))
@@ -130,6 +130,7 @@ class TuneTab(QWidget):
         self.dac_c = dac_c
         
         if not self.running:
+            time.sleep(0.0001)
             self.daq = DAQConnection(self.config, 4, True)
             if self.daq.set_dac(self.dac_v, self.dac_c):
                 print("Set DAC:", self.dac_c,  self.dac_v)
@@ -204,6 +205,7 @@ class TuneThread(QThread):
         self.parent = parent 
         self.dac_v = 0
         self.dac_c = 0
+        self.set_time = 0 # time when DAC last set
         try:
             self.daq = DAQConnection(self.config, 4, True)
         except Exception as e:
@@ -217,14 +219,17 @@ class TuneThread(QThread):
         '''Main run loop. Request start of sweeps, receive sweeps, update event, report.'''
         
         while self.parent.running:
-            if (self.dac_v != self.parent.dac_v) or (self.dac_c != self.parent.dac_c):
-                self.dac_v = self.parent.dac_v
-                self.dac_c = self.parent.dac_c
-                try:
-                    self.daq.set_dac(self.dac_v, self.dac_c)   
-                    print("Set DAC:", self.dac_c,  self.dac_v)  
-                except Exception as e:
-                    print("Exception setting DAC value: "+str(e))
+            now = time.time()
+            if now > self.set_time + 0.0001:
+                if (self.dac_v != self.parent.dac_v) or (self.dac_c != self.parent.dac_c):
+                    self.dac_v = self.parent.dac_v
+                    self.dac_c = self.parent.dac_c
+                    try:
+                        self.daq.set_dac(self.dac_v, self.dac_c)   
+                        print("Set DAC:", self.dac_c,  self.dac_v)
+                        self.set_time = now
+                    except Exception as e:
+                        print("Exception setting DAC value: "+str(e))
             self.daq.start_sweeps()              # send command to start sweeps
             new_sigs = self.daq.get_chunk()
             while new_sigs[1] < self.config.settings['tune_per_chunk']:   # for NIDAQ, we need to wait for all the sweeps
