@@ -229,7 +229,8 @@ class UDP():
         RegSetString = b''.join(RegSets)
         self.s.send(RegSetString)
         data, addr = self.s.recvfrom(1024)    # buffer size is 1024
-        #print(self.read_stat())
+        print(RegSetString.hex())
+        print(self.read_stat())
         if data == self.ok:
             return True
         else:
@@ -306,6 +307,8 @@ class TCP():
         self.buffer_size = config.settings['fpga_settings']['tcp_buffer']
         self.s.connect((self.ip, self.port))
         self.freq_num = config.settings['steps']
+        self.phase_cal = config.settings['fpga_settings']['phase_cal']
+        self.diode_cal = config.settings['fpga_settings']['diode_cal']
         
     def __del__(self):
         '''Stop connection'''
@@ -358,7 +361,7 @@ class TCP():
         dchunk = np.fromiter(((int.from_bytes(i, 'little', signed=True))/(num_in_chunk*2) for i in dchunk_byte_list), np.int64)
         #print("phase average", np.average(pchunk))
         #print("diode average", np.average(dchunk))
-        return chunk_num, num_in_chunk, pchunk/211692085, dchunk/829421  # converting value to voltage
+        return chunk_num, num_in_chunk, pchunk/self.phase_cal, dchunk/self.diode_cal  # converting value to voltage
         # 11/20/2020: phase 1V is roughly 211692085, diode 1V is 829421
         #return chunk_num, num_in_chunk, pchunk*3/8388607/0.5845, dchunk*3/8388607/0.5845  # converting value to voltage
         
