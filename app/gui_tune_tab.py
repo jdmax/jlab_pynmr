@@ -233,9 +233,8 @@ class TuneThread(QThread):
             self.daq.start_sweeps()              # send command to start sweeps
             new_sigs = self.daq.get_chunk()
             while new_sigs[1] < self.config.settings['tune_per_chunk']:   # for NIDAQ, we need to wait for all the sweeps
-                new_sigs = self.daq.get_chunk()                  
-            if num_in_chunk > 0:
-                self.reply.emit(new_sigs)
+                new_sigs = self.daq.get_chunk()  
+            self.reply.emit(new_sigs)
         self.daq.stop()   
         self.finished.emit()
         del self.daq 
