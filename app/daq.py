@@ -140,7 +140,7 @@ class UDP():
         self.tune_mode = tune_mode
         self.ok = bytes.fromhex('0300FA')
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
-        self.s.settimeout(1)
+        self.s.settimeout(config.settings['fpga_settings']['timeout_udp'])
         self.config = config
         self.dac_v = 0
         self.dac_c = 0
@@ -298,7 +298,7 @@ class TCP():
         timeout: Int for TCP timeout time (secs)
     
     '''
-    def __init__(self,config,timeout):
+    def __init__(self, config, timeout):
         '''Start connection'''
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM,0)
         self.s.settimeout(timeout)

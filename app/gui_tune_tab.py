@@ -207,7 +207,7 @@ class TuneThread(QThread):
         self.dac_c = 0
         self.set_time = 0 # time when DAC last set
         try:
-            self.daq = DAQConnection(self.config, 4, True)
+            self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_tune'], True)
         except Exception as e:
             print('Exception in tune thread: '+str(e))
         
