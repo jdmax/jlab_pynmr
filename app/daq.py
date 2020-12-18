@@ -229,8 +229,8 @@ class UDP():
         RegSetString = b''.join(RegSets)
         self.s.send(RegSetString)
         data, addr = self.s.recvfrom(1024)    # buffer size is 1024
-        print(RegSetString.hex())
-        print(self.read_stat())
+        #print(RegSetString.hex())
+        #print(self.read_stat())
         if data == self.ok:
             return True
         else:

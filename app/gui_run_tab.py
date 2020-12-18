@@ -340,8 +340,6 @@ class RunThread(QThread):
             self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_run'], False)
         except Exception as e:
             print('Exception starting run thread, lost connection: '+str(e))
-            self.finished.emit()
-            self.terminate()
             
                 
     def __del__(self):
@@ -359,7 +357,7 @@ class RunThread(QThread):
             self.daq.start_sweeps()              # send command to start sweeps
         except AttributeError as e:   
             self.finished.emit()
-            self.terminate()    
+            return            
             
         rec_chunks = 0                              #  count of chunks we have received
         while (self.rec_sweeps < self.sweep_num):                 # loop for total set of sweeps
