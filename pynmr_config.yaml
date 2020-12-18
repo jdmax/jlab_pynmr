@@ -34,9 +34,9 @@ settings:
         dwell: 10               # Settle time in ms between frequency switch and ADC read (int)
         per_point: 2            # Samples taken and averaged at each frequency point of a sweep (int)
         timeout_run: 20         # TCP timeout for running sweeps
-        timeout_tune: 4         # TCP timeout for running sweeps
-        timeout_check: 4         # TCP timeout for running sweeps
-        timeout_udp: 4         # TCP timeout for running sweeps
+        timeout_tune: 1         # TCP timeout for running sweeps
+        timeout_check: 1         # TCP timeout for running sweeps
+        timeout_udp: 1         # TCP timeout for running sweeps
         phase_cal: 211692085    # Conversion int to divide phase ADC values by to get roughly volts
         diode_cal: 829421       # Conversion int to divide diode ADC values by to get roughly volts
         test_freqs: False       # Send test frequencies to FPGA
