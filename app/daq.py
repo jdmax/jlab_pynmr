@@ -212,8 +212,8 @@ class UDP():
         
         #dac_value = int(self.dac_v * (65535/5/3.2037))
         # Set up DAC value from desired percentage:
-        # 13.9 V is A900, A900 is 43264, which will be 100%. 11/23/2020
-        dac_value = int(self.dac_v * 43264)
+        # voltage =~ (16/65535) * DAC value 1/12/2021
+        dac_value = int(self.dac_v * 65535)
         #print(self.dac_v, dac_value, dac_value.to_bytes(2,'little').hex())
                     
         # Make Resiter byte string from other inputs
