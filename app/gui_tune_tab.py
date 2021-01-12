@@ -206,10 +206,6 @@ class TuneThread(QThread):
         self.dac_v = 0
         self.dac_c = 0
         self.set_time = 0 # time when DAC last set
-        try:
-            self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_tune'], True)
-        except Exception as e:
-            print('Exception in tune thread: '+str(e))
         
         
     def __del__(self):
@@ -220,13 +216,18 @@ class TuneThread(QThread):
         
         while self.parent.running:
             now = time.time()
-            if now > self.set_time + 0.0001:
+            try:
+                self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_tune'], True)
+            except Exception as e:
+                print('Exception in tune thread: '+str(e))
+                
+            if now > self.set_time + 0.001:
                 if (self.dac_v != self.parent.dac_v) or (self.dac_c != self.parent.dac_c):
                     self.dac_v = self.parent.dac_v
                     self.dac_c = self.parent.dac_c
                     try:
-                        self.daq.set_dac(self.dac_v, self.dac_c)   
-                        print("Set DAC:", self.dac_c,  self.dac_v)
+                        if self.daq.set_dac(self.dac_v, self.dac_c):   
+                            print("Set DAC while running:", self.dac_c,  self.dac_v)
                         self.set_time = now
                     except Exception as e:
                         print("Exception setting DAC value: "+str(e))
@@ -235,9 +236,8 @@ class TuneThread(QThread):
             while new_sigs[1] < self.config.settings['tune_per_chunk']:   # for NIDAQ, we need to wait for all the sweeps
                 new_sigs = self.daq.get_chunk()  
             self.reply.emit(new_sigs)
-        self.daq.stop()   
+            del self.daq
         self.finished.emit()
-        del self.daq 
         
 
 

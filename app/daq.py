@@ -119,12 +119,17 @@ class DAQConnection():
         if self.daq_type=='FPGA':
             self.udp.dac_v = dac_v 
             self.udp.dac_c = dac_c
-            return self.udp.set_register()
-            
-      
+            return self.udp.set_register()              
         if self.daq_type=='Test':
             print("DAC", dac_v, dac_c)
             return True
+      
+    def read_stat(self):
+        '''Read back DAQ status
+        '''
+        if self.daq_type=='FPGA':
+            return self.udp.read_stat()            
+             
 class UDP():
     '''Handle UDP commands and responses
     
@@ -171,7 +176,7 @@ class UDP():
         '''
         self.s.send(bytes.fromhex('0F0001000000000000000000000000'))
         data, addr = self.s.recvfrom(1024)
-        #print("Read Stat Message: ", data.hex())
+        print("Read Stat Message: ", data.hex())
         return data.hex()
         
     def read_freq(self):
