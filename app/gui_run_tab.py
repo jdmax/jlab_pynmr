@@ -360,11 +360,7 @@ class RunThread(QThread):
             self.daq.start_sweeps()              # send command to start sweeps
         except AttributeError as e:   
             self.finished.emit()
-<<<<<<< Updated upstream
             return            
-=======
-            break 
->>>>>>> Stashed changes
             
         rec_chunks = 0                              #  count of chunks we have received
         while (self.rec_sweeps < self.sweep_num):                 # loop for total set of sweeps
