@@ -207,10 +207,13 @@ class RunTab(QWidget):
         self.parent.new_event()                 # start new event in main window
         #self.event = self.parent.event          # set this event in this tab
         self.parent.set_event_base()            # set current basline to this event
-        self.run_thread = RunThread(self, self.parent.config)
-        self.run_thread.finished.connect(self.done)
-        self.run_thread.reply.connect(self.add_sweeps)
-        self.run_thread.start()
+        try:
+            self.run_thread = RunThread(self, self.parent.config)
+            self.run_thread.finished.connect(self.done)
+            self.run_thread.reply.connect(self.add_sweeps)
+            self.run_thread.start()
+        except Exception as e: 
+            print('Exception starting run thread, lost connection: '+str(e))   
 
     def combo_changed(self):
         '''Channel changed, so change label'''
@@ -357,7 +360,11 @@ class RunThread(QThread):
             self.daq.start_sweeps()              # send command to start sweeps
         except AttributeError as e:   
             self.finished.emit()
+<<<<<<< Updated upstream
             return            
+=======
+            break 
+>>>>>>> Stashed changes
             
         rec_chunks = 0                              #  count of chunks we have received
         while (self.rec_sweeps < self.sweep_num):                 # loop for total set of sweeps
