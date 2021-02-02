@@ -24,11 +24,11 @@ settings:
     ss_dir: False               # Directory to put screenshots files in, screenshots not taken if False
     steps: 512                  # Frequency points per sweep (must be 500 for test sweeps)
     num_per_chunk: 32           # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
-    tune_per_chunk:  16         # Number of sweeps per chunk to take in tune mode
+    tune_per_chunk:  8         # Number of sweeps per chunk to take in tune mode
     epics_temp: 4he             # EPICS channel of temp to use as default 
     epics_test: True            # If true, doesn't attempt to contact EPICS server
     fpga_settings:    
-        ip: 1.2.3.9             # Device IP address (str)
+        ip: 129.57.37.134             # Device IP address (str)
         port: 1028              # Device port  (int)
         tcp_buffer: 1460        # Default TCP buffer size  (int)
         dwell: 10               # Settle time in ms between frequency switch and ADC read (int)
@@ -49,7 +49,7 @@ settings:
         time_per_pt: 29         # Dwell time at frequency, usecs
         settling_ratio: 0.5     # Where in the dwell time the read occurs (0 to 1)     
     RS_settings:
-        ip: 1.2.3.8             # R&S IP
+        ip: 129.57.37.135             # R&S IP
         power: 100              # RF amplitude in mV
         timeout: 2              # Telnet timeout in secs
     analysis:
@@ -75,9 +75,10 @@ epics_reads:                    # EPICS channels to read: key is channel name, v
     sep_f: Separator Flow (slpm)
     mag_i: Magnet Current (A)
     posit: Target Position
-    #test: Test Item
+    test: Test Item
 epics_writes:                   # List of channels to write, key is channel, value is attribute of Event class 
     targ_pol: pol 
     targ_area: area
+    targ_cc: cc
     targ_time: stop_stamp  
 ...
