@@ -20,7 +20,7 @@ class TuneTab(QWidget):
         
         self.running = False   # False will stop the running thread
         self.dac_v = 0     # Starting DAC channel value   
-        self.dac_c = 3
+        self.dac_c = 3      # Starting DAC channel (3 is both)
         
         self.running_scan = RunningScan(self.config, 1000)
         
@@ -42,7 +42,7 @@ class TuneTab(QWidget):
         self.tune_box.layout().addWidget(self.progress_bar)
         self.avg_label = QLabel('Sweeps for Running Average:')
         self.tune_box.layout().addWidget(self.avg_label)
-        self.avg_value = QLineEdit('100')
+        self.avg_value = QLineEdit('50')
         self.avg_value.setValidator(QIntValidator(1,1000000))
         self.avg_value.textChanged.connect(lambda: self.change_avg(int(self.avg_value.text())))
         self.avg_value.editingFinished.connect(lambda: self.avg_value.setStyleSheet('QLineEdit { background-color: #ffffff }'))
@@ -62,6 +62,7 @@ class TuneTab(QWidget):
         self.diode_slider.setRange(0,1000)
         self.diode_box.layout().addWidget(self.diode_slider)
         self.diode_spin = QDoubleSpinBox()
+        self.diode_spin.setDecimals(3)
         self.diode_spin.setRange(0,100)
         self.diode_spin.setSingleStep(0.1)
         self.diode_slider.sliderReleased.connect(self.diode_slider_changed)
@@ -82,6 +83,7 @@ class TuneTab(QWidget):
         self.phase_slider.setRange(0,1000)
         self.phase_box.layout().addWidget(self.phase_slider)
         self.phase_spin = QDoubleSpinBox()
+        self.phase_spin.setDecimals(2)
         self.phase_spin.setRange(0,100)
         self.phase_spin.setSingleStep(0.1)
         self.phase_slider.sliderReleased.connect(self.phase_slider_changed)
