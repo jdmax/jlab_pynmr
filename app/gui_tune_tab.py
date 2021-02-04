@@ -98,12 +98,22 @@ class TuneTab(QWidget):
         self.main.addLayout(self.lower)
         self.setLayout(self.main)
         
+        self.restore()
+        
+    def restore(self):
+        '''Restore previous session settings'''
+        if self.parent.restore_dict:
+            self.phase_slider.setValue(self.parent.restore_dict['phase_tune']*1000)
+            self.phase_spin.setValue(self.parent.restore_dict['phase_tune']*100)
+            self.diode_slider.setValue(self.parent.restore_dict['diode_tune']*1000)
+            self.diode_spin.setValue(self.parent.restore_dict['diode_tune']*100)
+        
     def phase_slider_changed(self):
         '''Slider value changed'''
         self.phase_spin.setValue(float(self.phase_slider.value()/10))
         
     def phase_spin_changed(self):
-        '''Spinbox value changed'''
+        '''Spinbox value changed, spinbox is 1/10 of slider, value out is 1/100 of spinbox'''
         self.phase_slider.setValue(int(self.phase_spin.value()*10))
         self.parent.config.phase_vout = self.phase_spin.value()/100
         self.send_to_dac(self.parent.config.phase_vout, 2)

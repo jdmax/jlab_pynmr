@@ -48,8 +48,8 @@ class Config():
         controls: Dict of ConfigItems for controls
         freq_list: 1D Numpy array of frequency points in sweep as a float, in MHz
         freq_bytes: List of frequency steps, as bytes of 16 bit binary word for R&S: https://www.rohde-schwarz.com/webhelp/sma100a_webhelp_1/Content/fb359696521a42fa.htm        
-        diode_vout: DAC percentage on tank circuit varactor capacitor for tuning. 100% value is seet in DAQ routine.
-        phase_vout: DAC percentage on electronic phase adjust for tuning. 100% value is seet in DAQ routine.
+        diode_vout: DAC percentage on tank circuit varactor capacitor for tuning. 1 (100%) value is set in DAQ routine.
+        phase_vout: DAC percentage on electronic phase adjust for tuning. 1 (100%) value is seet in DAQ routine.
     '''
     def __init__(self, channel, settings):
     
@@ -231,7 +231,7 @@ class Event():
         else:
             self.scan.avg_chunks(new_sigs)
 
-    def print_event(self,eventfile):
+    def print_event(self, eventfile):
         '''Print out event to eventfile, formatting to dict to write to json line.
         
         Args:

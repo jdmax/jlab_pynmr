@@ -53,6 +53,7 @@ class MainWindow(QMainWindow):
 
         self.config_filename = 'pynmr_config.yaml'
         self.load_settings()
+        self.restore_settings()
         channel_dict = self.config_dict['channels'][self.config_dict['settings']['default_channel']]  # dict of selected channel
         self.start_logger()
 
@@ -94,11 +95,16 @@ class MainWindow(QMainWindow):
 
         with open(self.config_filename) as f:                           # Load settings from YAML files
            self.config_dict = yaml.load(f, Loader=yaml.FullLoader)
-        self.channels = list(self.config_dict['channels'].keys())     # list of channels in config file
+        self.channels = list(self.config_dict['channels'].keys())       # list of channels in config file
         self.settings = self.config_dict['settings']                    # dict of settings
         self.epics_reads = self.config_dict['epics_reads']              # dict of epics channels: name string
-        self.epics_writes = self.config_dict['epics_writes']              # dict of epics channels: name string
+        self.epics_writes = self.config_dict['epics_writes']            # dict of epics channels: name string
         self.status_bar.showMessage(f"Loaded settings from {self.config_filename}.")
+        
+    def restore_settings(self):
+        '''Restore settings from previous session'''
+        with open('saved_settings.yaml') as f:                           # Load settings from YAML files
+           self.restore_dict = yaml.load(f, Loader=yaml.FullLoader)
         
     def new_event(self):
         '''Create new event instance'''
@@ -125,7 +131,18 @@ class MainWindow(QMainWindow):
             logging.info(f"Closed eventfile and moved to {new}.")
         except AttributeError:
             pass
-
+    
+    def save_settings(self):
+        '''Print settings before app exit to a file for recall on restart'''
+        saved_dict  =  {
+            'phase_tune' : self.config.phase_vout,
+            'diode_tune' : self.config.diode_vout,
+        }
+        with open('saved_settings.yaml', 'w') as file:
+            documents = yaml.dump(saved_dict, file)    
+            logging.info(f"Printed settings on exit to {file}.")
+    
+    
     def end_event(self):
         '''End event, closing the event instance and calling updates for each tab. Updates plots, prints to file, makes new eventfile if lines are more than 500.
         '''
@@ -267,7 +284,8 @@ class MainWindow(QMainWindow):
         return div
 
     def closeEvent(self, event):
-        '''Things to do on close
+        '''Things to do on close of window ("events" here are not related to nmr data events)
         '''
         self.close_eventfile()
+        self.save_settings()
         event.accept()
