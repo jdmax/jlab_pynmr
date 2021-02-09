@@ -28,17 +28,17 @@ settings:
     epics_temp: 4he             # EPICS channel of temp to use as default 
     epics_test: True            # If true, doesn't attempt to contact EPICS server
     fpga_settings:    
-        ip: 129.57.37.134             # Device IP address (str)
+        ip: 129.57.37.134       # Device IP address (str)
         port: 1028              # Device port  (int)
         tcp_buffer: 1460        # Default TCP buffer size  (int)
         dwell: 10               # Settle time in ms between frequency switch and ADC read (int)
         per_point: 2            # Samples taken and averaged at each frequency point of a sweep (int)
         timeout_run: 20         # TCP timeout for running sweeps
         timeout_tune: 1         # TCP timeout for running sweeps
-        timeout_check: 1         # TCP timeout for running sweeps
-        timeout_udp: 1         # TCP timeout for running sweeps
-        phase_cal: 211692085    # Conversion int to divide phase ADC values by to get roughly volts
-        diode_cal: 829421       # Conversion int to divide diode ADC values by to get roughly volts
+        timeout_check: 1        # TCP timeout for running sweeps
+        timeout_udp: 1          # TCP timeout for running sweeps
+        phase_cal: 211692085    # Conversion int to divide phase ADC values by to get max of 1
+        diode_cal: 829421       # Conversion int to divide diode ADC values by to get max of 1
         test_freqs: False       # Send test frequencies to FPGA
         adc_test: False         # ADC test mode flag
     nidaq_settings:
@@ -49,7 +49,7 @@ settings:
         time_per_pt: 29         # Dwell time at frequency, usecs
         settling_ratio: 0.5     # Where in the dwell time the read occurs (0 to 1)     
     RS_settings:
-        ip: 129.57.37.135             # R&S IP
+        ip: 129.57.37.135       # R&S IP
         power: 100              # RF amplitude in mV
         timeout: 2              # Telnet timeout in secs
     analysis:
