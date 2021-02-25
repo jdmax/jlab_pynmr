@@ -20,6 +20,7 @@ from app.gui_base_tab import BaseTab
 from app.gui_tune_tab import TuneTab
 from app.gui_te_tab import TETab
 from app.gui_anal_tab import AnalTab
+from app.gui_expl_tab import ExplTab
 from app.daq import DAQConnection, UDP, TCP, RS_Connection, NI_Connection
 from app.magnet_control import MagnetControl
 
@@ -87,8 +88,8 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.te_tab, "TE")
         self.anal_tab = AnalTab(self)
         self.tab_widget.addTab(self.anal_tab, "Analysis")
-        # self.viewer_tab = QWidget()
-        # self.tab_widget.addTab(self.viewer_tab, "Event Viewer")   
+        self.Expl_tab = ExplTab(self)
+        self.tab_widget.addTab(self.Expl_tab, "Event Explorer") 
         
     def load_settings(self):
         '''Load settings from YAML config file'''
@@ -103,7 +104,7 @@ class MainWindow(QMainWindow):
         
     def restore_settings(self):
         '''Restore settings from previous session'''
-        with open('saved_settings.yaml') as f:                           # Load settings from YAML files
+        with open('app/saved_settings.yaml') as f:                           # Load settings from YAML files
            self.restore_dict = yaml.load(f, Loader=yaml.FullLoader)
         
     def new_event(self):
@@ -130,7 +131,7 @@ class MainWindow(QMainWindow):
             os.rename(self.eventfile_name, os.path.join(self.config.settings["event_dir"], new))
             logging.info(f"Closed eventfile and moved to {new}.")
         except AttributeError:
-            pass
+            logging.info(f"Error closing eventfile.")
     
     def save_settings(self):
         '''Print settings before app exit to a file for recall on restart'''

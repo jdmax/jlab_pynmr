@@ -282,6 +282,7 @@ class RunTab(QWidget):
         hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())                                  
         pol_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
         # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone.
+        print(pol_data)
         self.pol_time_plot.setData(pol_data)    
         self.progress_bar.setValue(0)
     
