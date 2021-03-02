@@ -91,6 +91,8 @@ class MainWindow(QMainWindow):
         self.Expl_tab = ExplTab(self)
         self.tab_widget.addTab(self.Expl_tab, "Event Explorer") 
         
+        self.connect_daq()
+        
     def load_settings(self):
         '''Load settings from YAML config file'''
 
@@ -215,8 +217,8 @@ class MainWindow(QMainWindow):
 
             self.run_tab.run_button.setEnabled(True)                   # turn on buttons
             self.tune_tab.run_button.setEnabled(True)
-            self.run_tab.connect_button.setEnabled(False)
-            self.run_tab.connect_button.setText('Connected: '+self.daq.name)
+            #self.run_tab.connect_button.setEnabled(False)
+            #self.run_tab.connect_button.setText('Connected: '+self.daq.name)
 
             del self.daq
 

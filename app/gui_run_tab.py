@@ -58,13 +58,13 @@ class RunTab(QWidget):
         self.controls_box.layout().addWidget(self.run_button, 0, 0)
         self.run_button.setEnabled(False)
         self.run_button.clicked.connect(self.run_pushed)
-        self.abort_button = QPushButton("Abort Now")                # Abort button
-        self.controls_box.layout().addWidget(self.abort_button, 1, 0)
-        self.abort_button.setEnabled(False)
-        self.abort_button.clicked.connect(self.abort_run)
-        self.connect_button = QPushButton("Connect DAQ",checkable=True)     # Connect button
-        self.controls_box.layout().addWidget(self.connect_button, 1, 1)
-        self.connect_button.clicked.connect(self.connect_pushed)
+        #self.abort_button = QPushButton("Abort Now")                # Abort button
+        #self.controls_box.layout().addWidget(self.abort_button, 1, 0)
+        #self.abort_button.setEnabled(False)
+        #self.abort_button.clicked.connect(self.abort_run)
+        #self.connect_button = QPushButton("Connect DAQ",checkable=True)     # Connect button
+        #self.controls_box.layout().addWidget(self.connect_button, 1, 1)
+        #self.connect_button.clicked.connect(self.connect_pushed)
         self.progress_bar = QProgressBar()                                  # Progress bar
         self.progress_bar.setTextVisible(False)
         #self.progress_bar.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Expanding)
@@ -190,15 +190,15 @@ class RunTab(QWidget):
                
         if self.run_button.isChecked():        
             self.parent.status_bar.showMessage('Running sweeps...')
-            self.abort_button.setEnabled(True)
+            #self.abort_button.setEnabled(True)
             self.lock_button.setEnabled(False)
-            self.run_button.setText('Stop')
+            self.run_button.setText('Finish')
             self.start_thread()
             self.parent.run_toggle()
                    
         else:
             if self.run_thread.isRunning:
-                self.run_button.setText('Stopping...')
+                self.run_button.setText('Finishing...')
                 self.run_button.setEnabled(False)
        
     def start_thread(self):
@@ -232,19 +232,19 @@ class RunTab(QWidget):
         progress = 100*self.parent.event.scan.num/self.parent.event.config.controls['sweeps'].value
         self.progress_bar.setValue(progress)
     
-    def abort_run(self):
-        '''Quit now'''
-        print("abort_run")
-        self.abort_now = True
-        now = datetime.datetime.now(tz=datetime.timezone.utc)
-        self.parent.status_bar.showMessage('Aborted at '+now.strftime("%H:%M:%S")+' UTC.')
-        self.abort_button.setEnabled(False)
-        self.run_button.setText('Run')
-        self.run_button.setEnabled(True)
-        self.run_button.setChecked(False)
-        self.update_run_plot()
-        self.progress_bar.setValue(0)
-        self.parent.run_toggle()
+    # def abort_run(self):
+        # '''Quit now'''
+        # print("abort_run")
+        # self.abort_now = True
+        # now = datetime.datetime.now(tz=datetime.timezone.utc)
+        # self.parent.status_bar.showMessage('Aborted at '+now.strftime("%H:%M:%S")+' UTC.')
+        # self.abort_button.setEnabled(False)
+        # self.run_button.setText('Run')
+        # self.run_button.setEnabled(True)
+        # self.run_button.setChecked(False)
+        # self.update_run_plot()
+        # self.progress_bar.setValue(0)
+        # self.parent.run_toggle()
     
     def done(self):
         '''Finished sweeps: close event. If stop button checked, reset buttons, else run again.'''
@@ -254,7 +254,7 @@ class RunTab(QWidget):
         elapsed = self.parent.event.stop_time - self.parent.event.start_time
         if not self.run_button.isChecked():     # done and stop
             self.parent.status_bar.showMessage(f'Finished event at {now:%H:%M:%S} UTC. Event took {elapsed.seconds}s.')
-            self.abort_button.setEnabled(False)
+            #self.abort_button.setEnabled(False)
             self.lock_button.setEnabled(True)
             self.run_button.setText('Run')
             self.run_button.setEnabled(True)
@@ -282,7 +282,6 @@ class RunTab(QWidget):
         hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())                                  
         pol_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
         # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone.
-        print(pol_data)
         self.pol_time_plot.setData(pol_data)    
         self.progress_bar.setValue(0)
     
