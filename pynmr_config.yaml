@@ -1,28 +1,42 @@
 # PyNMR Config file, YAML
 ---
 channels:
-    Proton:
+    Proton4.87T:
         name: Proton4.87T
         species: proton 
         cent_freq: 207.38            # Center frequency in MHz   (float)
         mod_freq: 400.0             # Frequency modulation in kHz   (float)
         power: 200.0                # RF power in mV  (float)
         sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
-    Deuteron:
+    Deuteron4.87T:
         name: Deuteron4.87T
         species: deuteron
         cent_freq: 31.83       
         mod_freq: 400.0        
         power: 200.0      
-        sweep_file: tri      
+        sweep_file: tri 
+    Proton5T:
+        name: Proton5T
+        species: proton 
+        cent_freq: 213.0            # Center frequency in MHz   (float)
+        mod_freq: 400.0             # Frequency modulation in kHz   (float)
+        power: 200.0                # RF power in mV  (float)
+        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
+    Deuteron5T:
+        name: Deuteron5T
+        species: deuteron
+        cent_freq: 32.7       
+        mod_freq: 400.0        
+        power: 200.0      
+        sweep_file: tri         
 settings:
-    default_channel: Proton     # Default from channels listed above
+    default_channel: Proton4.87T     # Default from channels listed above
     daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ or Test)
     event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
     log_dir: log                # Directory to put log files in, relative to main.py or absolute
     ss_dir: False               # Directory to put screenshots files in, screenshots not taken if False
-    steps: 500                  # Frequency points per sweep (must be 500 for test sweeps)
+    steps: 512                  # Frequency points per sweep (must be 500 for test sweeps)
     num_per_chunk: 32           # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
     tune_per_chunk:  8          # Number of sweeps per chunk to take in tune mode
     epics_temp: 4he             # EPICS channel of temp to use as default 
