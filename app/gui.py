@@ -141,8 +141,9 @@ class MainWindow(QMainWindow):
             'phase_tune' : self.config.phase_vout,
             'diode_tune' : self.config.diode_vout,
         }
-        with open('saved_settings.yaml', 'w') as file:
-            documents = yaml.dump(saved_dict, file)    
+        with open('app/saved_settings.yaml', 'w') as file:
+            documents = yaml.dump(saved_dict, file)
+            print(saved_dict)            
             logging.info(f"Printed settings on exit to {file}.")
     
     

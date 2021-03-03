@@ -42,7 +42,7 @@ class TuneTab(QWidget):
         self.tune_box.layout().addWidget(self.progress_bar)
         self.avg_label = QLabel('Sweeps for Running Average:')
         self.tune_box.layout().addWidget(self.avg_label)
-        self.avg_value = QLineEdit('50')
+        self.avg_value = QLineEdit('32')
         self.avg_value.setValidator(QIntValidator(1,1000000))
         self.avg_value.textChanged.connect(lambda: self.change_avg(int(self.avg_value.text())))
         self.avg_value.editingFinished.connect(lambda: self.avg_value.setStyleSheet('QLineEdit { background-color: #ffffff }'))
