@@ -8,6 +8,13 @@ channels:
         mod_freq: 400.0             # Frequency modulation in kHz   (float)
         power: 200.0                # RF power in mV  (float)
         sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
+    Proton4.87T_800:
+        name: Proton4.87T
+        species: proton 
+        cent_freq: 207.38            # Center frequency in MHz   (float)
+        mod_freq: 800.0             # Frequency modulation in kHz   (float)
+        power: 200.0                # RF power in mV  (float)
+        sweep_file: app/800_10p_400_90p.txt             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
     Deuteron4.87T:
         name: Deuteron4.87T
         species: deuteron
