@@ -298,13 +298,14 @@ class PolyFitBase(QWidget):
             polyfit used, baseline subtracted sweep 
         '''
         sweep = event.scan.phase
+        freqs = event.scan.freq_list
         bounds = [x*len(sweep) for x in self.wings]
-        data = [(x,y) for x,y in enumerate(sweep) if (bounds[0]<x<bounds[1] or bounds[2]<x<bounds[3])]
+        data = [z for x,z in enumerate(zip(freqs, sweep)) if (bounds[0]<x<bounds[1] or bounds[2]<x<bounds[3])]
         X = np.array([x for x,y in data])
         Y = np.array([y for x,y in data])
         pf, pcov = optimize.curve_fit(self.poly, X, Y, p0 = self.pi)
         pstd = np.sqrt(np.diag(pcov))
-        fit = self.poly(range(len(sweep)), *pf)
+        fit = self.poly(freqs, *pf)
         sub = sweep - fit
         
         residuals = Y - self.poly(X, *pf)
@@ -563,16 +564,19 @@ class PolyFitSub(QWidget):
         Returns:
             polyfit used, baseline subtracted sweep 
         '''
-    
+        
         sweep = event.basesub
+        freqs = event.scan.freq_list
         bounds = [x*len(sweep) for x in self.wings]
-        data = [(x,y) for x,y in enumerate(sweep) if (bounds[0]<x<bounds[1] or bounds[2]<x<bounds[3])]
+        data = [z for x,z in enumerate(zip(freqs, sweep)) if (bounds[0]<x<bounds[1] or bounds[2]<x<bounds[3])]
         X = np.array([x for x,y in data])
         Y = np.array([y for x,y in data])
+        print(X,Y)
         pf, pcov = optimize.curve_fit(self.poly, X, Y, p0 = self.pi)
         pstd = np.sqrt(np.diag(pcov))
-        fit = self.poly(range(len(sweep)), *pf)
-        sub = sweep - fit 
+        fit = self.poly(freqs, *pf)
+        sub = sweep - fit
+        
         area = sub.sum()
         
         residuals = Y - self.poly(X, *pf)
