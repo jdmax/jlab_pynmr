@@ -1,4 +1,4 @@
-# Standard sweep, 512 integers evenly spaced between -32768 and 32767
+# Modified sweep, First 25 cover -800 kHz to -400 kHz, next 462 cover -400 to 400, last 25 cover 400 to 800  
 -32768
 -32112.65
 -31457.3
