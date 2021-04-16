@@ -58,6 +58,9 @@ settings:
         timeout_tune: 1         # TCP timeout for running sweeps
         timeout_check: 1        # TCP timeout for running sweeps
         timeout_udp: 1          # TCP timeout for running sweeps
+        adc_drate1: True        # ADC data rate settings, see manual
+        adc_drate0: True
+        adc_fpath: False        # ADC fpath setting, see manual
         phase_cal: 211692085    # Conversion int to divide phase ADC values by to get max of 1
         diode_cal: 829421       # Conversion int to divide diode ADC values by to get max of 1
         test_freqs: False       # Send test frequencies to FPGA

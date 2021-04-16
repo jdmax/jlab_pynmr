@@ -198,12 +198,12 @@ class UDP():
         # Make ADC Config int from list of bools
         test_mode = self.config.settings['fpga_settings']['adc_test']
         reset = False
-        phase_drate1 = True
-        phase_drate0 = True
-        phase_fpath = False
-        diode_drate1 = True
-        diode_drate0 = True
-        diode_fpath = False
+        phase_drate1 = self.config.settings['fpga_settings']['adc_drate1']
+        phase_drate0 = self.config.settings['fpga_settings']['adc_drate0']
+        phase_fpath = self.config.settings['fpga_settings']['adc_fpath']
+        diode_drate1 = self.config.settings['fpga_settings']['adc_drate1']
+        diode_drate0 = self.config.settings['fpga_settings']['adc_drate0']
+        diode_fpath = self.config.settings['fpga_settings']['adc_fpath']
         rf_off = False
         states = [test_mode, reset, False, False, False, False, False, False, False, rf_off, phase_drate1, phase_drate0, phase_fpath, diode_drate1, diode_drate0, diode_fpath]
         adcbits = ''.join([str(int(i)) for i in states])
