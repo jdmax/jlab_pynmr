@@ -23,12 +23,12 @@ class ExplTab(QWidget):
         self.event_vars_included = ['pol', 'cc', 'area']   # variables from the event to include in graph
         self.vars = []
 
-        self.base_pen = pg.mkPen(color=(180, 0, 0), width=1)
-        self.base2_pen = pg.mkPen(color=(0, 0, 150), width=1)
-        self.base3_pen = pg.mkPen(color=(0, 180, 0), width=1)
-        self.sub_pen = pg.mkPen(color=(180, 0, 0), width=1)
-        self.sub2_pen = pg.mkPen(color=(0, 0, 150), width=1)
-        self.sub3_pen = pg.mkPen(color=(0, 180, 0), width=1)
+        self.base_pen = pg.mkPen(color=(180, 0, 0), width=1.5)
+        self.base2_pen = pg.mkPen(color=(0, 0, 150), width=1.5)
+        self.base3_pen = pg.mkPen(color=(0, 180, 0), width=1.5)
+        self.sub_pen = pg.mkPen(color=(180, 0, 0), width=1.5)
+        self.sub2_pen = pg.mkPen(color=(0, 0, 150), width=1.5)
+        self.sub3_pen = pg.mkPen(color=(0, 180, 0), width=1.5)
         
         self.main = QHBoxLayout()            # main layout
         self.setLayout(self.main)   

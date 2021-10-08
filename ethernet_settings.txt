@@ -1,5 +1,0 @@
-# USB Ethernet Settings for Windows
-
-Default Gateway: 1.2.3.9
-IP Address: 1.2.3.10
-Subnet Mask: 255.255.255.0

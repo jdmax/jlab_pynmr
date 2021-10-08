@@ -293,12 +293,13 @@ class Event():
         if np.any(self.scan.phase):  # do the thing
             self.basesweep, self.basesub  = base_method(self)        
             self.fitcurve, self.fitsub = sub_method(self)
-            self.area, self.pol = res_method(self)            
+            self.rescurve, self.area, self.pol = res_method(self)            
         else:               # unless the phase signal is zeroes, then set all to zeroes
             self.basesweep = np.zeros(len(self.basesweep))
             self.basesub = np.zeros(len(self.basesweep))
             self.fitcurve = np.zeros(len(self.basesweep))
             self.fitsub = np.zeros(len(self.basesweep))
+            self.rescurve = np.zeros(len(self.basesweep))
             self.pol, self.area = 0, 0
             
     def poly(self,p,x):

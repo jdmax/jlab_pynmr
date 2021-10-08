@@ -19,10 +19,10 @@ class TETab(QWidget):
         
         self.parent = parent
         
-        self.time_pen = pg.mkPen(color=(0, 0, 204), width=1)
-        self.fit1_pen = pg.mkPen(color=(0, 0, 150), width=1)
-        self.zoom_pen = pg.mkPen(color=(0, 180, 0), width=1)
-        self.fit2_pen = pg.mkPen(color=(0, 130, 0), width=1)
+        self.time_pen = pg.mkPen(color=(0, 0, 204), width=1.5)
+        self.fit1_pen = pg.mkPen(color=(0, 0, 150), width=1.5)
+        self.zoom_pen = pg.mkPen(color=(0, 180, 0), width=1.5)
+        self.fit2_pen = pg.mkPen(color=(0, 130, 0), width=1.5)
         
         self.main = QHBoxLayout()            # main layout
         

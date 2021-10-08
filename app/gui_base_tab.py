@@ -19,8 +19,8 @@ class BaseTab(QWidget):
         self.parent = parent
         
         
-        self.sel_pen = pg.mkPen(color=(0, 0, 204), width=1)
-        self.sub_pen = pg.mkPen(color=(0, 180, 0), width=1)
+        self.sel_pen = pg.mkPen(color=(0, 0, 204), width=1.5)
+        self.sub_pen = pg.mkPen(color=(0, 180, 0), width=1.5)
         
         # Populate Base Tab 
         self.main = QHBoxLayout()            # main layout

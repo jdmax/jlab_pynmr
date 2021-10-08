@@ -24,8 +24,8 @@ class TuneTab(QWidget):
         
         self.running_scan = RunningScan(self.config, 1000)
         
-        self.dio_pen = pg.mkPen(color=(250, 0, 0), width=1)
-        self.pha_pen = pg.mkPen(color=(0, 0, 204), width=1)
+        self.dio_pen = pg.mkPen(color=(250, 0, 0), width=1.5)
+        self.pha_pen = pg.mkPen(color=(0, 0, 204), width=1.5)
         self.progress = 0
         
         # Populate Tune Tab

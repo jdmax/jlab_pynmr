@@ -15,12 +15,15 @@ class AnalTab(QWidget):
         
         self.parent = parent
 
-        self.base_pen = pg.mkPen(color=(180, 0, 0), width=1)
-        self.base2_pen = pg.mkPen(color=(0, 0, 150), width=1)
-        self.base3_pen = pg.mkPen(color=(0, 180, 0), width=1)
-        self.sub_pen = pg.mkPen(color=(180, 0, 0), width=1)
-        self.sub2_pen = pg.mkPen(color=(0, 0, 150), width=1)
-        self.sub3_pen = pg.mkPen(color=(0, 180, 0), width=1)
+        self.base_pen = pg.mkPen(color=(180, 0, 0), width=1.5)
+        self.base2_pen = pg.mkPen(color=(0, 0, 150), width=1.5)
+        self.base3_pen = pg.mkPen(color=(0, 180, 0), width=1.5)
+        self.sub_pen = pg.mkPen(color=(180, 0, 0), width=1.5)
+        self.sub2_pen = pg.mkPen(color=(0, 0, 150), width=1.5)
+        self.sub3_pen = pg.mkPen(color=(0, 180, 0), width=1.5)
+        self.res_pen = pg.mkPen(color=(180, 0, 0), width=1.5)
+        self.res2_pen = pg.mkPen(color=(0, 0, 150), width=1.5)
+        self.res3_pen = pg.mkPen(color=(0, 180, 0), width=1.5)
         
         
         self.base_chosen = None
@@ -45,7 +48,7 @@ class AnalTab(QWidget):
         self.base_box.layout().addWidget(self.base_stack)
         
                
-        # Subtraction and Sum Box
+        # Subtraction Box
         self.sub_box = QGroupBox('Fit Options')
         self.sub_box.setLayout(QVBoxLayout())
         self.left.addWidget(self.sub_box)
@@ -67,6 +70,7 @@ class AnalTab(QWidget):
         self.right = QVBoxLayout() 
         self.main.addLayout(self.right)
         
+        
         self.base_wid = pg.PlotWidget(title='Baseline Subtraction')
         self.base_wid.showGrid(True,True)
         self.base_wid.addLegend(offset=(0.5, 0))
@@ -83,10 +87,10 @@ class AnalTab(QWidget):
         self.base_wid.addItem(self.base_region2)
         self.right.addWidget(self.base_wid)
 
-        self.sub_wid = pg.PlotWidget(title='Fit Subtraction and Results')
+        self.sub_wid = pg.PlotWidget(title='Fit Subtraction')
         self.sub_wid.showGrid(True,True)
         self.sub_wid.addLegend(offset=(0.5, 0))
-        self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen, name='Unchanged') 
+        self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen, name='Baseline Subtracted') 
         self.fit_plot = self.sub_wid.plot([], [], pen=self.sub2_pen, name='Fit') 
         self.fitsub_plot = self.sub_wid.plot([], [], pen=self.sub3_pen, name='Subtracted') 
         self.sub_region1 = pg.LinearRegionItem(pen=pg.mkPen(0, 180, 0, 0), brush=pg.mkBrush(0, 0, 180, 0))
@@ -97,15 +101,22 @@ class AnalTab(QWidget):
         self.sub_region2.setMovable(False)
         self.sub_region2.setRegion([self.parent.event.scan.freq_list.max(), self.parent.event.scan.freq_list.max()])
         self.sub_wid.addItem(self.sub_region2)
+        self.right.addWidget(self.sub_wid)
+                
+        self.res_wid = pg.PlotWidget(title='Results')
+        self.res_wid.showGrid(True,True)
+        self.res_wid.addLegend(offset=(0.5, 0))
+        self.unc_plot = self.res_wid.plot([], [], pen=self.res_pen, name='Fit Subtracted') 
+        self.res_plot = self.res_wid.plot([], [], pen=self.sub3_pen, name='Result') 
         self.res_region = pg.LinearRegionItem(pen=pg.mkPen(0, 180, 0, 0), brush=pg.mkBrush(0, 180, 0, 0))
         self.res_region.setMovable(False)
         self.res_region.setRegion([self.parent.event.scan.freq_list.max(), self.parent.event.scan.freq_list.max()])
-        self.sub_wid.addItem(self.res_region)
-        self.right.addWidget(self.sub_wid)
+        self.res_wid.addItem(self.res_region)
+        self.right.addWidget(self.res_wid)        
      
-        # Set up list of baseline options, putting instances into stack
+        # Set up list of options for each step, putting instances into stack
         self.base_opts = []
-        self.base_opts.append(StandardBaseline(self))   
+        self.base_opts.append(StandardBase(self))   
         self.base_opts.append(PolyFitBase(self))  
         # self.base_opts.append(CircuitBase(self))   Not ready for prime time
         self.base_opts.append(NoBase(self))        
@@ -114,14 +125,15 @@ class AnalTab(QWidget):
             self.base_stack.addWidget(o)
         self.sub_opts = []
         self.sub_opts.append(PolyFitSub(self))
-        self.sub_opts.append(NoFit(self))
+        self.sub_opts.append(NoFitSub(self))
         for o in self.sub_opts:
             self.sub_combo.addItem(o.name)
             self.sub_stack.addWidget(o)
         self.res_opts = []
-        self.res_opts.append(SumAll(self))
-        self.res_opts.append(SumRange(self))
-        self.res_opts.append(PeakHeight(self))
+        self.res_opts.append(SumAllRes(self))
+        self.res_opts.append(SumRangeRes(self))
+        self.res_opts.append(PeakHeightRes(self))
+        self.res_opts.append(FitPeakRes(self))
         for o in self.res_opts:
             self.res_combo.addItem(o.name)
             self.res_stack.addWidget(o)
@@ -176,11 +188,14 @@ class AnalTab(QWidget):
         
         #print(self.parent.event.basesub, self.parent.event.poly_curve, self.parent.event.polysub)
         self.sub_plot.setData(self.parent.event.scan.freq_list, self.parent.event.basesub - self.parent.event.basesub.max())
-        self.fit_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitcurve - self.parent.event.fitcurve.max())
-        self.fitsub_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitsub)
+        self.fit_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitcurve - self.parent.event.basesub.max())
+        self.fitsub_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitsub)        
         
-class StandardBaseline(QWidget):
-    '''Layout and method for standard baseline subtract based on selected baseline from baseline tab
+        self.unc_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitsub)
+        self.res_plot.setData(self.parent.event.scan.freq_list, self.parent.event.rescurve)
+        
+class StandardBase(QWidget):
+    '''Layout and method for standard baseline subtract based on selected baseline from baseline tab.  Base type.
     '''
     
     def __init__(self, parent):
@@ -215,7 +230,7 @@ class StandardBaseline(QWidget):
         return basesweep, event.scan.phase - basesweep
     
 class PolyFitBase(QWidget):
-    '''Layout for polynomial fit to the background wings, including methods to produce fits
+    '''Layout for polynomial fit to the background wings, including methods to produce fits.  Base type.
     '''
     
     def __init__(self, parent):
@@ -326,7 +341,7 @@ class PolyFitBase(QWidget):
 
    
 class CircuitBase(QWidget):
-    '''Layout for circuit model fit to the background wings, including methods to produce fits
+    '''Layout for circuit model fit to the background wings, including methods to produce fits.  Base type.
     
     NOT IMPLEMENTED. Fits not quite converging, slow.
     
@@ -454,7 +469,7 @@ class CircuitBase(QWidget):
 
 
 class NoBase(QWidget):
-    '''Layout for no fit to the background wings, including methods to produce fits
+    '''Layout for no fit to the background wings, including methods to produce fits. Base type.
     '''
     
     def __init__(self, parent):
@@ -483,7 +498,7 @@ class NoBase(QWidget):
         return fitcurve, sub        
 
 class PolyFitSub(QWidget):
-    '''Layout for polynomial fit to the background wings, including methods to produce fits
+    '''Layout for polynomial fit to the background wings, including methods to produce fits. Sub type.
     '''
     
     def __init__(self, parent):
@@ -595,8 +610,8 @@ class PolyFitSub(QWidget):
         
 
 
-class NoFit(QWidget):
-    '''Layout for no fit to the background wings, including methods 
+class NoFitSub(QWidget):
+    '''Layout for no fit to the background wings, including methods. Sub type.
     '''
     
     def __init__(self, parent):
@@ -624,8 +639,8 @@ class NoFit(QWidget):
         area = sub.sum()
         return fitcurve, sub
         
-class SumAll(QWidget):
-    '''Layout and methods for integrtation over full signal range
+class SumAllRes(QWidget):
+    '''Layout and methods for integrtation over full signal range.  Results type.
     '''
     
     def __init__(self, parent):
@@ -652,11 +667,11 @@ class SumAll(QWidget):
         area = sub.sum()
         pol = area*event.cc
         self.message.setText(f"Area: {area}")
-        return area, pol
+        return sub, area, pol
         
 
-class SumRange(QWidget):
-    '''Layout and methods for integration within a given range
+class SumRangeRes(QWidget):
+    '''Layout and methods for integration within a given range.  Results type.
     '''
     
     def __init__(self, parent):
@@ -713,15 +728,15 @@ class SumRange(QWidget):
     
         sweep = event.fitsub
         bounds = [x*len(sweep) for x in self.wings]
-        data = [(x,y) for x,y in enumerate(sweep) if bounds[0]<x<bounds[1]]
+        data = [(x,y) if bounds[0]<x<bounds[1] else (x,0) for x,y in enumerate(sweep)]
         Y = np.array([y for x,y in data])
         area = Y.sum()
         pol = area*event.cc
         self.message.setText(f"Area: {area}")
-        return area, pol
+        return Y, area, pol
         
-class PeakHeight(QWidget):
-    '''Layout and methods for peak height results method. Area attribute is filled with peak height instead.
+class PeakHeightRes(QWidget):
+    '''Layout and methods for peak height results method. Area attribute is filled with peak height instead.  Results type.
     '''
     
     def __init__(self, parent):
@@ -746,9 +761,92 @@ class PeakHeight(QWidget):
         max = np.max(sweep)
         min = np.min(sweep)        
         area = max if abs(max)>abs(min) else min   # Using peak height represent area
+        data = [area for x in event.config.freq_list]
         
         pol = area*event.cc
         self.message.setText(f"Peak height: {area}")
-        return area, pol
+        return data, area, pol
                 
         
+class FitPeakRes(QWidget):
+    '''Layout and methods for fitting Gaussian on subtracted signal. Results type.
+    '''
+    
+    def __init__(self, parent):
+        super(QWidget, self).__init__(parent)
+        self.parent = parent
+        self.space = QVBoxLayout()
+        self.setLayout(self.space)
+        self.name = "Fit Peak and Integrate"
+        self.wings = self.parent.event.config.settings['analysis']['sum_range']
+        self.poly_label = QLabel("Fit Peak")
+        self.space.addWidget(self.poly_label)
+        self.message = QLabel()
+        self.space.layout().addWidget(self.message)
+        
+        self.grid2 = QGridLayout()
+        self.space.addLayout(self.grid2)
+        self.bounds_label = QLabel("Fit bounds (0 to 1):")
+        self.grid2.addWidget(self.bounds_label, 0, 0)
+        self.bounds_sb = []
+        for i, n in enumerate(self.wings):    # setup spin boxes for each bound
+            self.bounds_sb.append(QDoubleSpinBox())
+            self.bounds_sb[i].setValue(n)
+            self.bounds_sb[i].setSingleStep(0.01)
+            self.bounds_sb[i].valueChanged.connect(self.change_wings)            
+            self.grid2.addWidget(self.bounds_sb[i], 0, i+1)
+        self.change_wings()          
+            
+    def switch_here(self):
+        '''Things to do when this stack is chosen'''
+        self.parent.res_region.setBrush(pg.mkBrush(0, 180, 0, 20))
+        
+    def change_wings(self):
+        '''Choose fit frequency bounds'''
+        wings = [n.value() for n in self.bounds_sb]     
+        self.wings =  sorted(wings)
+        for w, b in zip(self.wings, self.bounds_sb):
+            b.setValue(w)      
+        min = self.parent.parent.event.scan.freq_list.min()
+        max = self.parent.parent.event.scan.freq_list.max() 
+        
+        bounds = [w*(max-min)+min for w in self.wings]  
+        self.parent.res_region.setRegion(bounds)
+        self.parent.run_analysis()  
+    
+    def result(self, event):        
+        '''Perform Gaussian fit and sum
+        
+        Arguments:
+            event: Event instance with sweeps to fit
+            
+        Returns:
+            area and polarization from sum under gaussian
+        '''
+        
+        self.pi = [-0.1, self.parent.config.channel['cent_freq'], self.parent.config.channel['mod_freq']*1E-3/10]
+        
+        sweep = event.fitsub
+        freqs = event.scan.freq_list
+        bounds = [x*len(sweep) for x in self.wings]
+        data = [z for x,z in enumerate(zip(freqs, sweep)) if bounds[0]<x<bounds[1]]
+        X = np.array([x for x,y in data])
+        Y = np.array([y for x,y in data])
+        pf, pcov = optimize.curve_fit(self.gaussian, X, Y, p0 = self.pi)
+        pstd = np.sqrt(np.diag(pcov))
+        fit = self.gaussian(freqs, *pf)                
+              
+        residuals = Y - self.gaussian(X, *pf)
+        ss_res = np.sum(residuals**2)
+        ss_tot = np.sum((Y - np.mean(Y))**2)
+        r_squared = 1 - (ss_res / ss_tot)                  
+                
+        area = fit.sum()
+        pol = area*event.cc
+        text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]
+        self.message.setText(f"Fit coefficients: \t \t \t R-squared: {r_squared:.2f}\n"+"\n".join(text_list)+"\n"+f"Area: {area}")
+        return fit, area, pol 
+    
+    def gaussian(self, x, *p): return p[0]*np.exp(-np.power((x-p[1]),2)/(2*np.power(p[2],2)))
+    
+    

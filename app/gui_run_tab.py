@@ -22,10 +22,10 @@ class RunTab(QWidget):
                
         # pyqtgrph styles        
         pg.setConfigOptions(antialias=True)
-        self.raw_pen = pg.mkPen(color=(250, 0, 0), width=1)
-        self.sub_pen = pg.mkPen(color=(0, 0, 204), width=1)
+        self.raw_pen = pg.mkPen(color=(250, 0, 0), width=1.5)
+        self.sub_pen = pg.mkPen(color=(0, 0, 204), width=1.5)
         self.fit_pen = pg.mkPen(color=(255, 255, 0), width=3)
-        self.fin_pen = pg.mkPen(color=(0, 160, 0), width=1)
+        self.fin_pen = pg.mkPen(color=(0, 160, 0), width=1.5)
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         
