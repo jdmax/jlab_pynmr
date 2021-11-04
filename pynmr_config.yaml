@@ -42,12 +42,13 @@ settings:
     event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
     log_dir: log                # Directory to put log files in, relative to main.py or absolute
-    ss_dir: False               # Directory to put screenshots files in, screenshots not taken if False
+    ss_dir: false               # Directory to put screenshots files in, screenshots not taken if False
     steps: 500                  # Frequency points per sweep (must be 500 for test sweeps, 512 otherwise)
     num_per_chunk: 64           # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
     tune_per_chunk:  32          # Number of sweeps per chunk to take in tune mode
     epics_temp: 4he             # EPICS channel of temp to use as default 
-    epics_test: True            # If true, doesn't attempt to contact EPICS server
+    epics_test: true            # If true, doesn't attempt to contact EPICS server
+    uwave_read: true            # If true, read microwave freq from counter through ethernet interface
     fpga_settings:    
         ip: 129.57.37.134       # Device IP address (str)
         port: 1028              # Device port  (int)
@@ -58,13 +59,13 @@ settings:
         timeout_tune: 1         # TCP timeout for running sweeps
         timeout_check: 1        # TCP timeout for running sweeps
         timeout_udp: 1          # TCP timeout for running sweeps
-        adc_drate1: True        # ADC data rate settings, see manual
-        adc_drate0: True
-        adc_fpath: False        # ADC fpath setting, see manual
+        adc_drate1: true        # ADC data rate settings, see manual
+        adc_drate0: true
+        adc_fpath: false        # ADC fpath setting, see manual
         phase_cal: 211692085    # Conversion int to divide phase ADC values by to get max of 1
         diode_cal: 829421       # Conversion int to divide diode ADC values by to get max of 1
-        test_freqs: False       # Send test frequencies to FPGA
-        adc_test: False         # ADC test mode flag
+        test_freqs: false       # Send test frequencies to FPGA
+        adc_test: false         # ADC test mode flag
     nidaq_settings:
         phase_chan: Dev1/ai0
         diode_chan: Dev1/ai1
@@ -74,8 +75,17 @@ settings:
         settling_ratio: 0.5     # Where in the dwell time the read occurs (0 to 1)     
     RS_settings:
         ip: 129.57.37.135       # R&S IP
-        power: 100              # RF amplitude in mV
         timeout: 2              # Telnet timeout in secs
+    uWave_settings:
+        enable: true            # Turn on uWave controls
+        monitor_time: 0.2         # How long to wait between reading frequency when on monitor in s
+        ip: pt-gpib1            # GPIB IP
+        timeout: 2              # Telnet timeout in secs
+        counter_addr: 20        # EIP 588C frequency counter GPIB address
+        cent_freq: 138.8        # Microwave counter center frequency in GHz
+        band: 3                 # Microwave counter band
+        subband: 8              # Microwwave counter subband
+        rate: 100               # Counter sample rate in ms
     analysis:
         base_def: 0             # index of default baseline subtraction method      
         sub_def: 0              # index of default fit subtraction method   
@@ -93,16 +103,15 @@ epics_reads:                    # EPICS channels to read: key is channel name, v
     3he: 3He Temp (K)
     bath_top: Bath Top (K)
     bath_bot: Bath Bottom (K)
-    uwave_f: uWave Freq (GHz)
     uwave_p: uWave Power (mW)
     main_f: Main Flow (slpm)
     sep_f: Separator Flow (slpm)
     mag_i: Magnet Current (A)
     posit: Target Position
-    test: Test Item
 epics_writes:                   # List of channels to write, key is channel, value is attribute of Event class 
     targ_pol: pol 
     targ_area: area
     targ_cc: cc
     targ_time: stop_stamp  
+    uwave_f: uwave_freq
 ...

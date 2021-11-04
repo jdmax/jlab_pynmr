@@ -192,6 +192,7 @@ class Event():
         base_time: Datetime object for stop of baseline event
         base_stamp: Timestamp int of baseline event
         base_file: Filename string where baseline event can be found
+        uwave_freq: Microwave frequency (GHz) as read from GPIB
     '''
    
     def __init__(self, config):

@@ -210,7 +210,7 @@ class MainWindow(QMainWindow):
         '''Initialize connections to required instruments, EPICS server
         '''
         self.epics = EPICS(self.settings['epics_test'], self.epics_reads, self.epics_writes)  # open EPICS
-        self.rs = RS_Connection(self.config)            # open connection to Rohde and Schwarz, set stuff
+        self.rs = RS_Connection(self.config)            # open connection to Rohde and Schwarz, set stuff        
 
     def connect_daq(self):
         '''Try test connect to DAQ devices, turn on run buttons if successful'''

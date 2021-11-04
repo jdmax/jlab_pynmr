@@ -10,6 +10,7 @@ import pyqtgraph as pg
  
 from app.classes import *
 from app.daq import *
+from app.microwaves import *
    
 class RunTab(QWidget):
     '''Creates run tab. Starts threads for run and to update plots'''
@@ -35,7 +36,7 @@ class RunTab(QWidget):
         self.upperlayout = QHBoxLayout()     # Upper part of main layout
          
         # Populate Status Box
-        self.status_box = QGroupBox('Status')
+        self.status_box = QGroupBox('EPICS Reads')
         self.status_box.setLayout(QGridLayout())
         self.upperlayout.addWidget(self.status_box)
         i = 0
@@ -70,7 +71,28 @@ class RunTab(QWidget):
         #self.progress_bar.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Expanding)
         self.controls_box.layout().addWidget(self.progress_bar, 0, 1)
        
-        # Populate NMR Settings box
+        # Populate uWave settings if enabled
+        if self.parent.config.settings['uWave_settings']['enable']:
+            self.uwave_box = QGroupBox('Microwaves')
+            self.uwave_box.setLayout(QVBoxLayout())
+            self.midlayout.addWidget(self.uwave_box)
+            self.uwave_layout = QGridLayout()
+            self.uwave_box.layout().addLayout(self.uwave_layout)
+            self.uwave_freq_label = QLabel('Freq:  0 GHz')
+            self.uwave_layout.addWidget(self.uwave_freq_label, 0, 1)
+            self.enable_button = QPushButton("Enable",checkable=True)      # Enable button
+            self.uwave_layout.addWidget(self.enable_button, 0, 0)
+            self.enable_button.clicked.connect(self.enable_pushed)
+            #self.uwave_freq_line = QLineEdit(str(0))
+            #self.uwave_freq_line.setEnabled(False)
+            #self.uwave_layout.addWidget(self.uwave_freq_line, 0, 1)
+            self.down_button = QPushButton("Down",checkable=False, enabled=False)       # Decrease freq button
+            self.uwave_layout.addWidget(self.down_button, 1, 0)
+            self.up_button = QPushButton("Up",checkable=False, enabled=False)       # Increase freq button
+            self.uwave_layout.addWidget(self.up_button, 1, 1)
+        
+        
+        # Populate NMR Settings box 
         self.settings_box = QGroupBox('NMR Settings')
         self.settings_box.setLayout(QVBoxLayout())
         self.midlayout.addWidget(self.settings_box)
@@ -83,9 +105,7 @@ class RunTab(QWidget):
         self.combo_changed()
         self.settings_box.layout().addWidget(self.channel_combo)
         self.settings_box.layout().addWidget(self.channel_label)
-        self.settings_box.layout().addWidget(self.parent.divider())
-        
-        
+        self.settings_box.layout().addWidget(self.parent.divider())        
         
         self.controls_layout = QGridLayout()
         self.settings_box.layout().addLayout(self.controls_layout)
@@ -324,6 +344,28 @@ class RunTab(QWidget):
     def connect_pushed(self):
         '''Connect button pushed, run parent connect method'''
         self.parent.connect_daq()
+    
+    def enable_pushed(self):
+        '''Enable button pushed, turn on buttons and start thread if checked'''
+        sender = self.enable_button
+        if sender.isChecked():
+            sender.setText('Disable')
+            self.up_button.setEnabled(True)
+            self.down_button.setEnabled(True)
+            try:
+                self.micro_thread = MicrowaveThread(self, self.parent.config)
+                self.micro_thread.reply.connect(self.freq_reply)
+                self.micro_thread.start()
+            except Exception as e: 
+                print('Exception starting microwave thread, lost connection: '+str(e))  
+        else: 
+            sender.setText('Enable')
+            self.up_button.setEnabled(False)
+            self.down_button.setEnabled(False)
+    
+    def freq_reply(self, freq):
+        '''Got freq from counter, display it'''
+        self.uwave_freq_label.setText(f"Freq: {freq} GHz")
    
 class RunThread(QThread):
     '''Thread class for main NMR run loop

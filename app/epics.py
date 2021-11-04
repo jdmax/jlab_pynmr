@@ -11,7 +11,7 @@ class EPICS():
         p1.value = 2.0         # this is a put
     
     Arguments:
-        test_chan:  Name of EPICS channel to test to see if the connection is working, otherwise use test mode
+        test_chan:  Won't contact server if test_mode is true
         read_names: Dict of channel names string to read keyed on epics channel ie 'HBPT:targ_pol'
         write_atts: Dict of Event attributes to write keyed on epics channel
     
