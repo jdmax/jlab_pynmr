@@ -38,17 +38,16 @@ channels:
         sweep_file: tri         
 settings:
     default_channel: Proton4.87T     # Default from channels listed above
-    daq_type: Test              # Select DAQ mode (FPGA, NIDAQ or Test)
+    daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ or Test)
     event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
     log_dir: log                # Directory to put log files in, relative to main.py or absolute
     ss_dir: false               # Directory to put screenshots files in, screenshots not taken if False
-    steps: 500                  # Frequency points per sweep (must be 500 for test sweeps, 512 otherwise)
+    steps: 512                  # Frequency points per sweep (must be 500 for test sweeps, 512 otherwise)
     num_per_chunk: 64           # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
     tune_per_chunk:  32          # Number of sweeps per chunk to take in tune mode
     epics_temp: 4he             # EPICS channel of temp to use as default 
     epics_test: true            # If true, doesn't attempt to contact EPICS server
-    uwave_read: true            # If true, read microwave freq from counter through ethernet interface
     fpga_settings:    
         ip: 129.57.37.134       # Device IP address (str)
         port: 1028              # Device port  (int)
