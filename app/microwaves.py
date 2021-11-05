@@ -15,23 +15,24 @@ class MicrowaveThread(QThread):
         QThread.__init__(self)
         self.config = config
         self.parent = parent 
-        try:
-            self.count = Counter(config)
-        except Exception as e:
-            print('Exception starting counter thread, lost connection: '+str(e))
             
                 
     def __del__(self):
-        self.count.close()
         self.wait()
         
     def run(self):
         '''Main microwave control loop
-        '''
-        
+        '''        
+        try:
+            self.count = Counter(self.config)
+            time.sleep(self.config.settings['uWave_settings']['monitor_time'])
+        except Exception as e:
+            print('Exception starting counter thread, lost connection: '+str(e))
+            
         while self.parent.enable_button.isChecked():       
             try:        
-                self.reply.emit(self.count.read_freq())
+                freq = self.count.read_freq()
+                self.reply.emit((freq,))
             except Exception as e:
                 print(f"GPIB connection failed: {e}")  
                 self.parent.enable_button.toggle()
@@ -65,10 +66,13 @@ class Counter():
             self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=config.settings['uWave_settings']['timeout'])
             
             # Write all required settings
-            self.tn.write(bytes(f"++addr {config.settings['uWave_settings']['counter_addr']}\n", 'ascii'))
-            self.tn.write(bytes(f"BA {config.settings['uWave_settings']['band']}\n", 'ascii'))
-            self.tn.write(bytes(f"SU {config.settings['uWave_settings']['subband']}\n", 'ascii'))
-            self.tn.write(bytes(f"SA {config.settings['uWave_settings']['rate']} ms\n", 'ascii'))
+            self.tn.write(bytes(f"FE 1\n", 'ascii'))  # Fetch setup 1
+            
+            # self.tn.write(bytes(f"++addr {config.settings['uWave_settings']['counter_addr']}\n", 'ascii'))
+            # self.tn.write(bytes(f"BA {config.settings['uWave_settings']['band']}\n", 'ascii'))
+            # self.tn.write(bytes(f"SU {config.settings['uWave_settings']['subband']}\n", 'ascii'))
+            # self.tn.write(bytes(f"CE {config.settings['uWave_settings']['cent_freq']} GHz\n", 'ascii'))
+            # self.tn.write(bytes(f"SA {config.settings['uWave_settings']['rate']} ms\n", 'ascii'))
             
             
             self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data

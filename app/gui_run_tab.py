@@ -346,7 +346,7 @@ class RunTab(QWidget):
         self.parent.connect_daq()
     
     def enable_pushed(self):
-        '''Enable button pushed, turn on buttons and start thread if checked'''
+        '''Enable microwaves button pushed, turn on buttons and start thread if checked'''
         sender = self.enable_button
         if sender.isChecked():
             sender.setText('Disable')
@@ -356,6 +356,7 @@ class RunTab(QWidget):
                 self.micro_thread = MicrowaveThread(self, self.parent.config)
                 self.micro_thread.reply.connect(self.freq_reply)
                 self.micro_thread.start()
+                print("started micro")
             except Exception as e: 
                 print('Exception starting microwave thread, lost connection: '+str(e))  
         else: 
@@ -365,7 +366,8 @@ class RunTab(QWidget):
     
     def freq_reply(self, freq):
         '''Got freq from counter, display it'''
-        self.uwave_freq_label.setText(f"Freq: {freq} GHz")
+        freq_flt = freq[0].strip()
+        self.uwave_freq_label.setText(f"Freq: {freq_flt} GHz")
    
 class RunThread(QThread):
     '''Thread class for main NMR run loop
