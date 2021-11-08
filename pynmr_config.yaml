@@ -85,6 +85,7 @@ settings:
         band: 3                 # Microwave counter band
         subband: 8              # Microwwave counter subband
         rate: 100               # Counter sample rate in ms
+        lj-ip: 129.57.37.33     # LabJack device IP, 129.57.37.33 is pt-labjack1
     analysis:
         base_def: 0             # index of default baseline subtraction method      
         sub_def: 0              # index of default fit subtraction method   

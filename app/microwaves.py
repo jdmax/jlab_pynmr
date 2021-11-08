@@ -1,6 +1,7 @@
 '''PyNMR, J.Maxwell 2021
 '''
 import telnetlib, time
+from labjack import ljm
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 
   
@@ -21,7 +22,7 @@ class MicrowaveThread(QThread):
         self.wait()
         
     def run(self):
-        '''Main microwave control loop
+        '''Main microwave read loop
         '''        
         try:
             self.count = Counter(self.config)
@@ -97,3 +98,43 @@ class Counter():
             tn.close()
         except Exception as e:
             print(f"GPIB connection failed on {self.host}: {e}")
+            
+            
+            
+class LabJack():      
+    '''Access LabJack device to change microwave frequency, readback temp, pot      
+    '''
+    
+    def __init__(self, config):
+        '''Open connection to LabJack
+        '''  
+        ip = self.config.settings['uWave_settings']['lj-ip']
+        try:
+            self.lj = ljm.openS("T4", "TCP", ip) 
+        except Exception as e:
+            print(f"Connection to LabJack failed on {ip}: {e}")
+        
+    def change_freq(self, direction):
+        '''Write to LabJack to change microwave frequency up or down 
+        '''
+        aNames = ["DAC0","DAC1"]
+        if "up" in direction:
+            aValues = [9.5, 0]
+        elif "down" in direction:
+            aValues = [0, 9.5]
+        else:    
+            aValues = [0, 0]
+        
+        ljm.eWriteNames(self.lj, len(aNames), aNames, aValues)
+        
+    
+    def read_back(self):
+        '''Read temperature and potentiometer position from LabJack. Returns array of ADC values.
+        '''
+        aNames = ["ADC0","ADC1"]
+        return ljm.eReadNames(self.lj, len(aNames), aNames)
+        
+    def __del__(self):
+        '''Close on delete'''
+        ljm.close(self.lj)
+    
