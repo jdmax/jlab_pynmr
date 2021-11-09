@@ -86,12 +86,12 @@ class Counter():
     
     def read_freq(self):
         '''Read frequency from open connection'''        
-        try:
-            self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
-            freq = self.tn.read_some().decode('ascii')  
-            return freq  
-        except Exception as e:
-            print(f"GPIB connection failed on {self.host}: {e}")  
+      #  try:
+        self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
+        freq = self.tn.read_some().decode('ascii')  
+        return freq  
+        # except exception as e:
+            # print(f"GPIB connection failed on {self.host}: {e}")  
         
     def close(self):           
         try:
@@ -108,7 +108,7 @@ class LabJack():
     def __init__(self, config):
         '''Open connection to LabJack
         '''  
-        ip = self.config.settings['uWave_settings']['lj-ip']
+        ip = config.settings['uWave_settings']['lj-ip']
         try:
             self.lj = ljm.openS("T4", "TCP", ip) 
         except Exception as e:
@@ -117,6 +117,7 @@ class LabJack():
     def change_freq(self, direction):
         '''Write to LabJack to change microwave frequency up or down 
         '''
+        print("changing to", direction)
         aNames = ["DAC0","DAC1"]
         if "up" in direction:
             aValues = [9.5, 0]
@@ -136,5 +137,6 @@ class LabJack():
         
     def __del__(self):
         '''Close on delete'''
-        ljm.close(self.lj)
+        ljm.close(self.lj) 
+            
     
