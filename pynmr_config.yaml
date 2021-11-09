@@ -73,7 +73,7 @@ settings:
         time_per_pt: 29         # Dwell time at frequency, usecs
         settling_ratio: 0.5     # Where in the dwell time the read occurs (0 to 1)     
     RS_settings:
-        ip: 129.57.37.135       # R&S IP
+        ip: rsgen1              # R&S RF generator IP
         timeout: 2              # Telnet timeout in secs
     uWave_settings:
         enable: true            # Turn on uWave controls
@@ -85,6 +85,8 @@ settings:
         band: 3                 # Microwave counter band
         subband: 8              # Microwwave counter subband
         rate: 100               # Counter sample rate in ms
+    shim_settings:
+        ip: rssup1              # R&S supply IP
     analysis:
         base_def: 0             # index of default baseline subtraction method      
         sub_def: 0              # index of default fit subtraction method   

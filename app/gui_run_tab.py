@@ -73,7 +73,7 @@ class RunTab(QWidget):
        
         # Populate uWave settings if enabled
         if self.parent.config.settings['uWave_settings']['enable']:
-            self.uwave_box = QGroupBox('Microwaves')
+            self.uwave_box = QGroupBox('Microwave Controls')
             self.uwave_box.setLayout(QVBoxLayout())
             self.midlayout.addWidget(self.uwave_box)
             self.uwave_layout = QGridLayout()

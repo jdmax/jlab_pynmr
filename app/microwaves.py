@@ -51,19 +51,18 @@ class Counter():
         
     Arguments:
         config: Current Config object 
-    '''
-    
+    '''    
     
     def __init__(self, config):    
         '''Open connection to GPIB, send commands for all settings. Close.  
         '''
         self.host = config.settings['uWave_settings']['ip']
         self.port = 1234   
-        timeout: 2              # Telnet timeout in secs
+        self.timeout = config.settings['uWave_settings']['timeout']              # Telnet timeout in secs
 
  
         try:
-            self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=config.settings['uWave_settings']['timeout'])
+            self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
             
             # Write all required settings
             self.tn.write(bytes(f"FE 1\n", 'ascii'))  # Fetch setup 1

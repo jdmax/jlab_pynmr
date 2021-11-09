@@ -17,11 +17,12 @@ from app.classes import Config, Scan, RunningScan, Event, Baseline, HistPoint, H
 from app.epics import EPICS
 from app.gui_run_tab import RunTab
 from app.gui_base_tab import BaseTab
-from app.gui_mag_tab import MagTab
 from app.gui_tune_tab import TuneTab
 from app.gui_te_tab import TETab
 from app.gui_anal_tab import AnalTab
 from app.gui_expl_tab import ExplTab
+from app.gui_shim_tab import ShimTab
+from app.gui_mag_tab import MagTab
 from app.daq import DAQConnection, UDP, TCP, RS_Connection, NI_Connection
 #from app.magnet_control import MagnetControl
 
@@ -85,6 +86,8 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.tune_tab, "Tune")
         self.base_tab = BaseTab(self)
         self.tab_widget.addTab(self.base_tab, "Baseline")
+        self.shim_tab = ShimTab(self)
+        self.tab_widget.addTab(self.shim_tab, "Shims")
         #self.mag_tab = MagTab(self)
         #self.tab_widget.addTab(self.mag_tab, "Magnet")
         self.te_tab = TETab(self)
