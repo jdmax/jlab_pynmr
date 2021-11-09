@@ -374,12 +374,13 @@ class RunTab(QWidget):
             self.up_button.setEnabled(False)
             self.down_button.setEnabled(False)
     
-    def freq_reply(self, freq):
+    def freq_reply(self, reply):
         '''Got replay from micro thread, display it'''
-        freq_flt = freq[0].strip()
-        values = freq[1]
-        self.uwave_freq_label.setText(f"Freq: {freq_flt} GHz")
-        #self.uwave_freq_label.setText(f"{values}")
+        freq = reply[0].strip()
+        pot = reply[1]
+        temp = reply[2]
+        #self.uwave_freq_label.setText(f"Freq: {freq_flt} GHz")
+        self.uwave_freq_label.setText(f"{pot, temp}")
         
     def up_micro(self):
         '''Up pressed'''

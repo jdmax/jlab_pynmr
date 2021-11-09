@@ -39,10 +39,10 @@ class MicrowaveThread(QThread):
                 self.parent.enable_pushed()
                 break
             try: 
-                values = self.parent.utune.read_back()
+                pot, temp = self.parent.utune.read_back()
             except Exception as e:                
                 print('Exception reading LabJack: '+str(e))
-            self.reply.emit((freq,values))
+            self.reply.emit((freq, pot, temp))
             time.sleep(self.config.settings['uWave_settings']['monitor_time'])
           
         self.finished.emit()
@@ -137,8 +137,8 @@ class LabJack():
         aNames = ["AIN0","AIN1"]
         return ljm.eReadNames(self.lj, len(aNames), aNames)
         
-    def __del__(self):
-        '''Close on delete'''
-        ljm.close(self.lj) 
+    # def __del__(self):
+        # '''Close on delete'''
+        # ljm.close(self.lj) 
             
     
