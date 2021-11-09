@@ -87,8 +87,12 @@ class RunTab(QWidget):
             #self.uwave_freq_line.setEnabled(False)
             #self.uwave_layout.addWidget(self.uwave_freq_line, 0, 1)
             self.down_button = QPushButton("Down",checkable=False, enabled=False)       # Decrease freq button
+            self.down_button.pressed.connect(down_micro)
+            self.down_button.released.connect(off_micro)
             self.uwave_layout.addWidget(self.down_button, 1, 0)
             self.up_button = QPushButton("Up",checkable=False, enabled=False)       # Increase freq button
+            self.up_button.pressed.connect(up_micro)
+            selfup_button.released.connect(off_micro)
             self.uwave_layout.addWidget(self.up_button, 1, 1)
         
         
@@ -356,9 +360,15 @@ class RunTab(QWidget):
                 self.micro_thread = MicrowaveThread(self, self.parent.config)
                 self.micro_thread.reply.connect(self.freq_reply)
                 self.micro_thread.start()
-                print("started micro")
             except Exception as e: 
-                print('Exception starting microwave thread, lost connection: '+str(e))  
+                print('Exception starting microwave thread, lost connection: '+str(e)) 
+                self.enable_button.toggle()
+                self.enable_pushed() 
+                
+            try: 
+                self.utune = LabJack(self.parent.config)
+            except Exception as e: 
+                print('Exception starting microwave tuner: '+str(e))
         else: 
             sender.setText('Enable')
             self.up_button.setEnabled(False)
@@ -368,6 +378,17 @@ class RunTab(QWidget):
         '''Got freq from counter, display it'''
         freq_flt = freq[0].strip()
         self.uwave_freq_label.setText(f"Freq: {freq_flt} GHz")
+        
+    def up_micro(self):
+        '''Up pressed'''
+        self.utune.change_freq('up')
+    def down_micro(self):
+        '''Down pressed'''
+        self.utune.change_freq('down')
+    def off_micro(self):
+        '''Button released'''
+        self.utune.change_freq('off')
+        
    
 class RunThread(QThread):
     '''Thread class for main NMR run loop
