@@ -87,12 +87,12 @@ class RunTab(QWidget):
             #self.uwave_freq_line.setEnabled(False)
             #self.uwave_layout.addWidget(self.uwave_freq_line, 0, 1)
             self.down_button = QPushButton("Down",checkable=False, enabled=False)       # Decrease freq button
-            self.down_button.pressed.connect(down_micro)
-            self.down_button.released.connect(off_micro)
+            self.down_button.pressed.connect(self.down_micro)
+            self.down_button.released.connect(self.off_micro)
             self.uwave_layout.addWidget(self.down_button, 1, 0)
             self.up_button = QPushButton("Up",checkable=False, enabled=False)       # Increase freq button
-            self.up_button.pressed.connect(up_micro)
-            selfup_button.released.connect(off_micro)
+            self.up_button.pressed.connect(self.up_micro)
+            self.up_button.released.connect(self.off_micro)
             self.uwave_layout.addWidget(self.up_button, 1, 1)
         
         
@@ -375,16 +375,20 @@ class RunTab(QWidget):
             self.down_button.setEnabled(False)
     
     def freq_reply(self, freq):
-        '''Got freq from counter, display it'''
+        '''Got replay from micro thread, display it'''
         freq_flt = freq[0].strip()
+        values = freq[1]
         self.uwave_freq_label.setText(f"Freq: {freq_flt} GHz")
+        #self.uwave_freq_label.setText(f"{values}")
         
     def up_micro(self):
         '''Up pressed'''
         self.utune.change_freq('up')
+        
     def down_micro(self):
         '''Down pressed'''
         self.utune.change_freq('down')
+        
     def off_micro(self):
         '''Button released'''
         self.utune.change_freq('off')

@@ -33,13 +33,16 @@ class MicrowaveThread(QThread):
         while self.parent.enable_button.isChecked():       
             try:        
                 freq = self.count.read_freq()
-                self.reply.emit((freq,))
             except Exception as e:
                 print(f"GPIB connection failed: {e}")  
                 self.parent.enable_button.toggle()
                 self.parent.enable_pushed()
                 break
-            
+            try: 
+                values = self.parent.utune.read_back()
+            except Exception as e:                
+                print('Exception reading LabJack: '+str(e))
+            self.reply.emit((freq,values))
             time.sleep(self.config.settings['uWave_settings']['monitor_time'])
           
         self.finished.emit()
@@ -119,9 +122,9 @@ class LabJack():
         print("changing to", direction)
         aNames = ["DAC0","DAC1"]
         if "up" in direction:
-            aValues = [9.5, 0]
+            aValues = [5, 0]
         elif "down" in direction:
-            aValues = [0, 9.5]
+            aValues = [0, 5]
         else:    
             aValues = [0, 0]
         
@@ -131,7 +134,7 @@ class LabJack():
     def read_back(self):
         '''Read temperature and potentiometer position from LabJack. Returns array of ADC values.
         '''
-        aNames = ["ADC0","ADC1"]
+        aNames = ["AIN0","AIN1"]
         return ljm.eReadNames(self.lj, len(aNames), aNames)
         
     def __del__(self):
