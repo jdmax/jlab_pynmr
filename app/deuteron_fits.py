@@ -20,22 +20,21 @@ class DFits():
         Returns:
             result object from lmfit
         '''
+        mod = Model(self.FitFunc)
+        params = mod.make_params(A=p['A'], G=p['G'], r=p['r'], wQ=p['wQ'], wL=p['wL'], eta=p['eta'], xi=p['xi'])  
+        self.result = mod.fit(signal, params=params, w=freqs)
         
-        mod = Model(FitFunc)
-        params = mod.make_params(A=p['A'], G=p['G'], r=p['r'], wQ=p['wQ'], wL=p['wL'], eta=p['eta'], xi=p['xi'])        
-        result = mod.fit(signal, params, w=freqs)
-        
-        return result
+        return
             
-    def FitFunc(w, A, G, r, wQ, wL, eta, xi):
+    def FitFunc(self, w, A, G, r, wQ, wL, eta, xi):
         '''Overall deuteron lineshape function'''
         R = (w - wL)/(3*wQ)
 
-        Ip, dIpdr = Iplus(r, wQ/wL, R)
-        Im, dImdr = Iminus(r, wQ/wL, R)
+        Ip, dIpdr = self.Iplus(r, wQ/wL, R)
+        Im, dImdr = self.Iminus(r, wQ/wL, R)
 
-        Fm, dFm_dR, dFm_dA, dFm_dEta = FandDerivs(R, A, -1, eta)
-        Fp, dFp_dR, dFp_dA, dFp_dEta = FandDerivs(R, A, 1, eta)
+        Fm, dFm_dR, dFm_dA, dFm_dEta = self.FandDerivs(R, A, -1, eta)
+        Fp, dFp_dR, dFp_dA, dFp_dEta = self.FandDerivs(R, A, 1, eta)
 
         Fm /= wQ 
         dFm_dR /= wQ
@@ -60,7 +59,7 @@ class DFits():
         yp =  fAsym*Fp 
         return y
 
-    def Iplus(r, Q, R):    
+    def Iplus(self, r, Q, R):    
         '''Returns: II, dI_dr '''
         r3QR = np.power(r, -3*Q*R)
         NN = r*(r + r3QR) + 1
@@ -68,7 +67,7 @@ class DFits():
         dI_dr = (2*r*(1-II)-(1-3*Q*R)*r3QR*(1+II))/NN
         return II, dI_dr    
 
-    def Iminus(r, Q, R):
+    def Iminus(self, r, Q, R):
         '''Returns: II, dI_dr '''
         r3QR = np.power(r, 3*Q*R)
         NN = r*(r + r3QR) + 1
@@ -76,7 +75,7 @@ class DFits():
         dI_dr = ((1+3*Q*R)*r3QR*(1-II)-2*r*II)/NN 
         return II, dI_dr
 
-    def Integrals( R, A, eps, Y2, etac2p):
+    def Integrals(self, R, A, eps, Y2, etac2p):
         ''' Returns: ans1, ans2, ans3, ans4'''
         Y = np.sqrt(Y2)
         Yx2 = 2*Y
@@ -104,18 +103,18 @@ class DFits():
 
         return ans1, ans2, ans3, ans4
 
-    def FandDerivs(R, A, eps, eta):
+    def FandDerivs(self, R, A, eps, eta):
         '''Returns FF, dFdA, dFdR, dFdEta'''
         if eta < 0.001:
             Y2 = 3
-            I1, I2, I3, I4 = Integrals(R, A, eps, Y2, 0)
+            I1, I2, I3, I4 = self.Integrals(R, A, eps, Y2, 0)
             FF = I1*A
             dFdA = (I1 - 2.0 * A*A * I3 )    
             dFdR = ( (1 - eps * R) * I3 - I4 ) * 2 * A * eps  
             dFdEta = 0
         else:
             Y2 = 3
-            I1, I2, I3, I4 = Integrals(R, A, eps, Y2, 0)
+            I1, I2, I3, I4 = self.Integrals(R, A, eps, Y2, 0)
             FF, dFdA, dFdR, dFdEta = (0,0,0,0) 
             eRm1 = 1 - eps*R
             dphi = 1
@@ -127,7 +126,7 @@ class DFits():
                 Y = np.sqrt(Y2) 
                 z2 = eRm1 - ec2p 
           
-                I1, I2, I3, I4 = Integrals(R, A, eps, Y2, 0)
+                I1, I2, I3, I4 = self.Integrals(R, A, eps, Y2, 0)
           
                 fac = 0.5 * np.sqrt(3) / Y       
                 FF += fac * I1 * A  
@@ -149,7 +148,7 @@ class DFits():
                     Y = np.sqrt(Y2)
                     z2 = eRm1 - ec2p
 
-                    I1, I2, I3, I4 = Integrals(R, A, eps, Y2, ec2p)
+                    I1, I2, I3, I4 = self.Integrals(R, A, eps, Y2, ec2p)
 
                     fac = np.sqrt(3)/Y
 

@@ -891,12 +891,12 @@ class FitDeuteron(QWidget):
         sweep = event.fitsub
         freqs = event.scan.freq_list
         
-        result = DFits(freqs, sweep, self.params)
+        res = DFits(freqs, sweep, self.params)
         
-        r = result.params['r'].value
-        fit = result.best_fit
+        r = res.result.params['r'].value
+        fit = res.result.best_fit
         pol = (r*r-1)/(r*r + r +1)
-        self.message.setText(result.fit_report())
+        self.message.setText(f"Polarization: {pol*100:.2f}%\n {res.result.fit_report()}")
         return fit, r, pol 
     
    

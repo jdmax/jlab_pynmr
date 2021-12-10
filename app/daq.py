@@ -2,6 +2,7 @@
 '''
 import socket
 import time
+import json
 import telnetlib
 import unyt
 import numpy as np
@@ -50,7 +51,13 @@ class DAQConnection():
             
             
         elif self.daq_type=='Test':          
-            v, self.test_phase, self.test_diode = np.loadtxt("app/test_data.txt", unpack=True)               
+            #v, self.test_phase, self.test_diode = np.loadtxt("app/test_data.txt", unpack=True) 
+            with open(self.config.settings['test_signal'], 'r') as file:
+                for line in file:
+                    event = json.loads(line)
+                    self.test_phase = np.array(event['phase'])
+                    self.test_diode = np.array(event['diode'])
+                    self.test_freqs = np.array(event['freq_list'])
             self.message = 'DAQ Test mode.'
             self.name = 'Test'
             

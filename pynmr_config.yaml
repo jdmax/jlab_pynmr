@@ -1,6 +1,13 @@
 # PyNMR Config file, YAML
 ---
-channels:
+channels:    
+    Deuteron5T:
+        name: Deuteron5T
+        species: deuteron
+        cent_freq: 32.7       
+        mod_freq: 400.0        
+        power: 200.0      
+        sweep_file: tri   
     Proton4.87T:
         name: Proton4.87T
         species: proton 
@@ -29,16 +36,11 @@ channels:
         mod_freq: 400.0             # Frequency modulation in kHz   (float)
         power: 200.0                # RF power in mV  (float)
         sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
-    Deuteron5T:
-        name: Deuteron5T
-        species: deuteron
-        cent_freq: 32.7       
-        mod_freq: 400.0        
-        power: 200.0      
-        sweep_file: tri         
+      
 settings:
-    default_channel: Proton4.87T     # Default from channels listed above
-    daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ or Test)
+    default_channel: Deuteron5T     # Default from channels listed above
+    daq_type: Test             # Select DAQ mode (FPGA, NIDAQ or Test)
+    test_signal: app/d_signal_event.txt  # signal to use for test mode
     event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
     log_dir: log                # Directory to put log files in, relative to main.py or absolute
@@ -105,7 +107,7 @@ settings:
             G : -0.02
             r : 1.2
             wQ : 0.025
-            wL : 32.4
+            wL : 32.7
             eta : 0.1
             xi : .04
 epics_reads:                    # EPICS channels to read: key is channel name, value is string to display
