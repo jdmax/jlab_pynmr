@@ -100,6 +100,14 @@ settings:
         sum_range:              # default bounds for range integration option
             - 0.35
             - 0.65
+        d_fit_params:           # initial parameters for Dulya fits
+            A : 0.0468
+            G : -0.02
+            r : 1.2
+            wQ : 0.025
+            wL : 32.4
+            eta : 0.1
+            xi : .04
 epics_reads:                    # EPICS channels to read: key is channel name, value is string to display
     4he: 4He Temp (K)
     3he: 3He Temp (K)

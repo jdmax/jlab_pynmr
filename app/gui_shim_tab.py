@@ -3,6 +3,8 @@
 import datetime
 import re
 import json
+import numpy as np
+from scipy.optimize import minimize
 from dateutil.parser import parse
 from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QTableView, QAbstractItemView, QAbstractScrollArea, QFileDialog
 from PyQt5.QtCore import QThread, pyqtSignal,Qt
@@ -60,4 +62,106 @@ class ShimControl():
         self.port = 5025    
         
         
-        
+
+
+frost = np.array([4.9995, 4.999595, 4.99969, 4.9997575, 4.999825, 4.9998675,
+              4.99991, 4.9999425, 4.999975, 4.9999975, 5.00002, 5.000035,
+              5.00005, 5.000055, 5.00006, 5.00006, 5.00006, 5.0000575,
+              5.000055, 5.0000525, 5.00005, 5.000045, 5.000035, 5.00003,
+              5.00002, 5.000015, 5.00001, 5.0000075, 5.000005, 5.0000025,
+              5, 5.0000025, 5.000005, 5.0000075, 5.00001, 5.000015, 5.00002,
+              5.0000225, 5.000025, 5.0000325, 5.00004, 5.0000475, 5.000055,
+              5.00006, 5.000065, 5.00007, 5.000075, 5.000075, 5.000075,
+              5.0000675, 5.00006, 5.00005, 5.00004, 5.00002, 5, 4.99997,
+              4.99994, 4.999895, 4.99985, 4.99978, 4.99971])
+
+clas = np.array([4.9990486, 4.9991143, 4.9991774, 4.9992379, 4.9992959,
+                 4.9993512, 4.9994041, 4.9994545, 4.9995025, 4.9995481,
+                 4.9995913, 4.9996322, 4.9996708, 4.9997072, 4.9997413,
+                 4.9997732, 4.9998029, 4.9998304, 4.9998558, 4.9998791,
+                 4.9999003, 4.9999194, 4.9999364, 4.9999514, 4.9999644,
+                 4.9999753, 4.9999842, 4.9999911, 4.9999961, 4.999999,
+                 5, 4.999999, 4.999996, 4.9999911, 4.9999842, 4.9999753,
+                 4.9999645, 4.9999517, 4.9999369, 4.9999201, 4.9999013,
+                 4.9998805, 4.9998577, 4.9998329, 4.999806, 4.9997771,
+                 4.9997461, 4.9997131, 4.9996779, 4.9996406, 4.9996011,
+                 4.9995595, 4.9995156, 4.9994696, 4.9994212, 4.9993707,
+                 4.9993177, 4.9992625, 4.9992049, 4.9991448, 4.9990824])
+
+def tilt(MIDinT,PEAKinG):
+    steps = PEAKinG/(30*10000) # G to T and divide by steps
+    tiltField = (np.arange(-30,31)*steps)+MIDinT
+    return tiltField
+
+def coilFromShims(currents):
+    z1 = np.array([-2.4424,-1.0393,0.0644,2.1887]) #left
+    z2 = np.array([-2.1887,-0.0644,1.0393,2.4424]) #right    
+    z1=z1/39.37 # inch to meter
+    z2=z2/39.37 # inch to meter
+    Z = np.arange(-30,31)
+    Z = Z/1000 # mm to meter
+    R = np.array([0.0335, 0.0338]) # inner and out layer radii
+    n=21500/2 # turns per length(one layer)
+    mu=12.57e-7 # permeability of free space
+    field=np.zeros(len(Z))
+    for j in [0,1]: # field at Z from coil (of size z1 -> z2)
+        for i in range(len(Z)):
+            a = mu*n*currents/2
+            b = ( Z[i]-z1 )/( np.sqrt((Z[i]-z1)**2 + R[j]**2) )
+            c = ( Z[i]-z2 )/( np.sqrt((Z[i]-z2)**2 + R[j]**2) )
+            bz = a*(b-c)
+            field[i]=field[i]+np.sum(np.sum(bz))
+    return field
+
+def chi(currents,background,goal):
+    shimField = coilFromShims(currents)+background
+    diff = shimField-goal
+    chi = (diff**2)/goal
+    chiSUM = np.sum(chi)
+    return chiSUM
+
+
+
+'''
+-------------------------------------------------------------------------
+-----------------------   USER INPUT STARTS HERE  -----------------------
+-------------------------------------------------------------------------
+'''
+
+Frostcurrent=1 # percent of 5T
+background = frost*Frostcurrent
+#background = clas
+
+
+#goal = tilt(5,10) # (midpint in T, far edge in G)
+#goal = clas
+goal = np.zeros(61)+10 # set to 10 for max
+
+
+'''
+-------------------------------------------------------------------------
+-----------------------   USER INPUT ENDS HERE  -----------------------
+-------------------------------------------------------------------------
+'''
+
+
+a = minimize(chi, np.array([1,1,1,1]), args=(background,goal), method='Nelder-Mead', bounds=((-10,10),(-10,10),(-10,10),(-10,10)))
+print(a.fun)
+print(a.x)
+
+if goal[1]==10:
+    a.x=np.array([10,10,10,10])
+    goal=background
+   
+justShims=coilFromShims(a.x)
+shimmed = justShims+background
+Z = np.arange(-30,31)
+
+# plt.title("Currents = " + np.array2string(a.x,precision=4),pad=25)
+# plt.xlabel("Z (mm)")
+# plt.ylabel("Bz (T)")
+# plt.plot(Z,goal,label="goal")
+# plt.plot(Z,shimmed,label="shimmed")
+# plt.plot(Z,background,label="background")
+# plt.legend(loc="lower center")
+# plt.show()        

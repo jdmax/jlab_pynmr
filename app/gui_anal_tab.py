@@ -6,6 +6,8 @@ from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout
 import pyqtgraph as pg
 from lmfit import Model
 
+from app.deuteron_fits import DFits
+
 class AnalTab(QWidget):
     '''Creates analysis tab. '''
 
@@ -134,6 +136,7 @@ class AnalTab(QWidget):
         self.res_opts.append(SumRangeRes(self))
         self.res_opts.append(PeakHeightRes(self))
         self.res_opts.append(FitPeakRes(self))
+        self.res_opts.append(FitDeuteron(self))
         for o in self.res_opts:
             self.res_combo.addItem(o.name)
             self.res_stack.addWidget(o)
@@ -849,4 +852,56 @@ class FitPeakRes(QWidget):
     
     def gaussian(self, x, *p): return p[0]*np.exp(-np.power((x-p[1]),2)/(2*np.power(p[2],2)))
     
+ 
+class FitDeuteron(QWidget):
+    '''Layout and methods for Dulya fits from deuteron_fits.py
+    '''
     
+    def __init__(self, parent):
+        super(QWidget, self).__init__(parent)
+        self.parent = parent
+        self.space = QVBoxLayout()
+        self.setLayout(self.space)
+        self.name = "Deuteron Peak Fit"
+        self.poly_label = QLabel("Deutron Lineshape Fit")
+        self.space.addWidget(self.poly_label)
+        self.message = QLabel()
+        self.space.layout().addWidget(self.message)
+        
+        self.grid2 = QGridLayout()
+        self.space.addLayout(self.grid2)
+        
+        self.params = self.parent.event.config.settings['analysis']['d_fit_params']   
+        
+            
+    def switch_here(self):
+        '''Things to do when this stack is chosen'''
+        self.parent.res_region.setBrush(pg.mkBrush(0, 180, 0, 20))
+    
+    def result(self, event):        
+        '''Perform Dueteron fit and calculate polarization
+        
+        Arguments:
+            event: Event instance with sweeps to fit
+            
+        Returns:
+            resulting r asymmetry and polarization 
+        '''
+        
+        sweep = event.fitsub
+        freqs = event.scan.freq_list
+        
+        result = DFits(freqs, sweep, self.params)
+        
+        r = result.params['r'].value
+        fit = result.best_fit
+        pol = (r*r-1)/(r*r + r +1)
+        self.message.setText(result.fit_report())
+        return fit, r, pol 
+    
+   
+
+
+
+
+ 
