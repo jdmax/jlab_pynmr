@@ -114,7 +114,7 @@ class DAQConnection():
                 num_in_chunk = self.config.settings['tune_per_chunk']
             else:
                 num_in_chunk = self.config.settings['num_per_chunk']
-            time.sleep(0.0005*num_in_chunk)
+            time.sleep(0.005*num_in_chunk)
             
             p_test = self.test_phase + np.random.rand(len(self.test_phase))*0.00001*num_in_chunk   # numpy arrays
             d_test = -self.test_diode + np.random.rand(len(self.test_diode))*0.00001*num_in_chunk 

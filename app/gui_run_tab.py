@@ -293,15 +293,15 @@ class RunTab(QWidget):
     def update_event_plots(self):
         '''Update all plots and indicators for this event using instance data'''
         freqs = self.parent.event.scan.freq_list        
-        self.raw_plot.setData(self.parent.event.scan.freq_list, self.parent.event.scan.phase)
-        self.sub_plot.setData(self.parent.event.scan.freq_list, self.parent.event.basesub)
-        self.fit_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitcurve)
-        self.fin_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitsub)
+        self.raw_plot.setData(self.parent.previous_event.scan.freq_list, self.parent.previous_event.scan.phase)
+        self.sub_plot.setData(self.parent.previous_event.scan.freq_list, self.parent.previous_event.basesub)
+        self.fit_plot.setData(self.parent.previous_event.scan.freq_list, self.parent.previous_event.fitcurve)
+        self.fin_plot.setData(self.parent.previous_event.scan.freq_list, self.parent.previous_event.fitsub)
         #self.fin_plot.setData(self.parent.config.adc_timing, self.parent.event.fitsub)
               
-        self.pol_value.setText('{:.1%}'.format(self.parent.event.pol))                    # updates indicators
-        self.area_value.setText('{:.6f}'.format(self.parent.event.area))
-        self.dt_value.setText(self.parent.event.stop_time.strftime("%m/%d/%Y\n%H:%M:%S")+" UTC")
+        self.pol_value.setText('{:.1%}'.format(self.parent.previous_event.pol))                    # updates indicators
+        self.area_value.setText('{:.6f}'.format(self.parent.previous_event.area))
+        self.dt_value.setText(self.parent.previous_event.stop_time.strftime("%m/%d/%Y\n%H:%M:%S")+" UTC")
         
         hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())                                  
         pol_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))

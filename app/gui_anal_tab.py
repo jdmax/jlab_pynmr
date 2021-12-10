@@ -178,24 +178,25 @@ class AnalTab(QWidget):
             
     def run_analysis(self):
         '''Run event signal analysis and call for new plots if base and sub methods are chosen'''
+        self.event = self.parent.previous_event
         if self.base_chosen and self.sub_chosen and self.res_chosen:
-            self.parent.event.signal_analysis(self.base_chosen, self.sub_chosen, self.res_chosen)
+            self.event.signal_analysis(self.base_chosen, self.sub_chosen, self.res_chosen)
             self.update_event_plots()
 
     def update_event_plots(self):
         '''Update analysis tab plots. Right now doing a DC subtraction on unsubtracted signals.
         '''
-        self.raw_plot.setData(self.parent.event.scan.freq_list, self.parent.event.scan.phase - self.parent.event.scan.phase.max())
-        self.base_plot.setData(self.parent.event.scan.freq_list, self.parent.event.basesweep - self.parent.event.basesweep.max())
-        self.basesub_plot.setData(self.parent.event.scan.freq_list, self.parent.event.basesub - self.parent.event.basesub.max())
+        self.raw_plot.setData(self.event.scan.freq_list, self.event.scan.phase - self.event.scan.phase.max())
+        self.base_plot.setData(self.event.scan.freq_list, self.event.basesweep - self.event.basesweep.max())
+        self.basesub_plot.setData(self.event.scan.freq_list, self.event.basesub - self.event.basesub.max())
         
         #print(self.parent.event.basesub, self.parent.event.poly_curve, self.parent.event.polysub)
-        self.sub_plot.setData(self.parent.event.scan.freq_list, self.parent.event.basesub - self.parent.event.basesub.max())
-        self.fit_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitcurve - self.parent.event.basesub.max())
-        self.fitsub_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitsub)        
+        self.sub_plot.setData(self.event.scan.freq_list, self.event.basesub - self.event.basesub.max())
+        self.fit_plot.setData(self.event.scan.freq_list, self.event.fitcurve - self.event.basesub.max())
+        self.fitsub_plot.setData(self.event.scan.freq_list, self.event.fitsub)        
         
-        self.unc_plot.setData(self.parent.event.scan.freq_list, self.parent.event.fitsub)
-        self.res_plot.setData(self.parent.event.scan.freq_list, self.parent.event.rescurve)
+        self.unc_plot.setData(self.event.scan.freq_list, self.event.fitsub)
+        self.res_plot.setData(self.event.scan.freq_list, self.event.rescurve)
         
 class StandardBase(QWidget):
     '''Layout and method for standard baseline subtract based on selected baseline from baseline tab.  Base type.
@@ -900,7 +901,6 @@ class FitDeuteron(QWidget):
         return fit, r, pol 
     
    
-
 
 
 

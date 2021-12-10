@@ -22,8 +22,7 @@ class DFits():
         '''
         mod = Model(self.FitFunc)
         params = mod.make_params(A=p['A'], G=p['G'], r=p['r'], wQ=p['wQ'], wL=p['wL'], eta=p['eta'], xi=p['xi'])  
-        self.result = mod.fit(signal, params=params, w=freqs)
-        
+        self.result = mod.fit(signal, params=params, w=freqs)        
         return
             
     def FitFunc(self, w, A, G, r, wQ, wL, eta, xi):

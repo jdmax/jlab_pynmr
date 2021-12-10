@@ -61,7 +61,8 @@ class MainWindow(QMainWindow):
         self.start_logger()
 
         self.config = Config(channel_dict, self.settings)           # current configuration
-        self.event = Event(self.config)      # open empty event
+        self.event = Event(self)      # open empty event
+        self.previous_event = self.event      # there is no previous event
         self.baseline = Baseline(self.config, {})     # open empty baseline
         self.history = History()   # for now, starting new history with each window
         self.new_eventfile()
@@ -117,7 +118,7 @@ class MainWindow(QMainWindow):
         
     def new_event(self):
         '''Create new event instance'''
-        self.event = Event(self.config)
+        self.event = Event(self)
         self.set_event_base()
 
     def new_eventfile(self):
@@ -156,12 +157,16 @@ class MainWindow(QMainWindow):
     def end_event(self):
         '''End event, closing the event instance and calling updates for each tab. Updates plots, prints to file, makes new eventfile if lines are more than 500.
         '''
-        self.event.close_event(self.epics.read_all(), self.anal_tab.base_chosen, self.anal_tab.sub_chosen, self.anal_tab.res_chosen)
-        self.event.print_event(self.eventfile)
+        self.event.close_event(self.epics.read_all(), self.anal_tab.base_chosen, self.anal_tab.sub_chosen, self.anal_tab.res_chosen)  
+        self.previous_event = self.event        
+        
+    def end_finished(self):
+        '''Analysis thread has returned. Finished up closing event'''
+        self.previous_event.print_event(self.eventfile)
         self.eventfile_lines += 1
         if self.eventfile_lines > 500:            # open new eventfile once the current one has a number of entries
             self.new_eventfile()
-        self.history.add_hist(HistPoint(self.event))
+        self.history.add_hist(HistPoint(self.previous_event))
 
         self.run_tab.update_event_plots()
         self.te_tab.update_event_plots()
@@ -204,7 +209,7 @@ class MainWindow(QMainWindow):
         '''Channel setting changed. Make new config.'''
         name = self.channels[i]
         self.config = Config(self.config_dict['channels'][name], self.settings)           # new configuration
-        self.event = Event(self.config)      # open empty event
+        self.event = Event(self)      # open empty event
         self.rs = RS_Connection(self.config)   # send new settings to R&S
         self.run_tab.combo_changed()
         logging.info(f"Changed channel to {self.config.channel['name']}.")

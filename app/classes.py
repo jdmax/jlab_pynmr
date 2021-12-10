@@ -1,6 +1,7 @@
 '''PyNMR, J.Maxwell 2020
 '''
 from PyQt5.QtGui import QIntValidator, QDoubleValidator, QRegExpValidator
+from PyQt5.QtCore import QThread, pyqtSignal, Qt
 import random
 import os.path
 import datetime
@@ -195,8 +196,9 @@ class Event():
         uwave_freq: Microwave frequency (GHz) as read from GPIB
     '''
    
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, parent):
+        self.config = parent.config
+        self.parent = parent
         self.scan = Scan(self.config)
         
         #self.start_time =  datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
@@ -239,7 +241,7 @@ class Event():
             eventfile: File object to write event to
         '''
         
-        exclude_list = [ 'freq_bytes' ]
+        exclude_list = [ 'freq_bytes', 'parent', 'anal_thread' ]
         json_dict = {}        
         json_dict.update(self.scan.__dict__)
         for key, entry in self.__dict__.items():               # filter event attributes for json dict
@@ -284,17 +286,24 @@ class Event():
         #self.stop_time =  datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
         self.stop_time =  datetime.datetime.now(tz=datetime.timezone.utc)
         self.stop_stamp = self.stop_time.timestamp()
-         
-        self.signal_analysis(base_method, sub_method, res_method)        
-        self.epics_reads = epics_reads     
+             
+        self.epics_reads = epics_reads  
+        self.signal_analysis(base_method, sub_method, res_method)       
     
     def signal_analysis(self, base_method, sub_method, res_method):
         '''Perform analysis on signal
         '''
+
         if np.any(self.scan.phase):  # do the thing
-            self.basesweep, self.basesub  = base_method(self)        
-            self.fitcurve, self.fitsub = sub_method(self)
-            self.rescurve, self.area, self.pol = res_method(self)            
+            try:
+                self.anal_thread = AnalThread(self, base_method, sub_method, res_method)
+                self.anal_thread.finished.connect(self.parent.end_finished)
+                self.anal_thread.start()
+            except Exception as e: 
+                print('Exception starting run thread, lost connection: '+str(e))  
+            # self.basesweep, self.basesub  = base_method(self)        
+            # self.fitcurve, self.fitsub = sub_method(self)
+            # self.rescurve, self.area, self.pol = res_method(self)            
         else:               # unless the phase signal is zeroes, then set all to zeroes
             self.basesweep = np.zeros(len(self.basesweep))
             self.basesub = np.zeros(len(self.basesweep))
@@ -405,3 +414,32 @@ class History():
             hist_data = {k:v for k,v in self.data.items() if start_stamp<k<stop_stamp}
             return hist_data
       
+
+class AnalThread(QThread):
+    '''Thread class for analysis
+    Args:
+        config: Config object of settings
+    '''
+    reply = pyqtSignal(tuple)       # reply signal
+    finished = pyqtSignal()       # finished signal
+    def __init__(self, parent,  base_method, sub_method, res_method):
+        QThread.__init__(self)
+        self.parent = parent
+        self.base_method = base_method
+        self.sub_method = sub_method
+        self.res_method = res_method
+        
+                
+    def __del__(self):
+        self.wait()
+        
+    def run(self):
+        '''Main analysis loop. 
+        '''
+        self.parent.basesweep, self.parent.basesub  = self.base_method(self.parent)        
+        self.parent.fitcurve, self.parent.fitsub = self.sub_method(self.parent)
+        self.parent.rescurve, self.parent.area, self.parent.pol = self.res_method(self.parent) 
+                
+        self.finished.emit()
+  
+   
