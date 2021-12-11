@@ -53,7 +53,6 @@ class MainWindow(QMainWindow):
         self.error_dialog = QErrorMessage(self)
         self.status_bar = self.statusBar()
         self.status_bar.showMessage('Ready.')
-
         self.config_filename = 'pynmr_config.yaml'
         self.load_settings()
         self.restore_settings()
@@ -150,18 +149,18 @@ class MainWindow(QMainWindow):
         }
         with open('app/saved_settings.yaml', 'w') as file:
             documents = yaml.dump(saved_dict, file)
-            print(saved_dict)            
+            #print(saved_dict)            
             logging.info(f"Printed settings on exit to {file}.")
     
     
     def end_event(self):
-        '''End event, closing the event instance and calling updates for each tab. Updates plots, prints to file, makes new eventfile if lines are more than 500.
+        '''Start ending the event
         '''
         self.event.close_event(self.epics.read_all(), self.anal_tab.base_chosen, self.anal_tab.sub_chosen, self.anal_tab.res_chosen)  
         self.previous_event = self.event        
         
     def end_finished(self):
-        '''Analysis thread has returned. Finished up closing event'''
+        '''Analysis thread has returned. Finished up closing event, closing the event instance and calling updates for each tab. Updates plots, prints to file, makes new eventfile if lines are more than 500.'''
         self.previous_event.print_event(self.eventfile)
         self.eventfile_lines += 1
         if self.eventfile_lines > 500:            # open new eventfile once the current one has a number of entries

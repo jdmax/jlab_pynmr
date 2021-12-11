@@ -146,8 +146,8 @@ goal = np.zeros(61)+10 # set to 10 for max
 
 
 a = minimize(chi, np.array([1,1,1,1]), args=(background,goal), method='Nelder-Mead', bounds=((-10,10),(-10,10),(-10,10),(-10,10)))
-print(a.fun)
-print(a.x)
+#print(a.fun)
+#print(a.x)
 
 if goal[1]==10:
     a.x=np.array([10,10,10,10])

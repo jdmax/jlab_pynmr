@@ -139,7 +139,7 @@ class ExplTab(QWidget):
         for var in self.var_list.selectedItems():
             self.strip_plot[var.text()] = self.strip_wid.plot([], [], name = var.text(), pen=pg.mkPen(i)) 
             i += 1
-            print(self.data[var.text()])
+            #print(self.data[var.text()])
             self.strip_plot[var.text()].setData(self.data[var.text()])
   
         

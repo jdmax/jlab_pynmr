@@ -103,13 +103,13 @@ settings:
             - 0.35
             - 0.65
         d_fit_params:           # initial parameters for Dulya fits
-            A : 0.0468
-            G : -0.02
+            A : 0.02
+            G : -0.0002
             r : 1.2
             wQ : 0.025
             wL : 32.7
             eta : 0.1
-            xi : .04
+            xi : 0.1
 epics_reads:                    # EPICS channels to read: key is channel name, value is string to display
     4he: 4He Temp (K)
     3he: 3He Temp (K)

@@ -186,6 +186,7 @@ class AnalTab(QWidget):
     def update_event_plots(self):
         '''Update analysis tab plots. Right now doing a DC subtraction on unsubtracted signals.
         '''
+        self.event = self.parent.previous_event
         self.raw_plot.setData(self.event.scan.freq_list, self.event.scan.phase - self.event.scan.phase.max())
         self.base_plot.setData(self.event.scan.freq_list, self.event.basesweep - self.event.basesweep.max())
         self.basesub_plot.setData(self.event.scan.freq_list, self.event.basesub - self.event.basesub.max())
@@ -421,7 +422,7 @@ class CircuitBase(QWidget):
         params.add('scale', value=5, min=4.99, max=5.001)
                 
         result = mod.fit(Y, params, f=f)
-        print(result.best_values)      
+        #print(result.best_values)      
         fit = self.real_curve(range(len(event.scan.phase)), **result.best_values)
         sub = sweep - fit
         #text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]

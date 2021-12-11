@@ -145,7 +145,8 @@ class TuneTab(QWidget):
             time.sleep(0.0001)
             self.daq = DAQConnection(self.config, 4, True)
             if self.daq.set_dac(self.dac_v, self.dac_c):
-                print("Set DAC:", self.dac_c,  self.dac_v)
+                pass
+                #print("Set DAC:", self.dac_c,  self.dac_v)
             else:
                 print("Error setting DAC.")
             del self.daq
@@ -238,8 +239,8 @@ class TuneThread(QThread):
                     self.dac_v = self.parent.dac_v
                     self.dac_c = self.parent.dac_c
                     try:
-                        if self.daq.set_dac(self.dac_v, self.dac_c):   
-                            print("Set DAC while running:", self.dac_c,  self.dac_v)
+                        #if self.daq.set_dac(self.dac_v, self.dac_c):   
+                            #print("Set DAC while running:", self.dac_c,  self.dac_v)
                         self.set_time = now
                     except Exception as e:
                         print("Exception setting DAC value: "+str(e))

@@ -128,7 +128,7 @@ class DAQConnection():
             self.udp.dac_c = dac_c
             return self.udp.set_register()              
         if self.daq_type=='Test':
-            print("DAC", dac_v, dac_c)
+            #print("DAC", dac_v, dac_c)
             return True
       
     def read_stat(self):
