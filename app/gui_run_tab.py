@@ -27,6 +27,7 @@ class RunTab(QWidget):
         self.sub_pen = pg.mkPen(color=(0, 0, 204), width=1.5)
         self.fit_pen = pg.mkPen(color=(255, 255, 0), width=3)
         self.fin_pen = pg.mkPen(color=(0, 160, 0), width=1.5)
+        self.res_pen = pg.mkPen(color=(190, 0, 190), width=2)
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         
@@ -203,7 +204,8 @@ class RunTab(QWidget):
         # Final PLot
         self.fin_wid = pg.PlotWidget(title='Fit Subtracted')
         self.fin_wid.showGrid(True,True)
-        self.fin_plot = self.fin_wid.plot([], [], pen=self.fin_pen)         
+        self.fin_plot = self.fin_wid.plot([], [], pen=self.fin_pen)  
+        self.res_plot = self.fin_wid.plot([], [], pen=self.res_pen)         
         self.lowerlayout.addWidget(self.fin_wid)
            
         self.main.addLayout(self.lowerlayout)
@@ -229,8 +231,7 @@ class RunTab(QWidget):
         '''Open new event instance, create then start threads for data taking and plotting '''
 
         self.parent.new_event()                 # start new event in main window
-        #self.event = self.parent.event          # set this event in this tab
-        self.parent.set_event_base()            # set current basline to this event
+        #self.parent.set_event_base()            # set current basline to this event
         try:
             self.run_thread = RunThread(self, self.parent.config)
             self.run_thread.finished.connect(self.done)
@@ -296,6 +297,7 @@ class RunTab(QWidget):
         self.raw_plot.setData(self.parent.previous_event.scan.freq_list, self.parent.previous_event.scan.phase)
         self.sub_plot.setData(self.parent.previous_event.scan.freq_list, self.parent.previous_event.basesub)
         self.fit_plot.setData(self.parent.previous_event.scan.freq_list, self.parent.previous_event.fitcurve)
+        self.res_plot.setData(self.parent.previous_event.scan.freq_list, self.parent.previous_event.rescurve)
         self.fin_plot.setData(self.parent.previous_event.scan.freq_list, self.parent.previous_event.fitsub)
         #self.fin_plot.setData(self.parent.config.adc_timing, self.parent.event.fitsub)
               

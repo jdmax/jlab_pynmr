@@ -300,7 +300,7 @@ class Event():
                 self.anal_thread.finished.connect(self.parent.end_finished)
                 self.anal_thread.start()
             except Exception as e: 
-                print('Exception starting run thread, lost connection: '+str(e))  
+                print('Exception starting run thread: '+str(e))  
             # self.basesweep, self.basesub  = base_method(self)        
             # self.fitcurve, self.fitsub = sub_method(self)
             # self.rescurve, self.area, self.pol = res_method(self)            

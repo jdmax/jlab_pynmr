@@ -156,8 +156,8 @@ class MainWindow(QMainWindow):
     def end_event(self):
         '''Start ending the event
         '''
-        self.event.close_event(self.epics.read_all(), self.anal_tab.base_chosen, self.anal_tab.sub_chosen, self.anal_tab.res_chosen)  
-        self.previous_event = self.event        
+        self.previous_event = self.event      
+        self.previous_event.close_event(self.epics.read_all(), self.anal_tab.base_chosen, self.anal_tab.sub_chosen, self.anal_tab.res_chosen)    
         
     def end_finished(self):
         '''Analysis thread has returned. Finished up closing event, closing the event instance and calling updates for each tab. Updates plots, prints to file, makes new eventfile if lines are more than 500.'''

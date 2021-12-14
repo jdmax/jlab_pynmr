@@ -672,7 +672,8 @@ class SumAllRes(QWidget):
         area = sub.sum()
         pol = area*event.cc
         self.message.setText(f"Area: {area}")
-        return sub, area, pol
+        data = [0 for x in event.config.freq_list]
+        return data, area, pol
         
 
 class SumRangeRes(QWidget):
@@ -873,12 +874,15 @@ class FitDeuteron(QWidget):
         self.grid2 = QGridLayout()
         self.space.addLayout(self.grid2)
         
-        self.params = self.parent.event.config.settings['analysis']['d_fit_params']   
+        try:
+            self.params
+        except AttributeError:    
+            self.params = self.parent.event.config.settings['analysis']['d_fit_params']   
         
             
     def switch_here(self):
         '''Things to do when this stack is chosen'''
-        self.parent.res_region.setBrush(pg.mkBrush(0, 180, 0, 20))
+        self.parent.res_region.setBrush(pg.mkBrush(0, 0, 180, 0))   
     
     def result(self, event):        
         '''Perform Dueteron fit and calculate polarization
@@ -887,7 +891,7 @@ class FitDeuteron(QWidget):
             event: Event instance with sweeps to fit
             
         Returns:
-            resulting r asymmetry and polarization 
+            fit, resulting r asymmetry (instead of area) and polarization 
         '''
         
         sweep = event.fitsub
@@ -895,8 +899,11 @@ class FitDeuteron(QWidget):
         
         res = DFits(freqs, sweep, self.params)
         
-        r = res.result.params['r'].value
+        r = res.result.params['r'].value        
         fit = res.result.best_fit
+        if res.result.success:      # if successful, set these params for next time
+            self.params = res.result.params.valuesdict()
+        
         pol = (r*r-1)/(r*r + r +1)
         self.message.setText(f"Polarization: {pol*100:.2f}%\n {res.result.fit_report()}")
         return fit, r, pol 
