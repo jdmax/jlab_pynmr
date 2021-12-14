@@ -3,12 +3,16 @@
 import datetime
 import re
 import json
+import time
 import numpy as np
 from scipy.optimize import minimize
 from dateutil.parser import parse
-from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QTableView, QAbstractItemView, QAbstractScrollArea, QFileDialog
+from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QTableView, QAbstractItemView, QAbstractScrollArea, QFileDialog, QStackedWidget
+from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator
+import pyqtgraph as pg
 from PyQt5.QtCore import QThread, pyqtSignal,Qt
 from RsInstrument import * 
+import telnetlib
  
 
 class ShimTab(QWidget): 
@@ -18,7 +22,15 @@ class ShimTab(QWidget):
         self.__dict__.update(parent.__dict__)  
         
         self.parent = parent
-        frost = np.array([4.9995, 4.999595, 4.99969, 4.9997575, 4.999825, 4.9998675,
+        self.shim_pen = pg.mkPen(color=(0, 0, 204), width=1.5)
+        self.goal_pen = pg.mkPen(color=(200, 0, 0), width=1.5)
+        
+        self.shims = ShimControl(self.parent.config)
+        self.read_back = self.shims.read_currents()
+        self.shim_state = self.shims.read_outstat()
+        
+                
+        self.frost = np.array([4.9995, 4.999595, 4.99969, 4.9997575, 4.999825, 4.9998675,
                       4.99991, 4.9999425, 4.999975, 4.9999975, 5.00002, 5.000035,
                       5.00005, 5.000055, 5.00006, 5.00006, 5.00006, 5.0000575,
                       5.000055, 5.0000525, 5.00005, 5.000045, 5.000035, 5.00003,
@@ -29,7 +41,7 @@ class ShimTab(QWidget):
                       5.0000675, 5.00006, 5.00005, 5.00004, 5.00002, 5, 4.99997,
                       4.99994, 4.999895, 4.99985, 4.99978, 4.99971])
 
-        clas = np.array([4.9990486, 4.9991143, 4.9991774, 4.9992379, 4.9992959,
+        self.clas = np.array([4.9990486, 4.9991143, 4.9991774, 4.9992379, 4.9992959,
                          4.9993512, 4.9994041, 4.9994545, 4.9995025, 4.9995481,
                          4.9995913, 4.9996322, 4.9996708, 4.9997072, 4.9997413,
                          4.9997732, 4.9998029, 4.9998304, 4.9998558, 4.9998791,
@@ -43,63 +55,153 @@ class ShimTab(QWidget):
                          4.9993177, 4.9992625, 4.9992049, 4.9991448, 4.9990824])
  
 
-        Frostcurrent=1 # percent of 5T
-        background = frost*Frostcurrent
+        #Frostcurrent=1 # percent of 5T
+        #background = frost*Frostcurrent
         #background = clas
 
 
         #goal = tilt(5,10) # (midpint in T, far edge in G)
         #goal = clas
-        goal = np.zeros(61)+10 # set to 10 for max
+        #goal = np.zeros(61)+10 # set to 10 for max
 
 
 
         # Populate Magnt Tab 
         self.main = QHBoxLayout()            # main layout
+        self.setLayout(self.main) 
         
         # Left Side
         self.left = QVBoxLayout() 
+        self.main.addLayout(self.left)
         
-        # Baseline options box
+        # Shim options box
         self.shim_op_box = QGroupBox('Shim Options')
-        self.base_box.setLayout(QVBoxLayout())
-        self.left.addWidget(self.base_box)        
-        self.base_combo = QComboBox()
-        self.base_box.layout().addWidget(self.base_combo)
-        self.base_stack = QStackedWidget()    
-        self.base_box.layout().addWidget(self.base_stack)
+        self.shim_op_box.setLayout(QVBoxLayout())
+        self.left.addWidget(self.shim_op_box)        
+        self.shim_op_combo = QComboBox()
+        self.shim_op_box.layout().addWidget(self.shim_op_combo)
+        self.shim_op_stack = QStackedWidget()    
+        self.shim_op_box.layout().addWidget(self.shim_op_stack)
 
+
+        # Shim controls box
+        self.shim_con_box = QGroupBox('Shim Controls')
+        self.shim_con_box.setLayout(QGridLayout())
+        self.left.addWidget(self.shim_con_box)   
+
+
+        self.shim_currents = {'A': 0, 'B': 0, 'C': 0, 'D': 0}
+        self.cur_label = {}
+        self.cur_edit = {}
+        self.read_label = {}
+        self.read_edit = {}
+        for i, k in enumerate(self.shim_currents.keys()):
+            self.cur_label[k] = QLabel(k+"(Amps)")
+            self.shim_con_box.layout().addWidget(self.cur_label[k], i, 0)
+            self.cur_edit[k] = QLineEdit(str(self.shim_currents[k]))
+            self.shim_con_box.layout().addWidget(self.cur_edit[k], i, 1)
+            self.cur_edit[k].setValidator(QDoubleValidator(-10, 10, 4))
+            self.read_label[k] = QLabel(" Readback (Amps)")
+            self.shim_con_box.layout().addWidget(self.read_label[k], i, 3)
+            self.read_edit[k] = QLineEdit(self.read_back[i])
+            self.read_edit[k].setEnabled(False)
+            self.shim_con_box.layout().addWidget(self.read_edit[k], i, 4)
+            
+        self.set_button = QPushButton('Set Shim Currents') 
+        currents = [float(self.cur_edit[k].text()) for k in self.shim_currents.keys()]
+        self.set_button.clicked.connect(self.set_clicked)
+        self.shim_con_box.layout().addWidget(self.set_button, 0, 2)
+        
+        self.turn_button = QPushButton('', checkable=True) 
+        self.ask_state()
+        self.turn_button.clicked.connect(self.turn_clicked)
+        self.shim_con_box.layout().addWidget(self.turn_button, len(self.shim_currents)-1, 2)
  
         self.right = QVBoxLayout()     # right part of main layout
         self.main.addLayout(self.right)
         
         
-        self.base_wid = pg.PlotWidget(title='Graph or something')
-        self.base_wid.showGrid(True,True)
-        self.base_wid.addLegend(offset=(0.5, 0))
-        self.right.addWidget(self.base_wid)
+        self.shim_wid = pg.PlotWidget(title='Shim Output')
+        self.shim_wid.showGrid(True,True)
+        self.shim_wid.addLegend(offset=(0.5, 0))
+        self.right.addWidget(self.shim_wid)
+        self.shim_plot = self.shim_wid.plot([], [], pen=self.shim_pen, name='Shimmed Field (T)') 
+        self.goal_plot = self.shim_wid.plot([], [], pen=self.goal_pen, name='Goal Field (T)') 
+
+        # Set up list of options for each step, putting instances into stack
+        self.shim_opts = []
+        self.shim_opts.append(Flatten(self))         
+        for o in self.shim_opts:
+            self.shim_op_combo.addItem(o.name)
+            self.shim_op_stack.addWidget(o)
+
+    def set_clicked(self):
+        '''
+        '''  
+        list = [float(self.cur_edit[k].text()) for k in self.shim_currents.keys()]
+        self.shims.set_currents(list)
+        self.read_back = self.shims.read_currents()
+        self.fill_readback()
+        return
+        
+    def turn_clicked(self):
+        '''
+        '''  
+        if self.turn_button.isChecked():
+            self.shims.set_outstat("ON") 
+            self.ask_state()
+        else:
+            self.shims.set_outstat("OFF") 
+            self.ask_state()
+            
+    def ask_state(self): 
+        '''Ask output state
+        '''
+        if '1' in self.shims.read_outstat():
+            if not self.turn_button.isChecked():
+                self.turn_button.toggle()
+                self.turn_button.setText('Turn OFF')
+        else:
+            if  self.turn_button.isChecked():
+                self.turn_button.toggle()
+                self.turn_button.setText('Turn ON')
+        
+    def fill_readback(self):
+        '''
+        '''          
+        for i, k in enumerate(self.shim_currents.keys()):            
+            self.read_edit[k].setText(self.read_back[i]) 
 
         
-    def calc_currents(self):
-        a = minimize(chi, np.array([1,1,1,1]), args=(background,goal), method='Nelder-Mead', bounds=((-10,10),(-10,10),(-10,10),(-10,10)))
-        #print(a.fun)
-        #print(a.x)
+    def update_plots(self):
+        '''Update shim plots
+        '''
+        self.shim_plot.setData(self.shimmed)
+        self.goal_plot.setData(self.goals)
+        
+    def enter_currents(self):
+        '''Update shim controls
+        '''
+        for i, k in enumerate(self.shim_currents.keys()):
+            print(self.x)
+            self.cur_edit[k].setText(f"{self.x[i]:.4f}")
+        
 
-        if goal[1]==10:
-            a.x=np.array([10,10,10,10])
-            goal=background
+    def calc_currents(self, background, goals):
+        self.result = minimize(self.chi, np.array([1,1,1,1]), args=(background,goals), method='Nelder-Mead', bounds=((-10,10),(-10,10),(-10,10),(-10,10)))
            
-        justShims=coilFromShims(a.x)
-        shimmed = justShims+background
-        Z = np.arange(-30,31)    
+        just_shims = self.coil_from_shims(self.result.x)
+        shimmed = just_shims + background        
+        return just_shims, shimmed, self.result.x
+        
         
 
-    def tilt(MIDinT,PEAKinG):
+    def tilt(self, MIDinT,PEAKinG):
         steps = PEAKinG/(30*10000) # G to T and divide by steps
         tiltField = (np.arange(-30,31)*steps)+MIDinT
         return tiltField
 
-    def coilFromShims(currents):
+    def coil_from_shims(self, currents):
         z1 = np.array([-2.4424,-1.0393,0.0644,2.1887]) #left
         z2 = np.array([-2.1887,-0.0644,1.0393,2.4424]) #right    
         z1=z1/39.37 # inch to meter
@@ -122,8 +224,8 @@ class ShimTab(QWidget):
                 field[i]=field[i]+np.sum(np.sum(bz))
         return field
 
-    def chi(currents,background,goal):
-        shimField = coilFromShims(currents)+background
+    def chi(self, currents, background, goal):
+        shimField = self.coil_from_shims(currents) + background
         diff = shimField-goal
         chi = (diff**2)/goal
         chiSUM = np.sum(chi)
@@ -135,7 +237,47 @@ class ShimTab(QWidget):
         div.setMaximumHeight (2)
         return div 
                 
-  c        
+        
+class Flatten(QWidget):
+    '''Layout and method for flattening background field to flat
+    '''
+    
+    def __init__(self, parent):
+        super(QWidget, self).__init__(parent)
+        self.parent = parent
+        self.space = QVBoxLayout()
+        self.setLayout(self.space)
+        self.name = "Flatten Background"
+        self.message = QLabel()
+        self.space.layout().addWidget(self.message)
+                
+        self.grid = QGridLayout()
+        self.space.addLayout(self.grid)
+        self.current_label = QLabel("FROST Magnet Current (A):")
+        self.grid.addWidget(self.current_label, 0, 0)
+        self.current_edit = QLineEdit('0')
+        self.current_edit.setValidator(QDoubleValidator(0, 90, 4))
+        self.grid.addWidget(self.current_edit, 0, 1)
+        self.goal_label = QLabel("Goal Field (T):")
+        self.grid.addWidget(self.goal_label, 1, 0)
+        self.goal_edit = QLineEdit('0')
+        self.goal_edit.setValidator(QDoubleValidator(0, 6, 4))
+        self.grid.addWidget(self.goal_edit, 1, 1)
+        self.calc_button = QPushButton('Calculate Currents')
+        self.grid.addWidget(self.calc_button, 1, 2) 
+        self.calc_button.clicked.connect(self.calc_clicked)
+        
+    def calc_clicked(self):
+        '''
+        '''  
+        self.background = self.parent.frost/5*float(self.current_edit.text())*0.061594  # calibration for current at 5T 
+        self.parent.goals = [float(self.goal_edit.text())]*61
+        self.parent.just_shims, self.parent.shimmed, self.parent.x = self.parent.calc_currents(self.background, self.parent.goals)
+        self.parent.update_plots()
+        self.parent.enter_currents()
+        return
+        
+   
         
 class ShimControl():
     '''Interface with R&S HMP4040
@@ -145,24 +287,46 @@ class ShimControl():
     '''
         
     def __init__(self, config):    
-        '''Open connection to Rsimstrument  
+        '''Open connection to Rsinstrument  
         '''
         self.host = config.settings['shim_settings']['ip']
+        self.timeout = config.settings['shim_settings']['timeout']
         self.port = 5025    
         
+        try:
+            self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
+        except Exception as e:
+            print("Error connecting to R&S current supply.", e)
         
-
-
-
-
-
-
-
-# plt.title("Currents = " + np.array2string(a.x,precision=4),pad=25)
-# plt.xlabel("Z (mm)")
-# plt.ylabel("Bz (T)")
-# plt.plot(Z,goal,label="goal")
-# plt.plot(Z,shimmed,label="shimmed")
-# plt.plot(Z,background,label="background")
-# plt.legend(loc="lower center")
-# plt.show()        
+        
+    def set_currents(self, list):
+        '''Set currents on R&S from list passed
+        '''
+        for i, c in enumerate(list):
+            #print("Set shim channel", i+1, "to", {list[i]})
+            self.tn.write(bytes(f"INST:NSEL {i+1}\n", 'ascii'))
+            self.tn.write(bytes(f"VOLT MAX\n", 'ascii'))
+            self.tn.write(bytes(f"CURR {list[i]}\n", 'ascii'))
+            time.sleep(0.1)
+            
+    def read_currents(self):
+        '''Set currents on R&S from list passed
+        '''
+        reads = [0]*4
+        for i in range(0,4):
+            self.tn.write(bytes(f"INST:NSEL {i+1}\n", 'ascii'))
+            self.tn.write(bytes(f"CURR? \n", 'ascii'))
+            reads[i] = self.tn.read_some().decode('ascii')     
+            time.sleep(0.1)        
+        return reads
+    
+    def read_outstat(self):
+        self.tn.write(bytes(f"OUTP:GEN? \n", 'ascii'))
+        out =  self.tn.read_some().decode('ascii') 
+        print(out)
+        return out
+        
+    def set_outstat(self, state):
+        '''Takes state as OFF or ON
+        '''
+        self.tn.write(bytes(f"OUTP:GEN {state} \n", 'ascii'))
