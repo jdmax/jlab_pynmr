@@ -18,19 +18,6 @@ class ShimTab(QWidget):
         self.__dict__.update(parent.__dict__)  
         
         self.parent = parent
-                
-        # Populate Magnt Tab 
-        self.main = QHBoxLayout()            # main layout
-        
-        # Left Side
-        self.left = QVBoxLayout() 
-        
-        self.shim_box = ShimBox(self)
-        self.left.addWidget(self.shim_box)  
-        
-        
-        
-
         frost = np.array([4.9995, 4.999595, 4.99969, 4.9997575, 4.999825, 4.9998675,
                       4.99991, 4.9999425, 4.999975, 4.9999975, 5.00002, 5.000035,
                       5.00005, 5.000055, 5.00006, 5.00006, 5.00006, 5.0000575,
@@ -54,11 +41,7 @@ class ShimTab(QWidget):
                          4.9997461, 4.9997131, 4.9996779, 4.9996406, 4.9996011,
                          4.9995595, 4.9995156, 4.9994696, 4.9994212, 4.9993707,
                          4.9993177, 4.9992625, 4.9992049, 4.9991448, 4.9990824])
-        '''
-        -------------------------------------------------------------------------
-        -----------------------   USER INPUT STARTS HERE  -----------------------
-        -------------------------------------------------------------------------
-        '''
+ 
 
         Frostcurrent=1 # percent of 5T
         background = frost*Frostcurrent
@@ -70,12 +53,32 @@ class ShimTab(QWidget):
         goal = np.zeros(61)+10 # set to 10 for max
 
 
-        '''
-        -------------------------------------------------------------------------
-        -----------------------   USER INPUT ENDS HERE  -----------------------
-        -------------------------------------------------------------------------
-        '''
-                    
+
+        # Populate Magnt Tab 
+        self.main = QHBoxLayout()            # main layout
+        
+        # Left Side
+        self.left = QVBoxLayout() 
+        
+        # Baseline options box
+        self.shim_op_box = QGroupBox('Shim Options')
+        self.base_box.setLayout(QVBoxLayout())
+        self.left.addWidget(self.base_box)        
+        self.base_combo = QComboBox()
+        self.base_box.layout().addWidget(self.base_combo)
+        self.base_stack = QStackedWidget()    
+        self.base_box.layout().addWidget(self.base_stack)
+
+ 
+        self.right = QVBoxLayout()     # right part of main layout
+        self.main.addLayout(self.right)
+        
+        
+        self.base_wid = pg.PlotWidget(title='Graph or something')
+        self.base_wid.showGrid(True,True)
+        self.base_wid.addLegend(offset=(0.5, 0))
+        self.right.addWidget(self.base_wid)
+
         
     def calc_currents(self):
         a = minimize(chi, np.array([1,1,1,1]), args=(background,goal), method='Nelder-Mead', bounds=((-10,10),(-10,10),(-10,10),(-10,10)))
@@ -101,15 +104,18 @@ class ShimTab(QWidget):
         z2 = np.array([-2.1887,-0.0644,1.0393,2.4424]) #right    
         z1=z1/39.37 # inch to meter
         z2=z2/39.37 # inch to meter
+        w=z2-z1
         Z = np.arange(-30,31)
         Z = Z/1000 # mm to meter
         R = np.array([0.0335, 0.0338]) # inner and out layer radii
-        n=21500/2 # turns per length(one layer)
+        windings=([np.array([35,134,134,35])/w,np.array([34,134,134,34])/w])
+        n=windings
+        #n=21500/2 # turns per length(one layer)
         mu=12.57e-7 # permeability of free space
         field=np.zeros(len(Z))
         for j in [0,1]: # field at Z from coil (of size z1 -> z2)
             for i in range(len(Z)):
-                a = mu*n*currents/2
+                a = mu*n[j]*currents/2
                 b = ( Z[i]-z1 )/( np.sqrt((Z[i]-z1)**2 + R[j]**2) )
                 c = ( Z[i]-z2 )/( np.sqrt((Z[i]-z2)**2 + R[j]**2) )
                 bz = a*(b-c)
@@ -129,20 +135,7 @@ class ShimTab(QWidget):
         div.setMaximumHeight (2)
         return div 
                 
-
-class ShimBox(QGroupBox):
-    '''Magnet control gui'''
-    def __init__(self, parent):
-        super(QWidget,self).__init__(parent)   
-        self.__dict__.update(parent.__dict__)   
-        self.divider = parent.divider    
-                
-        self.setLayout(QVBoxLayout())    
-        self.setTitle('Shim Controls')         
-        self.shim_top = QHBoxLayout()
-        self.layout().addLayout(self.shim_top)          
-        
-        
+  c        
         
 class ShimControl():
     '''Interface with R&S HMP4040
