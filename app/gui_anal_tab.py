@@ -226,12 +226,9 @@ class StandardBase(QWidget):
             
         Returns:
             baseline sweep, baseline subtracted sweep 
-        '''      
-        
+        '''              
         basesweep = event.baseline
-        self.message.setText(f"Baseline from {event.base_time.strftime('%D %H:%M:%S')} UTC")
-        
-        
+        self.message.setText(f"Baseline from {event.base_time.strftime('%D %H:%M:%S')} UTC")        
         return basesweep, event.scan.phase - basesweep
     
 class PolyFitBase(QWidget):

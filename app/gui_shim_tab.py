@@ -23,7 +23,8 @@ class ShimTab(QWidget):
         
         self.parent = parent
         self.shim_pen = pg.mkPen(color=(0, 0, 204), width=1.5)
-        self.goal_pen = pg.mkPen(color=(200, 0, 0), width=1.5)
+        self.goal_pen = pg.mkPen(color=(0, 200, 0), width=1.5)
+        self.back_pen = pg.mkPen(color=(200, 0, 0), width=1.5)
         
         self.shims = ShimControl(self.parent.config)
         self.read_back = self.shims.read_currents()
@@ -66,7 +67,7 @@ class ShimTab(QWidget):
 
 
 
-        # Populate Magnt Tab 
+        # Populate  Tab 
         self.main = QHBoxLayout()            # main layout
         self.setLayout(self.main) 
         
@@ -82,6 +83,7 @@ class ShimTab(QWidget):
         self.shim_op_box.layout().addWidget(self.shim_op_combo)
         self.shim_op_stack = QStackedWidget()    
         self.shim_op_box.layout().addWidget(self.shim_op_stack)
+        self.shim_op_combo.currentIndexChanged.connect(self.change_op)
 
 
         # Shim controls box
@@ -129,14 +131,21 @@ class ShimTab(QWidget):
         self.right.addWidget(self.shim_wid)
         self.shim_plot = self.shim_wid.plot([], [], pen=self.shim_pen, name='Shimmed Field (T)') 
         self.goal_plot = self.shim_wid.plot([], [], pen=self.goal_pen, name='Goal Field (T)') 
+        self.back_plot = self.shim_wid.plot([], [], pen=self.back_pen, name='Background Field (T)') 
 
         # Set up list of options for each step, putting instances into stack
         self.shim_opts = []
-        self.shim_opts.append(Flatten(self))         
+        self.shim_opts.append(Flatten(self))  
+        self.shim_opts.append(AllSame(self))         
         for o in self.shim_opts:
             self.shim_op_combo.addItem(o.name)
             self.shim_op_stack.addWidget(o)
-
+    
+    def change_op(self, i):
+        '''Set chosen stack
+        '''
+        self.shim_op_stack.setCurrentIndex(i)
+        
     def set_clicked(self):
         '''
         '''  
@@ -173,6 +182,7 @@ class ShimTab(QWidget):
         '''
         self.shim_plot.setData(self.shimmed)
         self.goal_plot.setData(self.goals)
+        self.back_plot.setData(self.background)
         
     def enter_currents(self):
         '''Update shim controls
@@ -242,8 +252,6 @@ class Flatten(QWidget):
         self.space = QVBoxLayout()
         self.setLayout(self.space)
         self.name = "Flatten Background"
-        self.message = QLabel()
-        self.space.layout().addWidget(self.message)
                 
         self.grid = QGridLayout()
         self.space.addLayout(self.grid)
@@ -264,14 +272,53 @@ class Flatten(QWidget):
     def calc_clicked(self):
         '''
         '''  
-        self.background = self.parent.frost/5*float(self.current_edit.text())*0.061594  # calibration for current at 5T 
+        self.parent.background = self.parent.frost/5*float(self.current_edit.text())*0.061594  # calibration for current at 5T 
         self.parent.goals = [float(self.goal_edit.text())]*61
-        self.parent.just_shims, self.parent.shimmed, self.parent.x = self.parent.calc_currents(self.background, self.parent.goals)
+        self.parent.just_shims, self.parent.shimmed, self.parent.x = self.parent.calc_currents(self.parent.background, self.parent.goals)
         self.parent.update_plots()
         self.parent.enter_currents()
         return
         
-   
+         
+class AllSame(QWidget):
+    '''Layout and method for flattening background field to flat
+    '''
+    
+    def __init__(self, parent):
+        super(QWidget, self).__init__(parent)
+        self.parent = parent
+        self.space = QVBoxLayout()
+        self.setLayout(self.space)
+        self.name = "Set All Same"
+                
+        self.grid = QGridLayout()
+        self.space.addLayout(self.grid)
+        self.current_label = QLabel("FROST Magnet Current (A):")
+        self.grid.addWidget(self.current_label, 0, 0)
+        self.current_edit = QLineEdit('0')
+        self.current_edit.setValidator(QDoubleValidator(0, 90, 4))
+        self.grid.addWidget(self.current_edit, 0, 1)
+        self.goal_label = QLabel("Set current (A):")
+        self.grid.addWidget(self.goal_label, 1, 0)
+        self.goal_edit = QLineEdit('0')
+        self.goal_edit.setValidator(QDoubleValidator(0, 6, 4))
+        self.grid.addWidget(self.goal_edit, 1, 1)
+        self.calc_button = QPushButton('Fill Currents')
+        self.grid.addWidget(self.calc_button, 1, 2) 
+        self.calc_button.clicked.connect(self.calc_clicked)
+        
+    def calc_clicked(self):
+        '''
+        '''  
+        self.background = self.parent.frost/5*float(self.current_edit.text())*0.061594  # calibration for current at 5T 
+        self.parent.goals = [float('nan')]*61
+        self.parent.just_shims = [float('nan')]*61
+        self.parent.x = [float(self.goal_edit.text())]*4
+        self.parent.shimmed = self.background + self.parent.coil_from_shims(self.parent.x)
+        self.parent.update_plots()
+        self.parent.enter_currents()
+        return
+  
         
 class ShimControl():
     '''Interface with R&S HMP4040
