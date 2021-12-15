@@ -112,10 +112,12 @@ class ShimTab(QWidget):
         self.set_button.clicked.connect(self.set_clicked)
         self.shim_con_box.layout().addWidget(self.set_button, 0, 2)
         
-        self.turn_button = QPushButton('', checkable=True) 
-        self.ask_state()
+        self.turn_button = QPushButton('Turn ON', checkable=True) 
         self.turn_button.clicked.connect(self.turn_clicked)
         self.shim_con_box.layout().addWidget(self.turn_button, len(self.shim_currents)-1, 2)
+        if '1' in self.shim_state:   # change to match inital state of supply
+            self.turn_button.toggle()
+            self.turn_button.setText('Turn OFF')
  
         self.right = QVBoxLayout()     # right part of main layout
         self.main.addLayout(self.right)
@@ -145,27 +147,20 @@ class ShimTab(QWidget):
         return
         
     def turn_clicked(self):
-        '''
+        '''Button clicked, send new state to shim controller, check to be sure button is right
         '''  
-        if self.turn_button.isChecked():
-            self.shims.set_outstat("ON") 
-            self.ask_state()
-        else:
-            self.shims.set_outstat("OFF") 
-            self.ask_state()
-            
-    def ask_state(self): 
-        '''Ask output state
-        '''
-        if '1' in self.shims.read_outstat():
-            if not self.turn_button.isChecked():
-                self.turn_button.toggle()
-                self.turn_button.setText('Turn OFF')
-        else:
-            if  self.turn_button.isChecked():
-                self.turn_button.toggle()
-                self.turn_button.setText('Turn ON')
+        state_to_set = '1' if self.turn_button.isChecked() else '0'     
+        out = self.shims.set_outstat(state_to_set) 
         
+        if not state_to_set in out:
+            self.turn_button.toggle()
+            print("Shim state didn't match", state_to_set, out)
+        
+        if self.turn_button.isChecked():
+            self.turn_button.setText('Turn OFF')
+        else:
+            self.turn_button.setText('Turn ON')
+                
     def fill_readback(self):
         '''
         '''          
@@ -183,7 +178,6 @@ class ShimTab(QWidget):
         '''Update shim controls
         '''
         for i, k in enumerate(self.shim_currents.keys()):
-            print(self.x)
             self.cur_edit[k].setText(f"{self.x[i]:.4f}")
         
 
@@ -317,16 +311,19 @@ class ShimControl():
             self.tn.write(bytes(f"INST:NSEL {i+1}\n", 'ascii'))
             self.tn.write(bytes(f"CURR? \n", 'ascii'))
             reads[i] = self.tn.read_some().decode('ascii')     
-            time.sleep(0.1)        
+            time.sleep(0.1)           
         return reads
     
     def read_outstat(self):
         self.tn.write(bytes(f"OUTP:GEN? \n", 'ascii'))
         out =  self.tn.read_some().decode('ascii') 
-        print(out)
+        print("Readback:", out)
         return out
         
     def set_outstat(self, state):
-        '''Takes state as OFF or ON
+        '''Takes state as 0 or 1, returns
         '''
         self.tn.write(bytes(f"OUTP:GEN {state} \n", 'ascii'))
+        self.tn.write(bytes(f"OUTP:GEN? \n", 'ascii'))
+        return self.tn.read_some().decode('ascii') 
+        
