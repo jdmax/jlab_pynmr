@@ -289,6 +289,7 @@ class ShimControl():
         
         try:
             self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
+            print("Connected to R&S shim supply on", self.host)
         except Exception as e:
             print("Error connecting to R&S current supply.", e)
         
@@ -317,7 +318,6 @@ class ShimControl():
     def read_outstat(self):
         self.tn.write(bytes(f"OUTP:GEN? \n", 'ascii'))
         out =  self.tn.read_some().decode('ascii') 
-        print("Readback:", out)
         return out
         
     def set_outstat(self, state):
