@@ -30,7 +30,7 @@ class ShimTab(QWidget):
         self.read_back = self.shims.read_currents()
         self.shim_state = self.shims.read_outstat()
         
-                
+        self.z_axis = np.arange(-30,31)        
         self.frost = np.array([4.9995, 4.999595, 4.99969, 4.9997575, 4.999825, 4.9998675,
                       4.99991, 4.9999425, 4.999975, 4.9999975, 5.00002, 5.000035,
                       5.00005, 5.000055, 5.00006, 5.00006, 5.00006, 5.0000575,
@@ -136,7 +136,9 @@ class ShimTab(QWidget):
         # Set up list of options for each step, putting instances into stack
         self.shim_opts = []
         self.shim_opts.append(Flatten(self))  
-        self.shim_opts.append(AllSame(self))         
+        self.shim_opts.append(AllSame(self))  
+        self.shim_opts.append(Tilt(self)) 
+        self.shim_opts.append(LikeCLAS(self))       
         for o in self.shim_opts:
             self.shim_op_combo.addItem(o.name)
             self.shim_op_stack.addWidget(o)
@@ -180,9 +182,9 @@ class ShimTab(QWidget):
     def update_plots(self):
         '''Update shim plots
         '''
-        self.shim_plot.setData(self.shimmed)
-        self.goal_plot.setData(self.goals)
-        self.back_plot.setData(self.background)
+        self.shim_plot.setData(self.z_axis, self.shimmed)
+        self.goal_plot.setData(self.z_axis,self.goals)
+        self.back_plot.setData(self.z_axis,self.background)
         
     def enter_currents(self):
         '''Update shim controls
@@ -318,7 +320,86 @@ class AllSame(QWidget):
         self.parent.update_plots()
         self.parent.enter_currents()
         return
-  
+        
+class Tilt(QWidget):
+    '''Layout and method
+    '''
+    
+    def __init__(self, parent):
+        super(QWidget, self).__init__(parent)
+        self.parent = parent
+        self.space = QVBoxLayout()
+        self.setLayout(self.space)
+        self.name = "Tilted Field"
+                
+        self.grid = QGridLayout()
+        self.space.addLayout(self.grid)
+        self.current_label = QLabel("FROST Magnet Current (A):")
+        self.grid.addWidget(self.current_label, 0, 0)
+        self.current_edit = QLineEdit('0')
+        self.current_edit.setValidator(QDoubleValidator(0, 90, 4))
+        self.grid.addWidget(self.current_edit, 0, 1)
+        self.goal_label = QLabel("Tilt Height (G):")
+        self.grid.addWidget(self.goal_label, 1, 0)
+        self.goal_edit = QLineEdit('0')
+        self.goal_edit.setValidator(QDoubleValidator(0, 6, 4))
+        self.grid.addWidget(self.goal_edit, 1, 1)
+        self.off_label = QLabel("Center Field (T):")
+        self.grid.addWidget(self.off_label, 2, 0)
+        self.off_edit = QLineEdit('0')
+        self.off_edit.setValidator(QDoubleValidator(0, 6, 4))
+        self.grid.addWidget(self.off_edit, 2, 1)
+        self.calc_button = QPushButton('Calculate Currents')
+        self.grid.addWidget(self.calc_button, 2, 2) 
+        self.calc_button.clicked.connect(self.calc_clicked)
+        
+    def calc_clicked(self):
+        '''
+        '''  
+        self.parent.background = self.parent.frost/5*float(self.current_edit.text())*0.061594  # calibration for current at 5T 
+        self.parent.goals = self.parent.tilt(float(self.off_edit.text()), float(self.goal_edit.text()))
+        self.parent.just_shims = [float('nan')]*61
+        self.parent.just_shims, self.parent.shimmed, self.parent.x = self.parent.calc_currents(self.parent.background, self.parent.goals)
+        self.parent.update_plots()
+        self.parent.enter_currents()
+        return
+        
+class LikeCLAS(QWidget):
+    '''Layout and method for making like CLAS solenoid field
+    '''
+    
+    def __init__(self, parent):
+        super(QWidget, self).__init__(parent)
+        self.parent = parent
+        self.space = QVBoxLayout()
+        self.setLayout(self.space)
+        self.name = "Make it CLASsy"
+                
+        self.grid = QGridLayout()
+        self.space.addLayout(self.grid)
+        self.current_label = QLabel("FROST Magnet Current (A):")
+        self.grid.addWidget(self.current_label, 0, 0)
+        self.current_edit = QLineEdit('0')
+        self.current_edit.setValidator(QDoubleValidator(0, 90, 4))
+        self.grid.addWidget(self.current_edit, 0, 1)
+        self.goal_label = QLabel("CLAS Field Strength (T):")
+        self.grid.addWidget(self.goal_label, 1, 0)
+        self.goal_edit = QLineEdit('0')
+        self.goal_edit.setValidator(QDoubleValidator(0, 6, 4))
+        self.grid.addWidget(self.goal_edit, 1, 1)
+        self.calc_button = QPushButton('Calculate Currents')
+        self.grid.addWidget(self.calc_button, 1, 2) 
+        self.calc_button.clicked.connect(self.calc_clicked)
+        
+    def calc_clicked(self):
+        '''
+        '''  
+        self.parent.background = self.parent.frost/5*float(self.current_edit.text())*0.061594  # calibration for current at 5T 
+        self.parent.goals = self.parent.clas/5*float(self.goal_edit.text())
+        self.parent.just_shims, self.parent.shimmed, self.parent.x = self.parent.calc_currents(self.parent.background, self.parent.goals)
+        self.parent.update_plots()
+        self.parent.enter_currents()
+        return  
         
 class ShimControl():
     '''Interface with R&S HMP4040

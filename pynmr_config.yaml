@@ -79,7 +79,7 @@ settings:
         timeout: 2              # Telnet timeout in secs
     uWave_settings:
         enable: true            # Turn on uWave controls
-        monitor_time: 0.2         # How long to wait between reading frequency when on monitor in s
+        monitor_time: 0.2       # How long to wait between reading frequency when on monitor in s
         ip: pt-gpib1            # GPIB IP
         timeout: 2              # Telnet timeout in secs
         counter_addr: 20        # EIP 588C frequency counter GPIB address
