@@ -125,8 +125,8 @@ class DAQConnection():
         '''
         if self.daq_type=='FPGA':
             self.udp.dac_v = dac_v 
-            self.udp.dac_c = dac_c
-            return self.udp.set_register()              
+            self.udp.dac_c = dac_c    
+            return self.udp.set_register()        
         if self.daq_type=='Test':
             #print("DAC", dac_v, dac_c)
             return True

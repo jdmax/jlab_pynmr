@@ -426,27 +426,39 @@ class ShimControl():
         '''Set currents on R&S from list passed
         '''
         for i, c in enumerate(list):
-            #print("Set shim channel", i+1, "to", {list[i]})
-            self.tn.write(bytes(f"INST:NSEL {i+1}\n", 'ascii'))
-            self.tn.write(bytes(f"VOLT MAX\n", 'ascii'))
-            self.tn.write(bytes(f"CURR {list[i]}\n", 'ascii'))
-            time.sleep(0.1)
+            try:
+                #print("Set shim channel", i+1, "to", {list[i]})
+                self.tn.write(bytes(f"INST:NSEL {i+1}\n", 'ascii'))
+                self.tn.write(bytes(f"VOLT MAX\n", 'ascii'))
+                self.tn.write(bytes(f"CURR {list[i]}\n", 'ascii'))
+                time.sleep(0.1)
+            except Exception as e:
+                print("Error setting currents on R&S current supply.", e) 
             
     def read_currents(self):
         '''Set currents on R&S from list passed
         '''
         reads = [0]*4
-        for i in range(0,4):
-            self.tn.write(bytes(f"INST:NSEL {i+1}\n", 'ascii'))
-            self.tn.write(bytes(f"CURR? \n", 'ascii'))
-            reads[i] = self.tn.read_some().decode('ascii')     
-            time.sleep(0.1)           
+        for i in range(0,4):        
+            try:
+                self.tn.write(bytes(f"INST:NSEL {i+1}\n", 'ascii'))
+                self.tn.write(bytes(f"CURR? \n", 'ascii'))
+                reads[i] = self.tn.read_some().decode('ascii')     
+                time.sleep(0.1)   
+            except Exception as e:
+                print("Error reading currents on R&S current supply.", e)         
         return reads
     
     def read_outstat(self):
-        self.tn.write(bytes(f"OUTP:GEN? \n", 'ascii'))
-        out =  self.tn.read_some().decode('ascii') 
-        return out
+        
+        try:
+            self.tn.write(bytes(f"OUTP:GEN? \n", 'ascii'))
+            out =  self.tn.read_some().decode('ascii') 
+            return out
+        except Exception as e:
+            print("Error reading status on R&S current supply.", e) 
+            return 999
+        
         
     def set_outstat(self, state):
         '''Takes state as 0 or 1, returns
