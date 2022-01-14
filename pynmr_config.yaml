@@ -47,7 +47,7 @@ settings:
     ss_dir: false               # Directory to put screenshots files in, screenshots not taken if False
     steps: 512                  # Frequency points per sweep (must be 500 for test sweeps, 512 otherwise)
     num_per_chunk: 64           # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
-    tune_per_chunk:  8          # Number of sweeps per chunk to take in tune mode
+    tune_per_chunk:  32          # Number of sweeps per chunk to take in tune mode
     epics_temp: 4he             # EPICS channel of temp to use as default 
     epics_test: true            # If true, doesn't attempt to contact EPICS server
     fpga_settings:    

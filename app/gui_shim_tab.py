@@ -103,9 +103,10 @@ class ShimTab(QWidget):
             self.cur_edit[k] = QLineEdit(str(self.shim_currents[k]))
             self.shim_con_box.layout().addWidget(self.cur_edit[k], i, 1)
             self.cur_edit[k].setValidator(QDoubleValidator(-10, 10, 4))
-            self.read_label[k] = QLabel(" Readback (Amps)")
+            self.read_label[k] = QLabel("Readback (Amps)")
             self.shim_con_box.layout().addWidget(self.read_label[k], i, 3)
-            self.read_edit[k] = QLineEdit(self.read_back[i])
+            print(self.read_back[i])
+            self.read_edit[k] = QLineEdit(str(self.read_back[i]))
             self.read_edit[k].setEnabled(False)
             self.shim_con_box.layout().addWidget(self.read_edit[k], i, 4)
             
