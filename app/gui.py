@@ -86,8 +86,9 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.tune_tab, "Tune")
         self.base_tab = BaseTab(self)
         self.tab_widget.addTab(self.base_tab, "Baseline")
-        self.shim_tab = ShimTab(self)
-        self.tab_widget.addTab(self.shim_tab, "Shims")
+        if self.config.settings['shim_settings']['enable']:
+            self.shim_tab = ShimTab(self)
+            self.tab_widget.addTab(self.shim_tab, "Shims")
         #self.mag_tab = MagTab(self)
         #self.tab_widget.addTab(self.mag_tab, "Magnet")
         self.te_tab = TETab(self)

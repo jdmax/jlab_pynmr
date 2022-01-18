@@ -105,7 +105,6 @@ class ShimTab(QWidget):
             self.cur_edit[k].setValidator(QDoubleValidator(-10, 10, 4))
             self.read_label[k] = QLabel("Readback (Amps)")
             self.shim_con_box.layout().addWidget(self.read_label[k], i, 3)
-            print(self.read_back[i])
             self.read_edit[k] = QLineEdit(str(self.read_back[i]))
             self.read_edit[k].setEnabled(False)
             self.shim_con_box.layout().addWidget(self.read_edit[k], i, 4)
@@ -118,7 +117,7 @@ class ShimTab(QWidget):
         self.turn_button = QPushButton('Turn ON', checkable=True) 
         self.turn_button.clicked.connect(self.turn_clicked)
         self.shim_con_box.layout().addWidget(self.turn_button, len(self.shim_currents)-1, 2)
-        if '1' in self.shim_state:   # change to match inital state of supply
+        if '1' in str(self.shim_state):   # change to match inital state of supply
             self.turn_button.toggle()
             self.turn_button.setText('Turn OFF')
  
