@@ -107,7 +107,6 @@ class RunTab(QWidget):
         self.channel_label = QLabel()
         self.channel_combo.addItems(self.parent.channels)
         i = self.channel_combo.findText(self.config.settings['default_channel'],Qt.MatchFixedString)
-        print(i)
         if i>=0: 
             self.channel_combo.setCurrentIndex(i) 
         self.channel_combo.currentIndexChanged.connect(self.parent.channel_change)
@@ -385,8 +384,8 @@ class RunTab(QWidget):
         freq = reply[0].strip()
         pot = reply[1]
         temp = reply[2]
-        #self.uwave_freq_label.setText(f"Freq: {freq_flt} GHz")
-        self.uwave_freq_label.setText(f"{pot, temp}")
+        self.uwave_freq_label.setText(f"Freq: {freq:.4} GHz")
+        #self.uwave_freq_label.setText(f"{pot, temp}")
         self.parent.event.uwave_freq = freq
         
     def up_micro(self):
