@@ -413,7 +413,7 @@ class ShimControl():
         '''
         self.host = config.settings['shim_settings']['ip']
         self.timeout = config.settings['shim_settings']['timeout']
-        self.port = 5025    
+        self.port = config.settings['shim_settings']['port']   
         
         try:
             self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)

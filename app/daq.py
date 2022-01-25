@@ -387,7 +387,7 @@ class RS_Connection():
         '''Open connection to R&S, send commands for all settings, and read all back to check. Close.
         '''
         self.host = config.settings['RS_settings']['ip']
-        self.port = 5025
+        self.port = config.settings['RS_settings']['port']
         
         try:
             tn = telnetlib.Telnet(self.host, port=self.port, timeout=config.settings['RS_settings']['timeout'])
