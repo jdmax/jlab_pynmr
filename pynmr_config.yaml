@@ -57,9 +57,9 @@ settings:
         dwell: 10               # Settle time in ms between frequency switch and ADC read (int)
         per_point: 2            # Samples taken and averaged at each frequency point of a sweep (int)
         timeout_run: 20         # TCP timeout for running sweeps
-        timeout_tune: 1         # TCP timeout for running sweeps
-        timeout_check: 1        # TCP timeout for running sweeps
-        timeout_udp: 1          # TCP timeout for running sweeps
+        timeout_tune: 1         # TCP timeout for tune
+        timeout_check: 1        # TCP timeout for check
+        timeout_udp: 1          # Timeout for udp commands
         adc_drate1: true        # ADC data rate settings, see manual
         adc_drate0: true
         adc_fpath: false        # ADC fpath setting, see manual
