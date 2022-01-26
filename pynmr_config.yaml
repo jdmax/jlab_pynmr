@@ -39,7 +39,7 @@ channels:
       
 settings:
     default_channel: Deuteron5T     # Default from channels listed above
-    daq_type: FPGA            # Select DAQ mode (FPGA, NIDAQ or Test)
+    daq_type: Test              # Select DAQ mode (FPGA, NIDAQ or Test)
     test_signal: app/d_signal_event.txt  # signal to use for test mode
     event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
@@ -47,9 +47,9 @@ settings:
     ss_dir: false               # Directory to put screenshots files in, screenshots not taken if False
     steps: 512                  # Frequency points per sweep (must be 500 for test sweeps, 512 otherwise)
     num_per_chunk: 64           # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
-    tune_per_chunk:  32          # Number of sweeps per chunk to take in tune mode
+    tune_per_chunk:  32         # Number of sweeps per chunk to take in tune mode
+    epics_enable: false         # If false, doesn't attempt to contact EPICS server
     epics_temp: 4he             # EPICS channel of temp to use as default 
-    epics_test: true            # If true, doesn't attempt to contact EPICS server
     fpga_settings:    
         ip: 129.57.37.134       # Device IP address (str)
         port: 1028              # Device port  (int)
@@ -79,7 +79,7 @@ settings:
         port: 5025 
         timeout: 2              # Telnet timeout in secs
     uWave_settings:
-        enable: true            # Turn on uWave controls
+        enable: false           # Turn on uWave controls
         monitor_time: 0.2       # How long to wait between reading frequency when on monitor in s
         ip: pt-gpib1            # GPIB IP
         timeout: 2              # Telnet timeout in secs
@@ -90,7 +90,7 @@ settings:
         rate: 100               # Counter sample rate in ms
         lj-ip: 129.57.37.33     # LabJack device IP, 129.57.37.33 is pt-labjack1
     shim_settings:
-        enable: true
+        enable: false
         ip: 129.57.37.143       # R&S supply IP
         port: 5025 
         timeout: 2         

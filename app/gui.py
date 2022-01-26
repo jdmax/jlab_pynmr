@@ -217,7 +217,7 @@ class MainWindow(QMainWindow):
     def init_connects(self):
         '''Initialize connections to required instruments, EPICS server
         '''
-        self.epics = EPICS(self.settings['epics_test'], self.epics_reads, self.epics_writes)  # open EPICS
+        self.epics = EPICS(self.settings['epics_enable'], self.epics_reads, self.epics_writes)  # open EPICS
         self.rs = RS_Connection(self.config)            # open connection to Rohde and Schwarz, set stuff        
 
     def connect_daq(self):

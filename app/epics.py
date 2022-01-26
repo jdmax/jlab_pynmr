@@ -16,13 +16,13 @@ class EPICS():
         write_atts: Dict of Event attributes to write keyed on epics channel
     
     '''
-    def __init__(self, test_mode, read_names, write_atts):       
+    def __init__(self, enable, read_names, write_atts):       
         
         self.read_names = read_names
         self.write_atts = write_atts
-        self.test_mode = test_mode
+        self.enable = enable
         
-        if self.test_mode: 
+        if not self.enable: 
             print('EPICS in test mode.')
             self.read_PVs   = {k:0 for k in self.read_names.keys()}   
             self.write_PVs  = {k:0 for k in self.write_atts.keys()}    
@@ -36,7 +36,7 @@ class EPICS():
         Returns:
             Dict of values keyed on channel name
         '''
-        if self.test_mode:
+        if not self.enable:
             return {k:0 for k in self.read_names.keys()} 
         else:
             return {k:self.read_PVs[k].value for k in self.read_names.keys()}
@@ -48,9 +48,40 @@ class EPICS():
             event: Event class instance with values to write
         '''
     
-        if self.test_mode:
+        if not self.enable:
             return 
         else:
             for k, v in self.write_atts.items():
                 self.write_PVs[k].value = event.__dict__[v] 
+  
+
+  
+class MonitorThread(QThread):
+    '''Thread class for microwave loop
+    Args:
+        config: Config object of settings
+    '''
+    reply = pyqtSignal(tuple)       # reply signal
+    finished = pyqtSignal()       # finished signal
+    def __init__(self, parent, config):
+        QThread.__init__(self)
+        self.config = config
+        self.parent = parent 
+            
+                
+    def __del__(self):
+        self.wait()
         
+    def run(self):
+        '''Main monitor loop
+        '''        
+        
+        while:
+            self.reply.emit((freq, pot, temp))
+            time.sleep(self.config.settings['uWave_settings']['monitor_time'])
+          
+        self.finished.emit()
+        del self.count
+
+
+  
