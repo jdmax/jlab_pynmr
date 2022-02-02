@@ -95,8 +95,8 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.te_tab, "TE")
         self.anal_tab = AnalTab(self)
         self.tab_widget.addTab(self.anal_tab, "Analysis")
-        self.Expl_tab = ExplTab(self)
-        self.tab_widget.addTab(self.Expl_tab, "Event Explorer") 
+        self.expl_tab = ExplTab(self)
+        self.tab_widget.addTab(self.expl_tab, "Event Explorer") 
         
         self.connect_daq()
         
