@@ -163,7 +163,7 @@ class TETab(QWidget):
         for i,stamp in enumerate(list(self.te_data[:,0])):        # put data in table, hist_points keyed on timestamp
             self.te_model.setItem(i,0,QStandardItem(self.hist_points[stamp].dt.strftime("%H:%M:%S")))
             self.te_model.setItem(i,1,QStandardItem(str(self.hist_points[stamp].area)))
-            self.te_model.setItem(i,2,QStandardItem(str(self.hist_points[stamp].epics_reads[self.parent.settings['epics_temp']])))
+            self.te_model.setItem(i,2,QStandardItem(str(self.hist_points[stamp].epics_reads[self.parent.settings['epics_settings']['epics_temp']])))
         
     def double_clicked(self, item):
         '''Remove event from table when double clicked'''
@@ -172,7 +172,7 @@ class TETab(QWidget):
         for i,stamp in enumerate(list(self.te_data[:,0])):        # put data in table, hist_points keyed on timestamp
             self.te_model.setItem(i,0,QStandardItem(self.hist_points[stamp].dt.strftime("%H:%M:%S")))
             self.te_model.setItem(i,1,QStandardItem(str(self.hist_points[stamp].area)))
-            self.te_model.setItem(i,2,QStandardItem(str(self.hist_points[stamp].epics_reads[self.parent.settings['epics_temp']])))
+            self.te_model.setItem(i,2,QStandardItem(str(self.hist_points[stamp].epics_reads[self.parent.settings['epics_settings']['epics_temp']])))
     
     def update_event_plots(self): 
         '''Update time plot as running'''

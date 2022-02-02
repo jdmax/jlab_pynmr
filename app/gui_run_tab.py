@@ -44,7 +44,7 @@ class RunTab(QWidget):
         self.stat_values = {}
         for key, name in self.parent.epics.read_names.items():
             self.status_box.layout().addWidget(QLabel(name+':'), i, 0)
-            self.stat_values[key] = QLineEdit(str(self.parent.epics.read_PVs[key]))
+            self.stat_values[key] = QLineEdit(str(0))
             self.stat_values[key].setEnabled(False)
             self.status_box.layout().addWidget(self.stat_values[key], i, 1)
             i+=1
@@ -398,7 +398,12 @@ class RunTab(QWidget):
         
     def off_micro(self):
         '''Button released'''
-        self.utune.change_freq('off')
+        self.utune.change_freq('off')        
+        
+    def update_status(self):
+        '''Update status from EPICS values'''        
+        for key in self.parent.epics.read_list:
+            self.stat_values[key].setText(str(self.parent.epics.read_PVs[key]))
         
    
 class RunThread(QThread):
