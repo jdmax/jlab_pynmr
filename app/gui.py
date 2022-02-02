@@ -67,7 +67,7 @@ class MainWindow(QMainWindow):
         self.new_eventfile()
 
         self.init_connects()
-
+        
         self.left = 100
         self.top = 100
         self.title = 'JLab Polarization Display'
@@ -216,8 +216,8 @@ class MainWindow(QMainWindow):
 
     def init_connects(self):
         '''Initialize connections to required instruments, EPICS server
-        '''
-        self.epics = EPICS(self.settings['epics_enable'], self.epics_reads, self.epics_writes)  # open EPICS
+        '''      
+        self.epics = EPICS(self.settings['epics_settings']['epics_enable'], self.epics_reads, self.epics_writes)  # open EPICS
         self.rs = RS_Connection(self.config)            # open connection to Rohde and Schwarz, set stuff        
 
     def connect_daq(self):
@@ -301,6 +301,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         '''Things to do on close of window ("events" here are not related to nmr data events)
         '''
+        self.epics.monitor_running = False
         self.close_eventfile()
         self.save_settings()
         event.accept()
