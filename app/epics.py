@@ -1,7 +1,8 @@
 '''PyNMR, J.Maxwell 2020
 '''
-import epics
+from epics import caget_many, caput_many
 import time
+from PyQt5.QtCore import QThread, pyqtSignal, Qt
 
 
 class EPICS():
@@ -17,19 +18,20 @@ class EPICS():
         read_PVs:  Dict of most recently read variable values keyed on PV name
     
     '''
-    def __init__(self, enable, monitor_time, read_names, write_atts):       
+    def __init__(self, parent):       
         
-        self.read_names = read_names             # Dict of PV names and namestring
+        self.parent = parent
+        self.enable = parent.settings['epics_settings']['epics_enable']
+        self.monitor_time = parent.settings['epics_settings']['monitor_time']
+        self.read_names = parent.epics_reads             # Dict of PV names and namestring
         self.read_list = self.read_names.keys()   # List of PV names to read from server
-        self.write_atts = write_atts
-        self.enable = enable
-        self.monitor_time = monitor_time
+        self.write_atts = parent.epics_writes
                 
         self.read_PVs   = {k:0 for k in self.read_list}    # initialize with 0s        
         
         if not self.enable: 
             print('EPICS in test mode.')
-            self.read_PVs   = {k:0 for k in self.read_list)}     
+            self.read_PVs   = {k:0 for k in self.read_list}     
             self.monitor_running = False
         else:               
             self.monitor_running = True            
@@ -44,7 +46,7 @@ class EPICS():
         
     def mon_finished(self):
         '''Things to do when done'''
-       return
+        return
             
     def read_all(self):
         '''Read new values from EPICS PVs. Use caget_many to do quickly
@@ -56,10 +58,10 @@ class EPICS():
             return {k:0 for k in self.read_list} 
         else:
             try:
-                values = epics.caget_many(self.read_list)
-                self.read_PVs = zip(self.read_list, values)
+                values = caget_many(self.read_list)
+                self.read_PVs = dict(zip(self.read_list, values))
             except Exception as e: 
-                print("Error getting EPICS variables.")
+                print("Error getting EPICS variables:", e)
             #return {k:self.read_PVs[k].value for k in self.read_list}
         
     def write_all(self, event):
@@ -80,7 +82,8 @@ class MonitorThread(QThread):
     Args:
         config: Config object of settings
     '''
-    reply = pyqtSignal(tuple)       # reply signal
+    reply = pyqtSignal()       # reply signal
+    reply = pyqtSignal()       # reply signal
     finished = pyqtSignal()       # finished signal
     def __init__(self, parent):
         QThread.__init__(self)
@@ -95,7 +98,7 @@ class MonitorThread(QThread):
         
         while self.parent.monitor_running:
             self.parent.read_all()   
-            self.reply.emit(True)
+            self.reply.emit()
             time.sleep(self.parent.monitor_time)
           
         self.finished.emit()

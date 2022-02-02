@@ -49,7 +49,7 @@ settings:
     num_per_chunk: 64           # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
     tune_per_chunk:  32         # Number of sweeps per chunk to take in tune mode
     epics_settings:
-        epics_enable: false         # If false, doesn't attempt to contact EPICS server
+        epics_enable: true         # If false, doesn't attempt to contact EPICS server
         monitor_time: 5             # Time between calls to get EPICS data
         epics_temp: 4he             # EPICS channel of temp to use as default 
     fpga_settings:    
@@ -81,7 +81,7 @@ settings:
         port: 5025 
         timeout: 2              # Telnet timeout in secs
     uWave_settings:
-        enable: false           # Turn on uWave controls
+        enable: true           # Turn on uWave controls
         monitor_time: 0.2       # How long to wait between reading frequency when on monitor in s
         ip: pt-gpib1            # GPIB IP
         timeout: 2              # Telnet timeout in secs
