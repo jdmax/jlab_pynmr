@@ -403,7 +403,7 @@ class RunTab(QWidget):
     def update_status(self):
         '''Update gui with status from EPICS values'''        
         for key in self.parent.epics.read_list:
-            self.stat_values[key].setText(str(self.parent.epics.read_PVs[key]))
+            self.stat_values[key].setText(str(self.parent.epics.read_pvs[key]))
         
    
 class RunThread(QThread):

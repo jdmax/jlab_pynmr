@@ -261,8 +261,8 @@ class Event():
             elif 'scan' in key: 
                 for key2, entry2 in entry.__dict__.items():
                     json_dict.update({key2:entry2})
-            elif 'status' in key: 
-                json_dict.update({key:entry.chan})
+            #elif 'status' in key: 
+            #    json_dict.update({key:entry.chan})
             elif key in exclude_list: pass
             else:
                 json_dict.update({key:entry})
@@ -392,7 +392,6 @@ class HistPoint():
         self.pol = event.pol
         self.cc = event.cc
         self.area = event.area
-        self.epics_reads = event.epics_reads
         
         
 class History():

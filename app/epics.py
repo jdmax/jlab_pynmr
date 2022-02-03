@@ -76,8 +76,9 @@ class EPICS():
             try:
                 values = [event.__dict__[att] for key, att in self.write_atts.items()]
                 caput_many(self.write_atts.keys(), values)
+                #print("Tried to write to EPICS:", self.write_atts.keys(), values)
             except Exception as e:    
-                print("Failed to put event data into EPICS server;" e)
+                print("Failed to put event data into EPICS server:", e)
         else:
             return
   
