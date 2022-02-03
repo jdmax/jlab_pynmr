@@ -158,10 +158,14 @@ class MainWindow(QMainWindow):
         '''Start ending the event
         '''
         self.previous_event = self.event      
-        self.previous_event.close_event(self.epics.read_all(), self.anal_tab.base_chosen, self.anal_tab.sub_chosen, self.anal_tab.res_chosen)    
+        self.previous_event.close_event(self.anal_tab.base_chosen, self.anal_tab.sub_chosen, self.anal_tab.res_chosen)    
         
     def end_finished(self):
-        '''Analysis thread has returned. Finished up closing event, closing the event instance and calling updates for each tab. Updates plots, prints to file, makes new eventfile if lines are more than 500.'''
+        '''Analysis thread has returned. Call to get epics reads and send epics writes. Finish up closing event, closing the event instance and calling updates for each tab. Updates plots, prints to file, makes new eventfile if lines are more than 500.'''
+        
+        self.epics.write_event(self.previous_event)
+        self.epics.read_all()
+        
         self.previous_event.print_event(self.eventfile)
         self.eventfile_lines += 1
         if self.eventfile_lines > 500:            # open new eventfile once the current one has a number of entries
@@ -170,7 +174,8 @@ class MainWindow(QMainWindow):
 
         self.run_tab.update_event_plots()
         self.te_tab.update_event_plots()
-        self.anal_tab.update_event_plots()
+        self.anal_tab.update_event_plots()      
+        
         
         if self.config.settings["ss_dir"]:
             screenshot = self.run_tab.grab()

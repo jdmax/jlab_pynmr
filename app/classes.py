@@ -272,7 +272,7 @@ class Event():
         json_record = json.dumps(json_dict)
         eventfile.write(json_record+'\n')               # write to file as json line
             
-    def close_event(self, epics_reads, base_method, sub_method, res_method):
+    def close_event(self, base_method, sub_method, res_method):
         '''Closes event, calls for signal analysis, adds epics reads to event
         
         Args:
@@ -287,7 +287,6 @@ class Event():
         self.stop_time =  datetime.datetime.now(tz=datetime.timezone.utc)
         self.stop_stamp = self.stop_time.timestamp()
              
-        self.epics_reads = epics_reads  
         self.signal_analysis(base_method, sub_method, res_method)       
     
     def signal_analysis(self, base_method, sub_method, res_method):
