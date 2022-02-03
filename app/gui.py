@@ -160,12 +160,16 @@ class MainWindow(QMainWindow):
         self.previous_event = self.event      
         self.previous_event.close_event(self.anal_tab.base_chosen, self.anal_tab.sub_chosen, self.anal_tab.res_chosen)    
         
-    def end_finished(self):
-        '''Analysis thread has returned. Call to get epics reads and send epics writes. Finish up closing event, closing the event instance and calling updates for each tab. Updates plots, prints to file, makes new eventfile if lines are more than 500.'''
-        
-        self.epics.write_event(self.previous_event)
+    def epics_update(self, event):
+        '''Writes current event data to EPICS and reads status variables from EPICS.
+        '''        
+        self.epics.write_event(event)
         self.epics.read_all()
-        
+        event.status = self.epics.read_pvs     # Put recently read EPICS variables in event
+    
+    def end_finished(self):
+        '''Analysis thread has returned. Finish up closing event, closing the event instance and calling updates for each tab. Updates plots, prints to file, makes new eventfile if lines are more than 500.'''
+                
         self.previous_event.print_event(self.eventfile)
         self.eventfile_lines += 1
         if self.eventfile_lines > 500:            # open new eventfile once the current one has a number of entries

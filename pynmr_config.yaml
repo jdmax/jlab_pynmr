@@ -126,7 +126,7 @@ epics_reads:                    # EPICS channels to read: key is channel name, v
     sep_f: Separator Flow (slpm)
     mag_i: Magnet Current (A)
     posit: Target Position
-epics_writes:                   # List of channels to write, key is channel, value is attribute of Event class 
+epics_writes:                   # Dict of channels to write, key is channel, value is attribute of Event class 
     targ_pol: pol 
     targ_area: area
     targ_cc: cc

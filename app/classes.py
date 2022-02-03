@@ -415,7 +415,7 @@ class History():
       
 
 class AnalThread(QThread):
-    '''Thread class for analysis
+    '''Thread class for analysis. Calls for epics reads and writes once done.
     Args:
         config: Config object of settings
     '''
@@ -423,7 +423,7 @@ class AnalThread(QThread):
     finished = pyqtSignal()       # finished signal
     def __init__(self, parent,  base_method, sub_method, res_method):
         QThread.__init__(self)
-        self.parent = parent
+        self.parent = parent    # event object
         self.base_method = base_method
         self.sub_method = sub_method
         self.res_method = res_method
@@ -438,6 +438,8 @@ class AnalThread(QThread):
         self.parent.basesweep, self.parent.basesub  = self.base_method(self.parent)        
         self.parent.fitcurve, self.parent.fitsub = self.sub_method(self.parent)
         self.parent.rescurve, self.parent.area, self.parent.pol = self.res_method(self.parent) 
+        
+        self.parent.parent.epics_update(self.parent)
                 
         self.finished.emit()
   
