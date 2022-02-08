@@ -39,7 +39,7 @@ channels:
       
 settings:
     default_channel: Deuteron5T     # Default from channels listed above
-    daq_type: Test              # Select DAQ mode (FPGA, NIDAQ or Test)
+    daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ or Test)
     test_signal: app/d_signal_event.txt  # signal to use for test mode
     event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
@@ -81,7 +81,7 @@ settings:
         port: 5025 
         timeout: 2              # Telnet timeout in secs
     uWave_settings:
-        enable: true           # Turn on uWave controls
+        enable: false           # Turn on uWave controls
         monitor_time: 0.2       # How long to wait between reading frequency when on monitor in s
         ip: pt-gpib1            # GPIB IP
         timeout: 2              # Telnet timeout in secs

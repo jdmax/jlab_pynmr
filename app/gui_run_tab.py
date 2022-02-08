@@ -83,7 +83,7 @@ class RunTab(QWidget):
             self.uwave_layout.addWidget(self.uwave_freq_label, 0, 1)
             self.enable_button = QPushButton("Enable",checkable=True)      # Enable button
             self.uwave_layout.addWidget(self.enable_button, 0, 0)
-            self.enable_button.clicked.connect(self.enable_pushed)
+            self.enable_button.clicked.connect(self.enable_uwave_pushed)
             #self.uwave_freq_line = QLineEdit(str(0))
             #self.uwave_freq_line.setEnabled(False)
             #self.uwave_layout.addWidget(self.uwave_freq_line, 0, 1)
@@ -354,7 +354,7 @@ class RunTab(QWidget):
         '''Connect button pushed, run parent connect method'''
         self.parent.connect_daq()
     
-    def enable_pushed(self):
+    def enable_uwave_pushed(self):
         '''Enable microwaves button pushed, turn on buttons and start thread if checked'''
         sender = self.enable_button
         if sender.isChecked():
