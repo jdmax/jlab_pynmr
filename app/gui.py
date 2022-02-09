@@ -157,6 +157,7 @@ class MainWindow(QMainWindow):
     def end_event(self):
         '''Start ending the event
         '''
+        self.end_start = datetime.datetime.now(tz=datetime.timezone.utc)
         self.previous_event = self.event      
         self.previous_event.close_event(self.anal_tab.base_chosen, self.anal_tab.sub_chosen, self.anal_tab.res_chosen)    
         
@@ -180,6 +181,9 @@ class MainWindow(QMainWindow):
         self.te_tab.update_event_plots()
         self.anal_tab.update_event_plots()      
         
+        now = datetime.datetime.now(tz=datetime.timezone.utc)
+        elapsed = self.end_start - now
+        self.status_bar.showMessage(f'Analysis returned at {now:%H:%M:%S} UTC, after {elapsed.seconds}s.')
         
         if self.config.settings["ss_dir"]:
             screenshot = self.run_tab.grab()

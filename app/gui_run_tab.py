@@ -276,8 +276,7 @@ class RunTab(QWidget):
     
     def done(self):
         '''Finished sweeps: close event. If stop button checked, reset buttons, else run again.'''
-        self.parent.end_event()
-        
+        self.parent.end_event()        
         now = datetime.datetime.now(tz=datetime.timezone.utc)
         elapsed = self.parent.event.stop_time - self.parent.event.start_time
         if not self.run_button.isChecked():     # done and stop
