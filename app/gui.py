@@ -199,8 +199,8 @@ class MainWindow(QMainWindow):
         self.baseline = Baseline(self.config, basedict)
         self.set_event_base()
         logging.info(f"Set baseline {self.baseline.stop_stamp} from {self.baseline.base_file}.")
-        self.status_bar.showMessage(f"Set baseline {self.baseline.stop_time.strftime('%Y-%m-%d_%H-%M-%S')} from {self.baseline.base_file}.")
-        self.run_tab.baseline_label.setText(f"Baseline: {self.baseline.stop_time.strftime('%m/%d/%Y %H:%M:%S')}")
+        self.status_bar.showMessage(f"Set baseline {self.baseline.stop_time.strftime('%Y-%m-%d_%H-%M-%S')} with {self.baseline.sweeps} sweeps from {self.baseline.base_file}.")
+        self.run_tab.baseline_label.setText(f"Baseline: {self.baseline.stop_time.strftime('%m/%d %H:%M')}, {self.baseline.sweeps}")
 
     def set_event_base(self):
         '''Set baseline in current event'''

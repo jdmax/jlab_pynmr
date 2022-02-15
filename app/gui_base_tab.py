@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout
 from PyQt5.QtCore import QThread, pyqtSignal,Qt
 from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator, QStandardItemModel, QStandardItem
 import pyqtgraph as pg
+import numpy as np
  
 
 class BaseTab(QWidget): 
@@ -113,19 +114,41 @@ class BaseTab(QWidget):
                 self.event_model.setItem(i,4,QStandardItem(str(self.events[stamp]['mod_freq'])))
                 self.event_model.setItem(i,5,QStandardItem(str(self.events[stamp]['channel'])))
  
-    def select_event(self,item):      
-        '''Choose event selected from table, set as baseline and plot'''
-        self.base_stamp = self.event_model.data(self.event_model.index(item.row(),0))      
-        self.base_plot.setData(self.events[self.base_stamp]['freq_list'],self.events[self.base_stamp]['phase'])  
-        sub = self.parent.event.scan.phase - self.events[self.base_stamp]['phase']        
-        self.sub_plot.setData(self.events[self.base_stamp]['freq_list'],sub)
+    def select_event(self):    #,item):      
+        '''Choose events selected from table, average to set as baseline and plot'''
+        self.base_phase_avg = np.zeros(len(self.parent.event.scan.phase))
+        freqs = []
+        stamp = 0
+        sweeps = 0
+        self.base_stamps = []
+        self.base_dict = {}
+        for index in sorted(self.event_table.selectionModel().selectedRows()):   # average multiple events together, take timestamp of last event
+            #print(index.row(), self.event_model.data(self.event_model.index(index.row(),0)))
+            #print(self.event_model.data(self.event_model.index(item.row(),0)))
+            stamp = self.event_model.data(self.event_model.index(index.row(),0))
+            freqs = self.events[stamp]['freq_list']
+            new_phase = np.array(self.events[stamp]['phase'])
+            self.base_phase_avg = (self.base_phase_avg*sweeps + new_phase*self.events[stamp]['sweeps'])/(sweeps + self.events[stamp]['sweeps'])
+            sweeps = sweeps + self.events[stamp]['sweeps']
+            self.base_stamps.append(stamp)  
+            self.base_dict = dict(self.events[stamp])    # using most entries from last baseline
+        self.base_dict['sweeps'] = sweeps 
+        self.base_dict['phase'] = self.base_phase_avg
+        self.base_dict['base_stamps'] = self.base_stamps
+        self.last_stamp = stamp
+        #self.base_stamp = self.event_model.data(self.event_model.index(item.row(),0))        #self.base_plot.setData(self.events[self.base_stamp]['freq_list'],self.events[self.base_stamp]['phase'])  
+        self.base_plot.setData(freqs, self.base_phase_avg)  
+        sub = self.parent.event.scan.phase - self.base_phase_avg        
+        self.sub_plot.setData(freqs,sub)
+        
+        
 
     def set_base(self):
-        '''Send baseline chosen to be set as the baseline for future events'''
+        '''Send baselines chosen to be set as the baseline for future events'''
         try:
-            self.parent.new_base(self.events[self.base_stamp])
+            self.parent.new_base(self.base_dict)
         except Exception as e:
-            self.status_bar.showMessage(f"Error setting baseline: {self.events[self.base_stamp]['read_time']} {e}")
+            self.status_bar.showMessage(f"Error setting baseline: {self.events[self.last_stamp]['read_time']} {e}")
         filename = re.findall('data.*\.txt', self.parent.event.base_file)
         self.curr_base_line.setText(filename[0]+', '+ str(self.parent.event.base_time))
 
