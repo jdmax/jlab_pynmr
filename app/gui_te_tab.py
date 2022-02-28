@@ -189,7 +189,7 @@ class TETab(QWidget):
     def take_te(self):
         '''Send points for TE to make TE object'''
         times, areas = self.te_data.T
-        temps = np.fromiter((self.hist_points[k].epics_reads[self.parent.settings['epics_temp']] for k in times.flatten()), np.double)
+        temps = np.fromiter((self.hist_points[k].epics_reads[self.parent.settings['epics_settings']['epics_temp']] for k in times.flatten()), np.double)
         self.te = TE(self.species_box.currentText(), float(self.field_value.text()), areas.flatten(), temps)
         self.set_but.setEnabled(True)
         self.teselect_label.setText(self.te.pretty_te())   

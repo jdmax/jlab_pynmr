@@ -29,7 +29,7 @@ class MicrowaveThread(QThread):
             time.sleep(self.config.settings['uWave_settings']['monitor_time'])
         except Exception as e:
             print('Exception starting counter thread, lost connection: '+str(e))
-            
+      
         while self.parent.enable_button.isChecked():       
             try:        
                 freq = self.count.read_freq()
@@ -42,7 +42,10 @@ class MicrowaveThread(QThread):
                 pot, temp = self.parent.utune.read_back()
             except Exception as e:                
                 print('Exception reading LabJack: '+str(e))
-            self.reply.emit((freq, pot, temp))
+            try:
+                self.reply.emit((freq, pot, temp))
+            except Exception as e:                
+                print("Couldn't send microwave reply: "+str(e))
             time.sleep(self.config.settings['uWave_settings']['monitor_time'])
           
         self.finished.emit()
@@ -61,7 +64,7 @@ class Counter():
         '''Open connection to GPIB, send commands for all settings. Close.  
         '''
         self.host = config.settings['uWave_settings']['ip']
-        self.port = 1234   
+        self.port = config.settings['uWave_settings']['port']   
         self.timeout = config.settings['uWave_settings']['timeout']              # Telnet timeout in secs
 
  
@@ -69,17 +72,17 @@ class Counter():
             self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
             
             # Write all required settings
-            self.tn.write(bytes(f"FE 1\n", 'ascii'))  # Fetch setup 1
+            #self.tn.write(bytes(f"FE 1\n", 'ascii'))  # Fetch setup 1
             
-            # self.tn.write(bytes(f"++addr {config.settings['uWave_settings']['counter_addr']}\n", 'ascii'))
-            # self.tn.write(bytes(f"BA {config.settings['uWave_settings']['band']}\n", 'ascii'))
-            # self.tn.write(bytes(f"SU {config.settings['uWave_settings']['subband']}\n", 'ascii'))
-            # self.tn.write(bytes(f"CE {config.settings['uWave_settings']['cent_freq']} GHz\n", 'ascii'))
-            # self.tn.write(bytes(f"SA {config.settings['uWave_settings']['rate']} ms\n", 'ascii'))
+            self.tn.write(bytes(f"++addr {config.settings['uWave_settings']['counter_addr']}\n", 'ascii'))
+            self.tn.write(bytes(f"BA {config.settings['uWave_settings']['band']}\n", 'ascii'))
+            self.tn.write(bytes(f"SU {config.settings['uWave_settings']['subband']}\n", 'ascii'))
+            self.tn.write(bytes(f"CE {config.settings['uWave_settings']['cent_freq']} GHz\n", 'ascii'))
+            self.tn.write(bytes(f"SA {config.settings['uWave_settings']['rate']} ms\n", 'ascii'))
             
             
-            self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
-            freq = self.tn.read_some().decode('ascii')        
+            #self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
+            #freq = self.tn.read_some().decode('ascii')        
                      
             print(f"Successfully sent settings to GPIB on {self.host}")
             
@@ -88,12 +91,12 @@ class Counter():
     
     def read_freq(self):
         '''Read frequency from open connection'''        
-      #  try:
+        #try:
         self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
         freq = self.tn.read_some().decode('ascii')  
-        return freq  
-        # except exception as e:
-            # print(f"GPIB connection failed on {self.host}: {e}")  
+        return int(freq.strip())  
+        #except exception as e:
+        #   print(f"GPIB connection failed on {self.host}: {e}")  
         
     def close(self):           
         try:

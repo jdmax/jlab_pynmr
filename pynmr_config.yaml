@@ -32,13 +32,13 @@ channels:
     Proton5T:
         name: Proton5T
         species: proton 
-        cent_freq: 213.0            # Center frequency in MHz   (float)
+        cent_freq: 212.882            # Center frequency in MHz   (float)
         mod_freq: 400.0             # Frequency modulation in kHz   (float)
         power: 200.0                # RF power in mV  (float)
         sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
       
 settings:
-    default_channel: Deuteron5T     # Default from channels listed above
+    default_channel: Proton4.87T     # Default from channels listed above
     daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ or Test)
     test_signal: app/d_signal_event.txt  # signal to use for test mode
     event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
@@ -49,14 +49,14 @@ settings:
     num_per_chunk: 64           # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
     tune_per_chunk:  32         # Number of sweeps per chunk to take in tune mode
     epics_settings:
-        epics_enable: false         # If false, doesn't attempt to contact EPICS server
+        epics_enable: true         # If false, doesn't attempt to contact EPICS server
         monitor_time: 5             # Time between calls to get EPICS data
         epics_temp: 4he             # EPICS channel of temp to use as default 
     fpga_settings:    
         ip: 129.57.37.134       # Device IP address (str)
         port: 1028              # Device port  (int)
         tcp_buffer: 1460        # Default TCP buffer size  (int)
-        dwell: 10               # Settle time in ms between frequency switch and ADC read (int)
+        dwell: 10               # Settle time in ms between frequency switch and ADC read (int) (was 10)
         per_point: 2            # Samples taken and averaged at each frequency point of a sweep (int)
         timeout_run: 20         # TCP timeout for running sweeps
         timeout_tune: 1         # TCP timeout for tune
@@ -81,12 +81,13 @@ settings:
         port: 5025 
         timeout: 2              # Telnet timeout in secs
     uWave_settings:
-        enable: false           # Turn on uWave controls
-        monitor_time: 0.2       # How long to wait between reading frequency when on monitor in s
-        ip: pt-gpib1            # GPIB IP
+        enable: true            # Turn on uWave controls
+        monitor_time: .4         # How long to wait between reading frequency when on monitor in s
+        ip: 129.57.36.134       # GPIB IP
+        port: 1234
         timeout: 2              # Telnet timeout in secs
         counter_addr: 20        # EIP 588C frequency counter GPIB address
-        cent_freq: 140.0        # Microwave counter center frequency in GHz
+        cent_freq: 136.6        # Microwave counter center frequency in GHz
         band: 3                 # Microwave counter band
         subband: 8              # Microwwave counter subband
         rate: 100               # Counter sample rate in ms
@@ -109,13 +110,13 @@ settings:
             - 0.35
             - 0.65
         d_fit_params:           # initial parameters for Dulya fits
-            A : 0.02
-            G : -0.0002
-            r : 1.2
+            A : 0.03
+            G : -0.003
+            r : 0.99
             wQ : 0.025
-            wL : 32.7
-            eta : 0.1
-            xi : 0.1
+            wL : 31.83
+            eta : 0.09
+            xi : -0.1
 epics_reads:                    # EPICS channels to read: key is channel name, value is string to display
     4he: 4He Temp (K)
     3he: 3He Temp (K)

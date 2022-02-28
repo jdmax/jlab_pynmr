@@ -10,6 +10,7 @@ import pytz
 from scipy import optimize
 import numpy as np
 import yaml
+from bitstring import Bits
 
 class ConfigItem():
     '''Single configurable item with validator
@@ -59,7 +60,7 @@ class Config():
         self.diode_vout = 0   
         self.phase_vout = 0
 
-        self.controls = {}          # NMR setings requiring control on run tab     
+        self.controls = {}          # NMR settings requiring control on run tab     
         self.controls['sweeps'] = ConfigItem(640, 'Sweeps per Event', QIntValidator(10, 1000000))
         self.controls['cc'] = ConfigItem(-.08, 'Calibration Constant', QDoubleValidator(-1000, 1000, 7))
         
@@ -73,6 +74,7 @@ class Config():
         else:
             print('Using standard sweep profile.')
             freq_ints = np.linspace(-32768, 32767, num=self.settings['steps']).astype('int32')            # numpy array 
+            #[print(x) for x in freq_ints]
         self.freq_list = self.channel['cent_freq'] + self.channel['mod_freq']/1000*(freq_ints)/32768    # in MHz
         self.freq_bytes = [int(i).to_bytes(2, byteorder='little', signed=True) for i in freq_ints]   # bytes for 16-bit word
         #self.adc_timing = [i*36.72 for i,e in enumerate(self.freq_list)]   # timing of adc measurements in us, assuming 36.72 us between
@@ -225,7 +227,7 @@ class Event():
         
         self.uwave_freq = 0
         
-    def update_event(self,new_sigs):  # new_sigs looks like ((p_tup1,d_tup1), (p_tup2,d_tup2)...)
+    def update_event(self, new_sigs):  # new_sigs looks like ((p_tup1,d_tup1), (p_tup2,d_tup2)...)
         '''Method to update event with new signal chunk
         
         Args:
@@ -394,6 +396,7 @@ class HistPoint():
         self.pol = event.pol
         self.cc = event.cc
         self.area = event.area
+        self.epics_reads = event.status
         
         
 class History():

@@ -860,21 +860,38 @@ class FitDeuteron(QWidget):
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
         self.parent = parent
+        
+        d_fit_params = self.parent.event.config.settings['analysis']['d_fit_params'] 
+        
+        
+        
         self.space = QVBoxLayout()
         self.setLayout(self.space)
+        self.grid = QGridLayout()
+        self.space.addLayout(self.grid)
         self.name = "Deuteron Peak Fit"
-        self.poly_label = QLabel("Deutron Lineshape Fit")
-        self.space.addWidget(self.poly_label)
+        self.init_label = QLabel("Deutron Lineshape Fit")
+        self.grid.addWidget(self.init_label, 0, 0)
         self.message = QLabel()
         self.space.layout().addWidget(self.message)
         
-        self.grid2 = QGridLayout()
-        self.space.addLayout(self.grid2)
-        
+        self.grid = QGridLayout()
+        self.space.addLayout(self.grid)
+        self.bounds_label = QLabel("Initial Parameters:")
+        self.grid.addWidget(self.bounds_label, 0, 0)
+        self.param_label = []
+        self.param_edit = []
+        for i, key in enumerate(d_fit_params.keys()):    # setup line edits for each parameter
+            self.param_label.append(QLabel(key))
+            self.grid.addWidget(self.param_label[i], i+1, 0)
+            self.param_edit.append(QLineEdit())
+            self.param_edit[i].setText(str(d_fit_params[key]))
+            self.grid.addWidget(self.param_edit[i], i+1, 1)    
+    
         try:
             self.params
         except AttributeError:    
-            self.params = self.parent.event.config.settings['analysis']['d_fit_params']   
+            self.params = self.parent.event.config.settings['analysis']['d_fit_params']
         
             
     def switch_here(self):
@@ -894,6 +911,12 @@ class FitDeuteron(QWidget):
         sweep = event.fitsub
         freqs = event.scan.freq_list
         
+        labels = [e.text() for e in self.param_label]
+        values = [float(e.text()) for e in self.param_edit]
+        
+        self.params = dict(zip(labels, values))
+        print(self.params)
+        
         res = DFits(freqs, sweep, self.params)
         
         r = res.result.params['r'].value        
@@ -902,7 +925,12 @@ class FitDeuteron(QWidget):
             self.params = res.result.params.valuesdict()
         
         pol = (r*r-1)/(r*r + r +1)
-        self.message.setText(f"Polarization: {pol*100:.2f}%\n {res.result.fit_report()}")
+        area = fit.sum()
+        cc = pol/area
+        text = 'Parameter    Value       Stderr\n'
+        for name, param in res.result.params.items():
+            text = text + f'{name:7s} {param.value:11.5f} {param.stderr:11.5f}'
+        self.message.setText(f"Polarization: {pol*100:.2f}, Area:  {area:.2f}, CC:  {cc:.2f} %\n {text}")
         return fit, r, pol 
     
    

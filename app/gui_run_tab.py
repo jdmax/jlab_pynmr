@@ -360,6 +360,12 @@ class RunTab(QWidget):
             sender.setText('Disable')
             self.up_button.setEnabled(True)
             self.down_button.setEnabled(True)
+                              
+            try: 
+                self.utune = LabJack(self.parent.config)
+            except Exception as e: 
+                print('Exception starting microwave tuner: '+str(e))          
+            
             try:
                 self.micro_thread = MicrowaveThread(self, self.parent.config)
                 self.micro_thread.reply.connect(self.freq_reply)
@@ -369,10 +375,6 @@ class RunTab(QWidget):
                 self.enable_button.toggle()
                 self.enable_pushed() 
                 
-            try: 
-                self.utune = LabJack(self.parent.config)
-            except Exception as e: 
-                print('Exception starting microwave tuner: '+str(e))
         else: 
             sender.setText('Enable')
             self.up_button.setEnabled(False)
@@ -380,10 +382,10 @@ class RunTab(QWidget):
     
     def freq_reply(self, reply):
         '''Got replay from micro thread, display it'''
-        freq = reply[0].strip()
+        freq = reply[0]
         pot = reply[1]
         temp = reply[2]
-        self.uwave_freq_label.setText(f"Freq: {freq:.4} GHz")
+        self.uwave_freq_label.setText(f"Freq: {freq/1e9:.2f} GHz")
         #self.uwave_freq_label.setText(f"{pot, temp}")
         self.parent.event.uwave_freq = freq
         

@@ -64,8 +64,8 @@ class TE():
     def pretty_te(self):
         '''Return formated string short version of TE report'''
         return f"""Material type:  {self.species}                                  Number of Points:  {self.num}
-Average Area:  {self.area:.4f} ± {self.area_std:.4f}                 Average Temperature:  {self.temp:.4f} ± {self.temp_std:.4f}
-Average Polarization:  {self.te_pol:.4f} ± {self.te_pol_std:.4f}        Average Calibration Constant:  {self.cc:.4f} ± {self.cc_std:.4f}"""
+Average Area:  {self.area:.7f} ± {self.area_std:.7f}                 Average Temperature:  {self.temp:.4f} ± {self.temp_std:.4f}
+Average Polarization:  {self.te_pol:.5f} ± {self.te_pol_std:.5f}        Average Calibration Constant:  {self.cc:.7f} ± {self.cc_std:.7f}"""
 
     def print_te(self):
         '''Print long version of TE report to JSON file'''
