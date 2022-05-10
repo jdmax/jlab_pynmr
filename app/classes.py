@@ -442,6 +442,7 @@ class AnalThread(QThread):
         self.parent.basesweep, self.parent.basesub  = self.base_method(self.parent)        
         self.parent.fitcurve, self.parent.fitsub = self.sub_method(self.parent)
         self.parent.rescurve, self.parent.area, self.parent.pol = self.res_method(self.parent) 
+        print("Analysis done, waiting on epics.")
         
         self.parent.parent.epics_update(self.parent)
                 

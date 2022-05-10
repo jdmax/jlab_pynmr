@@ -1,6 +1,13 @@
 # PyNMR Config file, YAML
 ---
 channels:    
+    Proton5T:
+        name: Proton5T
+        species: proton 
+        cent_freq: 212.882            # Center frequency in MHz   (float)
+        mod_freq: 400.0             # Frequency modulation in kHz   (float)
+        power: 200.0                # RF power in mV  (float)
+        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
     Proton4.87T:
         name: Proton4.87T
         species: proton 
@@ -8,13 +15,6 @@ channels:
         mod_freq: 400.0             # Frequency modulation in kHz   (float)
         power: 200.0                # RF power in mV  (float)
         sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
-    Proton4.87T_800:
-        name: Proton4.87T
-        species: proton 
-        cent_freq: 207.38            # Center frequency in MHz   (float)
-        mod_freq: 800.0             # Frequency modulation in kHz   (float)
-        power: 200.0                # RF power in mV  (float)
-        sweep_file: app/800_10p_400_90p.txt             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
     Deuteron5T:
         name: Deuteron5T
         species: deuteron
@@ -29,16 +29,16 @@ channels:
         mod_freq: 400.0        
         power: 200.0      
         sweep_file: tri 
-    Proton5T:
-        name: Proton5T
-        species: proton 
-        cent_freq: 212.882            # Center frequency in MHz   (float)
-        mod_freq: 400.0             # Frequency modulation in kHz   (float)
-        power: 200.0                # RF power in mV  (float)
-        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
-      
+    Crystal:
+        name: Crystal
+        species: proton
+        cent_freq: 224.5       
+        mod_freq: 400.0        
+        power: 200.0      
+        sweep_file: tri 
+     
 settings:
-    default_channel: Proton4.87T     # Default from channels listed above
+    default_channel: Proton5T     # Default from channels listed above
     daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ or Test)
     test_signal: app/d_signal_event.txt  # signal to use for test mode
     event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
