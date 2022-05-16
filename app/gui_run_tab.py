@@ -79,8 +79,10 @@ class RunTab(QWidget):
             self.midlayout.addWidget(self.uwave_box)
             self.uwave_layout = QGridLayout()
             self.uwave_box.layout().addLayout(self.uwave_layout)
-            self.uwave_freq_label = QLabel('Freq:  0 GHz')
-            self.uwave_layout.addWidget(self.uwave_freq_label, 0, 1)
+            self.uwave_freq_label = QLabel('Freq:')
+            self.uwave_layout.addWidget(self.uwave_freq_label, 1, 0)
+            self.uwave_power_label = QLabel('Power:')
+            self.uwave_layout.addWidget(self.uwave_power_label, 1, 1)
             self.enable_button = QPushButton("Enable",checkable=True)      # Enable button
             self.uwave_layout.addWidget(self.enable_button, 0, 0)
             self.enable_button.clicked.connect(self.enable_uwave_pushed)
@@ -90,11 +92,11 @@ class RunTab(QWidget):
             self.down_button = QPushButton("Down",checkable=False, enabled=False)       # Decrease freq button
             self.down_button.pressed.connect(self.down_micro)
             self.down_button.released.connect(self.off_micro)
-            self.uwave_layout.addWidget(self.down_button, 1, 0)
+            self.uwave_layout.addWidget(self.down_button, 2, 0)
             self.up_button = QPushButton("Up",checkable=False, enabled=False)       # Increase freq button
             self.up_button.pressed.connect(self.up_micro)
             self.up_button.released.connect(self.off_micro)
-            self.uwave_layout.addWidget(self.up_button, 1, 1)
+            self.uwave_layout.addWidget(self.up_button, 2, 1)
         
         
         # Populate NMR Settings box 
@@ -386,6 +388,7 @@ class RunTab(QWidget):
         pot = reply[1]
         temp = reply[2]
         self.uwave_freq_label.setText(f"Freq: {freq/1e9:.2f} GHz")
+        self.uwave_power_label.setText(f"Power: {pow:.2f} mW")
         #self.uwave_freq_label.setText(f"{pot, temp}")
         self.parent.event.uwave_freq = freq
         
