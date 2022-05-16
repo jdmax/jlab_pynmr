@@ -22,6 +22,7 @@ from app.gui_te_tab import TETab
 from app.gui_anal_tab import AnalTab
 from app.gui_expl_tab import ExplTab
 from app.gui_shim_tab import ShimTab
+from app.gui_fm_tab import FMTab
 from app.gui_mag_tab import MagTab
 from app.daq import DAQConnection, UDP, TCP, RS_Connection, NI_Connection
 #from app.magnet_control import MagnetControl
@@ -86,15 +87,18 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.tune_tab, "Tune")
         self.base_tab = BaseTab(self)
         self.tab_widget.addTab(self.base_tab, "Baseline")
-        if self.config.settings['shim_settings']['enable']:
-            self.shim_tab = ShimTab(self)
-            self.tab_widget.addTab(self.shim_tab, "Shims")
         #self.mag_tab = MagTab(self)
         #self.tab_widget.addTab(self.mag_tab, "Magnet")
         self.te_tab = TETab(self)
         self.tab_widget.addTab(self.te_tab, "TE")
         self.anal_tab = AnalTab(self)
         self.tab_widget.addTab(self.anal_tab, "Analysis")
+        if self.config.settings['shim_settings']['enable']:
+            self.shim_tab = ShimTab(self)
+            self.tab_widget.addTab(self.shim_tab, "Shims")
+        if self.config.settings['fm_settings']['enable']:
+            self.fm_tab = FMTab(self)
+            self.tab_widget.addTab(self.fm_tab, "FM")
         self.expl_tab = ExplTab(self)
         self.tab_widget.addTab(self.expl_tab, "Event Explorer") 
         

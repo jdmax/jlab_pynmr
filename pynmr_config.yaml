@@ -38,13 +38,8 @@ channels:
         sweep_file: tri 
      
 settings:
-<<<<<<< Updated upstream
     default_channel: Proton5T     # Default from channels listed above
-    daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ or Test)
-=======
-    default_channel: Proton4.87T     # Default from channels listed above
     daq_type: Test             # Select DAQ mode (FPGA, NIDAQ or Test)
->>>>>>> Stashed changes
     test_signal: app/d_signal_event.txt  # signal to use for test mode
     event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
@@ -97,11 +92,6 @@ settings:
             band: 3                 # Microwave counter band
             subband: 8              # Microwwave counter subband
             rate: 100               # Counter sample rate in ms
-        FM:
-            ip: 129.57.36.134       # GPIB interface IP
-            port: 1234
-            timeout: 2              # Telnet timeout in secs
-            addr: 20                # GPIB address
         power_meter:
             ip: 129.57.36.134       # Serial interface IP
             port: 1234
@@ -111,7 +101,13 @@ settings:
         enable: false
         ip: 129.57.37.143       # R&S supply IP
         port: 5025 
-        timeout: 2         
+        timeout: 2  
+    fm_settings:
+        enable: true
+        ip: 129.57.37.68       # R&S supply IP
+        port: 23
+        timeout: 2     
+        addr: 20                # GPIB address    
     analysis:
         base_def: 0             # index of default baseline subtraction method      
         sub_def: 0              # index of default fit subtraction method   

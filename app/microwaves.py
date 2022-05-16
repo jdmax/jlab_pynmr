@@ -103,55 +103,7 @@ class Counter():
             tn.close()
         except Exception as e:
             print(f"GPIB connection failed on {self.host}: {e}")
-            
-class FMGenerator():
-    '''Class to interface with Prologix GPIB controller to control uwave FM
-        
-    Arguments:
-        config: Current Config object 
-    '''    
-    
-    def __init__(self, config):    
-        '''Open connection to GPIB, send commands for all settings. Close.  
-        '''
-        self.host = config.settings['uWave_settings']['FM']['ip']
-        self.port = config.settings['uWave_settings']['FM']['port']   
-        self.timeout = config.settings['uWave_settings']['FM']['timeout']              # Telnet timeout in secs
 
- 
-        try:
-            self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
-            
-            # Write all required settings
-            #self.tn.write(bytes(f"FE 1\n", 'ascii'))  # Fetch setup 1
-            
-            self.tn.write(bytes(f"++addr {config.settings['uWave_settings']['counter_addr']}\n", 'ascii'))
-            
-            #self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
-            #freq = self.tn.read_some().decode('ascii')        
-                     
-            print(f"Successfully sent settings to GPIB on {self.host}")
-            
-        except Exception as e:
-            print(f"GPIB connection failed on {self.host}: {e}")
-    
-    def read_freq(self):
-        '''Read frequency from open connection'''        
-        #try:
-        self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
-        freq = self.tn.read_some().decode('ascii')  
-        return int(freq.strip())  
-        #except exception as e:
-        #   print(f"GPIB connection failed on {self.host}: {e}")  
-        
-    def close(self):           
-        try:
-            tn.close()
-        except Exception as e:
-            print(f"GPIB connection failed on {self.host}: {e}")
-            
-            
-                       
             
 class LabJack():      
     '''Access LabJack device to change microwave frequency, readback temp, pot      
