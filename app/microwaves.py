@@ -84,7 +84,7 @@ class Counter():
             #self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
             #freq = self.tn.read_some().decode('ascii')        
                      
-            print(f"Successfully sent settings to GPIB on {self.host}")
+            print(f"Successfully sent settings to counter on {self.host}")
             
         except Exception as e:
             print(f"GPIB connection failed on {self.host}: {e}")
@@ -104,7 +104,47 @@ class Counter():
         except Exception as e:
             print(f"GPIB connection failed on {self.host}: {e}")
 
+ 
+class PowMeter():
+    '''Class to interface with serial to ethernet adapter, accessing ELVA-1 power meter
+        
+    Arguments:
+        config: Current Config object 
+    '''    
+    
+    def __init__(self, config):    
+        '''Open connection to GPIB, send commands for all settings. Close.  
+        '''
+        self.host = config.settings['uWave_settings']['power_meter']['ip']
+        self.port = config.settings['uWave_settings']['power_meter']['port']   
+        self.timeout = config.settings['uWave_settings']['power_meter']['timeout']              # Telnet timeout in secs
+
+ 
+        try:
+            self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
             
+            # Write all required settings
+            #self.tn.write(bytes(f"FE 1\n", 'ascii'))  # Fetch setup 1       
+                     
+            #print(f"Successfully sent settings to GPIB on {self.host}")
+            
+        except Exception as e:
+            print(f"GPIB connection failed on {self.host}: {e}")
+    
+    def read_power(self):
+        '''Read power from open connection'''   
+        pass        
+        #try:
+        #self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
+        #freq = self.tn.read_some().decode('ascii')  
+        #return int(freq.strip())  
+        
+    def close(self):           
+        try:
+            tn.close()
+        except Exception as e:
+            print(f"Network to serial connection failed on {self.host}: {e}")
+           
 class LabJack():      
     '''Access LabJack device to change microwave frequency, readback temp, pot      
     '''

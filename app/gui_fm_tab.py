@@ -54,6 +54,7 @@ class FMTab(QWidget):
         self.setit_layout.addWidget(self.off_edit, 3, 2)
         self.setit_button = QPushButton('Set Now', checkable=False)
         self.setit_layout.addWidget(self.setit_button, 4, 2)
+        self.setit_button.clicked.connect(self.set_fm)
         
         self.fm_box.layout().addWidget(self.divider())
         
@@ -75,12 +76,25 @@ class FMTab(QWidget):
         self.read_layout.addWidget(self.r_off_edit, 3, 2)
         self.read_button = QPushButton('Readback Now', checkable=False)
         self.read_layout.addWidget(self.read_button, 4, 2)
+        self.read_button.clicked.connect(self.read_fm)
         
         # Right Side
         self.right = QVBoxLayout()  
         self.main.addLayout(self.right)
         
+    def set_fm(self):
+        '''Open connection to generator and send FM settings'''
         
+        self.fm = FMGenerator()
+        del self.fm
+        
+    def read_fm(self):
+        '''Open connection to generator and read FM settings'''
+        
+        self.fm = FMGenerator()
+        del self.fm
+
+    
     def divider(self):
         div = QLabel ('')
         div.setStyleSheet ("QLabel {background-color: #eeeeee; padding: 0; margin: 0; border-bottom: 0 solid #eeeeee; border-top: 1 solid #eeeeee;}")
@@ -135,4 +149,5 @@ class FMGenerator():
         except Exception as e:
             print(f"GPIB connection failed on {self.host}: {e}")
             
-                  
+    def __del__(self):
+        self.close()

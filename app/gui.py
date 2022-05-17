@@ -69,6 +69,8 @@ class MainWindow(QMainWindow):
 
         self.init_connects()
         
+        self.tz = pytz.timezone('US/Eastern')
+        
         self.left = 100
         self.top = 100
         self.title = 'JLab Polarization Display'
@@ -186,8 +188,9 @@ class MainWindow(QMainWindow):
         self.anal_tab.update_event_plots()      
         
         now = datetime.datetime.now(tz=datetime.timezone.utc)
-        elapsed = self.start_end - now
-        self.status_bar.showMessage(f'Analysis returned at {now:%H:%M:%S} UTC, after {elapsed.seconds}s.')
+        elapsed = now.timestamp() - self.start_end.timestamp() 
+        print(self.start_end.timestamp(), now.timestamp(), elapsed)
+        self.status_bar.showMessage(f'Analysis returned at {now:%H:%M:%S} UTC, after {elapsed:.1f}s.')
         
         if self.config.settings["ss_dir"]:
             screenshot = self.run_tab.grab()

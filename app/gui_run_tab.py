@@ -3,6 +3,7 @@
 import datetime
 import time
 import math
+import pytz
 from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QProgressBar
 from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
@@ -174,8 +175,8 @@ class RunTab(QWidget):
         self.dt_box = QGroupBox("Timestamp")
         self.dt_box.setLayout(QVBoxLayout())
         self.results_lay.addWidget(self.dt_box)
-        self.dt_value = QLabel(self.parent.event.stop_time.strftime("%m/%d/%Y\n%H:%M:%S")+" UTC")
-        self.dt_value.setStyleSheet("font:14pt")
+        self.dt_value = QLabel(self.parent.event.stop_time.strftime("%m/%d/%Y\n%H:%M:%S"))
+        self.dt_value.setStyleSheet("font:12pt")
         self.dt_value.setAlignment(Qt.AlignCenter)
         self.dt_box.layout().addWidget(self.dt_value)          
          
@@ -307,11 +308,13 @@ class RunTab(QWidget):
               
         self.pol_value.setText('{:.1%}'.format(self.parent.previous_event.pol))                    # updates indicators
         self.area_value.setText('{:.6f}'.format(self.parent.previous_event.area))
-        self.dt_value.setText(self.parent.previous_event.stop_time.strftime("%m/%d/%Y\n%H:%M:%S")+" UTC")
+        time = self.parent.previous_event.stop_time
+        start_time = self.parent.previous_event.start_time
+        self.dt_value.setText(time.replace(tzinfo=pytz.utc).astimezone(self.parent.tz).strftime("%m/%d/%Y\n%H:%M:%S"))
         
-        hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())                                  
+        hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())     
         pol_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
-        # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone.
+        # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.
         self.pol_time_plot.setData(pol_data)    
         self.progress_bar.setValue(0)
     

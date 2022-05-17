@@ -290,6 +290,7 @@ class Event():
         #self.stop_time =  datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
         self.stop_time =  datetime.datetime.now(tz=datetime.timezone.utc)
         self.stop_stamp = self.stop_time.timestamp()
+        print(self.stop_time, self.stop_stamp)
              
         self.signal_analysis(base_method, sub_method, res_method)       
     
@@ -442,7 +443,7 @@ class AnalThread(QThread):
         self.parent.basesweep, self.parent.basesub  = self.base_method(self.parent)        
         self.parent.fitcurve, self.parent.fitsub = self.sub_method(self.parent)
         self.parent.rescurve, self.parent.area, self.parent.pol = self.res_method(self.parent) 
-        print("Analysis done, waiting on epics.")
+        #print("Analysis done, waiting on epics.")
         
         self.parent.parent.epics_update(self.parent)
                 
