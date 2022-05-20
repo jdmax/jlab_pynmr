@@ -165,7 +165,7 @@ class UDP():
             if not self.set_freq(config.freq_bytes): print("Set frequency error")
             self.read_freq()
         except Exception as e:
-            print("Error connecting to DAQ at", self.ip, ":", e)
+            print("Error in UDP connection to DAQ at", self.ip, ":", e)
             raise
         
         
