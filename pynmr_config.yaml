@@ -53,7 +53,7 @@ settings:
         monitor_time: 5             # Time between calls to get EPICS data
         epics_temp: 4he             # EPICS channel of temp to use as default 
     fpga_settings:    
-        ip: 129.57.160.2       # Device IP address (str)
+        ip: 129.57.161.3       # Device IP address (str)
         port: 1028              # Device port  (int)
         tcp_buffer: 1460        # Default TCP buffer size  (int)
         dwell: 10               # Settle time in usec between frequency switch and ADC read (int) (was 10)
@@ -94,7 +94,7 @@ settings:
             rate: 100               # Counter sample rate in ms
         power_meter:
             ip: 129.57.160.11       # Serial interface IP
-            port: 1234
+            port: 23
             timeout: 2              # Telnet timeout in secs
         lj-ip: 129.57.37.33     # LabJack device IP, 129.57.37.33 is pt-labjack1
     shim_settings:
@@ -103,11 +103,11 @@ settings:
         port: 5025 
         timeout: 2  
     fm_settings:
-        enable: false
+        enable: true
         ip: 129.57.160.12       # R&S supply IP
-        port: 23
+        port: 1234
         timeout: 2     
-        addr: 20                # GPIB address    
+        addr: 10                # GPIB address    
     analysis:
         base_def: 0             # index of default baseline subtraction method      
         sub_def: 0              # index of default fit subtraction method   

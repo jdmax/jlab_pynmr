@@ -117,27 +117,30 @@ class PowMeter():
         '''
         self.host = config.settings['uWave_settings']['power_meter']['ip']
         self.port = config.settings['uWave_settings']['power_meter']['port']   
-        self.timeout = config.settings['uWave_settings']['power_meter']['timeout']              # Telnet timeout in secs
+        self.timeout = config.settings['uWave_settings']['power_meter']['timeout']              # Telnet
+        self.freq = config.settings['uWave_settings']['power_meter']['freq']  # center freq setting, GHz
 
  
         try:
             self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
             
             # Write all required settings
-            #self.tn.write(bytes(f"FE 1\n", 'ascii'))  # Fetch setup 1       
+            self.tn.write(bytes(f"sens:freq {self.freq}\n", 'ascii'))  # Write freq   
+            self.tn.write(bytes(f"unit:pow w\n", 'ascii'))  # Write unit      
                      
             #print(f"Successfully sent settings to GPIB on {self.host}")
             
         except Exception as e:
-            print(f"GPIB connection failed on {self.host}: {e}")
+            print(f"Connection to serial port failed on {self.host}: {e}")
     
     def read_power(self):
-        '''Read power from open connection'''   
-        pass        
-        #try:
-        #self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
-        #freq = self.tn.read_some().decode('ascii')  
-        #return int(freq.strip())  
+        '''Read power from open connection'''          
+        try:
+            self.tn.write(bytes(f"read:read?\n", 'ascii'))  # Read freq 
+            power = self.tn.read_some().decode('ascii')  
+        except Exception as e:
+            print(f"Connection to serial port failed on {self.host}: {e}")
+        return power
         
     def close(self):           
         try:

@@ -42,15 +42,15 @@ class FMTab(QWidget):
         self.setit_layout.addWidget(self.set_label, 0, 0)
         self.freq_label = QLabel('Frequency (Hz):')
         self.setit_layout.addWidget(self.freq_label, 1, 1)
-        self.freq_edit = QLineEdit()
+        self.freq_edit = QLineEdit('1000')
         self.setit_layout.addWidget(self.freq_edit, 1, 2)
         self.amp_label = QLabel('Amplitude (V):')
         self.setit_layout.addWidget(self.amp_label, 2, 1)
-        self.amp_edit = QLineEdit()
+        self.amp_edit = QLineEdit('1')
         self.setit_layout.addWidget(self.amp_edit, 2, 2)
         self.off_label = QLabel('Offset (V):')
         self.setit_layout.addWidget(self.off_label, 3, 1)
-        self.off_edit = QLineEdit()
+        self.off_edit = QLineEdit('0')
         self.setit_layout.addWidget(self.off_edit, 3, 2)
         self.setit_button = QPushButton('Set Now', checkable=False)
         self.setit_layout.addWidget(self.setit_button, 4, 2)
@@ -85,14 +85,28 @@ class FMTab(QWidget):
     def set_fm(self):
         '''Open connection to generator and send FM settings'''
         
-        self.fm = FMGenerator()
+        freq = float(self.freq_edit.text())
+        amp = float(self.amp_edit.text())
+        off = float(self.off_edit.text())
+
+        self.fm = FMGenerator(self.parent.config)
+        freq_out, amp_out, off_out = self.fm.set(freq, amp, off)
         del self.fm
+        
+        self.r_freq_edit.setText(str(freq_out))
+        self.r_amp_edit.setText(str(amp_out))
+        self.r_off_edit.setText(str(off_out))
         
     def read_fm(self):
         '''Open connection to generator and read FM settings'''
         
-        self.fm = FMGenerator()
+        self.fm = FMGenerator(self.parent.config)
+        freq_out, amp_out, off_out = self.fm.read()
         del self.fm
+        
+        self.r_freq_edit.setText(str(freq_out))
+        self.r_amp_edit.setText(str(amp_out))
+        self.r_off_edit.setText(str(off_out))
 
     
     def divider(self):
@@ -115,39 +129,65 @@ class FMGenerator():
         self.host = config.settings['fm_settings']['ip']
         self.port = config.settings['fm_settings']['port']   
         self.timeout = config.settings['fm_settings']['timeout']              # Telnet timeout in secs
-        self.addr = config.settings['fm_settings']['addr'] 
+        self.addr = config.settings['fm_settings']['addr']
+        self.config = config
 
  
+    def set(self, freq, amp, off):
+        '''Write settings to generator, and read them back'''
         try:
             self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
+
+            # Write all required settings            
+            self.tn.write(bytes(f"++addr {self.addr}\n", 'ascii'))
+            self.tn.write(bytes(f"FREQ {freq}\n", 'ascii'))
+            self.tn.write(bytes(f"FREQ?\n", 'ascii'))
+            freq_out = self.tn.read_some().decode('ascii') 
             
-            # Write all required settings
-            #self.tn.write(bytes(f"FE 1\n", 'ascii'))  # Fetch setup 1
-            
-            self.tn.write(bytes(f"++addr {config.settings['uWave_settings']['counter_addr']}\n", 'ascii'))
-            
-            #self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
-            #freq = self.tn.read_some().decode('ascii')        
+            self.tn.write(bytes(f"VOLT {amp}\n", 'ascii'))
+            self.tn.write(bytes(f"VOLT?\n", 'ascii'))
+            amp_out = self.tn.read_some().decode('ascii')   
+                      
+            self.tn.write(bytes(f"VOLT:OFFS {off}\n", 'ascii'))
+            self.tn.write(bytes(f"VOLT:OFFS?\n", 'ascii'))
+            off_out = self.tn.read_some().decode('ascii')     
                      
             print(f"Successfully sent settings to GPIB on {self.host}")
+            return freq_out, amp_out, off_out
             
         except Exception as e:
-            print(f"GPIB connection failed on {self.host}: {e}")
+            print(f"Network connection to GPIB failed on FM generator {self.host}: {e}")
+            return 0,0,0
+            
     
-    def read_freq(self):
-        '''Read frequency from open connection'''        
-        #try:
-        self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
-        freq = self.tn.read_some().decode('ascii')  
-        return int(freq.strip())  
-        #except exception as e:
-        #   print(f"GPIB connection failed on {self.host}: {e}")  
+    def read(self):
+        '''Read settings from generator'''   
+        try:
+            self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
+
+            # Write all required settings            
+            self.tn.write(bytes(f"FREQ?\n", 'ascii'))
+            freq_out = self.tn.read_some().decode('ascii') 
+            self.tn.write(bytes(f"VOLT?\n", 'ascii'))
+            amp_out = self.tn.read_some().decode('ascii')        
+            self.tn.write(bytes(f"VOLT:OFFS?\n", 'ascii'))
+            off_out = self.tn.read_some().decode('ascii')    
+                     
+            print(f"Successfully sent settings to GPIB on {self.host}")
+            return freq_out, amp_out, off_out
+                        
+        except Exception as e:
+            print(f"Network connection to GPIB failed on FM generator {self.host}: {e}")
+            return 0,0,0
+            
+    
         
     def close(self):           
         try:
             tn.close()
         except Exception as e:
-            print(f"GPIB connection failed on {self.host}: {e}")
+            pass
+            #print(f"GPIB connection failed on {self.host}: {e}")
             
     def __del__(self):
         self.close()
