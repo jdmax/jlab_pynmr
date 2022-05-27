@@ -88,10 +88,10 @@ settings:
             port: 1234
             timeout: 4              # Telnet timeout in secs
             addr: 19        # EIP 588C frequency counter GPIB address
-            cent_freq: 136.6        # Microwave counter center frequency in GHz
+            cent_freq: 140.0        # Microwave counter center frequency in GHz
             band: 3                 # Microwave counter band
             subband: 8              # Microwwave counter subband
-            rate: 100               # Counter sample rate in ms
+            rate: 1000               # Counter sample rate in ms
         power_meter:
             ip: 129.57.160.11       # Serial interface IP
             port: 23

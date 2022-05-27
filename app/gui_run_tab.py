@@ -391,7 +391,7 @@ class RunTab(QWidget):
         pot = reply[1]
         temp = reply[2]
         power = reply[3]
-        self.uwave_freq_label.setText(f"Freq: {freq/1e9:.2f} GHz")
+        self.uwave_freq_label.setText(f"Freq: {freq/1e9:.4f} GHz")
         self.uwave_power_label.setText(f"Power: {power}")
         #self.uwave_freq_label.setText(f"{pot, temp}")
         self.parent.event.uwave_freq = freq

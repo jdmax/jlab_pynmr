@@ -106,7 +106,7 @@ class Counter():
         '''Read frequency from open connection'''        
         #try:
         self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
-        freq = self.tn.read_some().decode('ascii')  
+        freq = self.tn.read_until(b'\r', timeout=self.timeout).decode('ascii')  
         #print(int(freq.strip()))
         return int(freq.strip())  
         #except exception as e:
@@ -156,7 +156,9 @@ class PowMeter():
             print(f"Connection to serial port failed on {self.host}: {e}")
         if 'error' in power:
             power = "Error"
-        return power.strip().replace("U", "u")
+        power = power.strip().replace("U", "u")  
+        power = power.strip().replace("M", "m")    
+        return power
         
     def close(self):           
         try:
@@ -180,7 +182,7 @@ class LabJack():
     def change_freq(self, direction):
         '''Write to LabJack to change microwave frequency up or down 
         '''
-        print("changing to", direction)
+        #print("changing to", direction)
         aNames = ["DAC0","DAC1"]
         if "up" in direction:
             aValues = [5, 0]
