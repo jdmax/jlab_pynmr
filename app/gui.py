@@ -189,8 +189,10 @@ class MainWindow(QMainWindow):
         
         now = datetime.datetime.now(tz=datetime.timezone.utc)
         elapsed = now.timestamp() - self.start_end.timestamp() 
-        print(self.start_end.timestamp(), now.timestamp(), elapsed)
-        self.status_bar.showMessage(f'Analysis returned at {now:%H:%M:%S} UTC, after {elapsed:.1f}s.')
+        #print(self.start_end.timestamp(), now.timestamp(), elapsed)
+        mes = f'Finished event at {self.event.stop_time:%H:%M:%S} UTC, after {self.event.elapsed}s. Analysis returned at {now:%H:%M:%S} UTC, after {elapsed:.1f}s.'
+        self.status_bar.showMessage(mes)
+        logging.info(mes)
         
         if self.config.settings["ss_dir"]:
             screenshot = self.run_tab.grab()

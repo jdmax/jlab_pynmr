@@ -26,6 +26,7 @@ class MicrowaveThread(QThread):
         '''        
         try:
             self.count = Counter(self.config)
+            self.pow_meter = PowMeter(self.config)
             time.sleep(self.config.settings['uWave_settings']['monitor_time'])
         except Exception as e:
             print('Exception starting counter thread, lost connection: '+str(e))
@@ -34,16 +35,28 @@ class MicrowaveThread(QThread):
             try:        
                 freq = self.count.read_freq()
             except Exception as e:
-                print(f"GPIB connection failed: {e}")  
-                self.parent.enable_button.toggle()
-                self.parent.enable_pushed()
-                break
-            try: 
-                pot, temp = self.parent.utune.read_back()
-            except Exception as e:                
-                print('Exception reading LabJack: '+str(e))
+                print(f"Counter read failed: {e}")  
+                #self.parent.enable_button.toggle()
+                #self.parent.enable_pushed()
+                #break
+                
+            try:        
+                power = self.pow_meter.read_power()
+            except Exception as e:
+                print(f"Power meter read failed: {e}")  
+                #self.parent.enable_button.toggle()
+                #self.parent.enable_pushed()
+                #break
+                
+            pot, temp = 0, 0
+            # Disabling Readback of uwave pot and temp for now 5/26/22     
+            #try: 
+            #    pot, temp = self.parent.utune.read_back()
+            #except Exception as e:                
+            #    print('Exception reading LabJack: '+str(e))
+                
             try:
-                self.reply.emit((freq, pot, temp))
+                self.reply.emit((freq, pot, temp, power))
             except Exception as e:                
                 print("Couldn't send microwave reply: "+str(e))
             time.sleep(self.config.settings['uWave_settings']['monitor_time'])
@@ -74,11 +87,11 @@ class Counter():
             # Write all required settings
             #self.tn.write(bytes(f"FE 1\n", 'ascii'))  # Fetch setup 1
             
-            self.tn.write(bytes(f"++addr {config.settings['uWave_settings']['counter_addr']}\n", 'ascii'))
-            self.tn.write(bytes(f"BA {config.settings['uWave_settings']['band']}\n", 'ascii'))
-            self.tn.write(bytes(f"SU {config.settings['uWave_settings']['subband']}\n", 'ascii'))
-            self.tn.write(bytes(f"CE {config.settings['uWave_settings']['cent_freq']} GHz\n", 'ascii'))
-            self.tn.write(bytes(f"SA {config.settings['uWave_settings']['rate']} ms\n", 'ascii'))
+            self.tn.write(bytes(f"++addr {config.settings['uWave_settings']['counter']['addr']}\n", 'ascii'))
+            self.tn.write(bytes(f"BA {config.settings['uWave_settings']['counter']['band']}\n", 'ascii'))
+            self.tn.write(bytes(f"SU {config.settings['uWave_settings']['counter']['subband']}\n", 'ascii'))
+            self.tn.write(bytes(f"CE {config.settings['uWave_settings']['counter']['cent_freq']} GHz\n", 'ascii'))
+            self.tn.write(bytes(f"SA {config.settings['uWave_settings']['counter']['rate']} ms\n", 'ascii'))
             
             
             #self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
@@ -94,6 +107,7 @@ class Counter():
         #try:
         self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
         freq = self.tn.read_some().decode('ascii')  
+        #print(int(freq.strip()))
         return int(freq.strip())  
         #except exception as e:
         #   print(f"GPIB connection failed on {self.host}: {e}")  
@@ -136,11 +150,13 @@ class PowMeter():
     def read_power(self):
         '''Read power from open connection'''          
         try:
-            self.tn.write(bytes(f"read:read?\n", 'ascii'))  # Read freq 
-            power = self.tn.read_some().decode('ascii')  
+            self.tn.write(bytes(f"read?\n", 'ascii'))  # Read power
+            power = self.tn.read_some().decode('ascii')              
         except Exception as e:
             print(f"Connection to serial port failed on {self.host}: {e}")
-        return power
+        if 'error' in power:
+            power = "Error"
+        return power.strip().replace("U", "u")
         
     def close(self):           
         try:
@@ -179,7 +195,7 @@ class LabJack():
     def read_back(self):
         '''Read temperature and potentiometer position from LabJack. Returns array of ADC values.
         '''
-        aNames = ["AIN0","AIN1"]
+        aNames = ["AIN4","AIN5"]
         return ljm.eReadNames(self.lj, len(aNames), aNames)
         
     # def __del__(self):

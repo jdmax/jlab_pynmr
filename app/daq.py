@@ -183,7 +183,7 @@ class UDP():
         '''
         self.s.send(bytes.fromhex('0F0001000000000000000000000000'))
         data, addr = self.s.recvfrom(1024)
-        print("Read Stat Message: ", data.hex())
+        #print("Read Stat Message: ", data.hex())
         return data.hex()
         
     def read_freq(self):
@@ -241,11 +241,12 @@ class UDP():
         RegSetString = b''.join(RegSets)
         self.s.send(RegSetString)
         data, addr = self.s.recvfrom(1024)    # buffer size is 1024
-        #print(RegSetString.hex())
-        #print(self.read_stat())
+        #print("Set string:",RegSetString.hex())
+        #print("Read string:",self.read_stat())
         if data == self.ok:
             return True
         else:
+            #print(data)
             return False
     
     def set_freq(self, freq_bytes):
