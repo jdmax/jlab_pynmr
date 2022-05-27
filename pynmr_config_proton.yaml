@@ -91,7 +91,7 @@ settings:
             cent_freq: 136.6        # Microwave counter center frequency in GHz
             band: 3                 # Microwave counter band
             subband: 8              # Microwwave counter subband
-            rate: 500               # Counter sample rate in ms
+            rate: 100               # Counter sample rate in ms
         power_meter:
             ip: 129.57.160.11       # Serial interface IP
             port: 23

@@ -49,17 +49,18 @@ class MainWindow(QMainWindow):
         epics_writes: Dict keyed on epics channels with Event attributes to send
 
     '''
-    def __init__(self, parent=None):
+    def __init__(self, config_file, parent=None):
         super().__init__(parent)
         self.error_dialog = QErrorMessage(self)
         self.status_bar = self.statusBar()
         self.status_bar.showMessage('Ready.')
-        self.config_filename = 'pynmr_config.yaml'
+        self.config_filename = config_file
+        #self.config_filename = 'pynmr_config.yaml'
         self.load_settings()
         self.restore_settings()
         channel_dict = self.config_dict['channels'][self.config_dict['settings']['default_channel']]  # dict of selected channel
         self.start_logger()
-
+        
         self.config = Config(channel_dict, self.settings)           # current configuration
         self.event = Event(self)      # open empty event
         self.previous_event = self.event      # there is no previous event
@@ -312,7 +313,8 @@ class MainWindow(QMainWindow):
         logger = logging.getLogger()
         logger.addHandler(logHandler)
         logger.setLevel(logging.INFO)
-        logging.info("Loaded config file")
+        logging.info("Started new instance.")
+        logging.info("Loaded config file {self.config_filename}.")
 
     def divider(self):
         div = QLabel ('')
