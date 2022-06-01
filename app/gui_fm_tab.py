@@ -90,12 +90,15 @@ class FMTab(QWidget):
         off = float(self.off_edit.text())
 
         self.fm = FMGenerator(self.parent.config)
-        freq_out, amp_out, off_out = self.fm.set(freq, amp, off)
+        if abs(amp)>2.0 or abs(off)>3.0:
+            print("FM amplitude or offset off scale! Not sent.")
+        else:    
+            freq_out, amp_out, off_out = self.fm.set(freq, amp, off)
+            self.r_freq_edit.setText(str(freq_out))
+            self.r_amp_edit.setText(str(amp_out))
+            self.r_off_edit.setText(str(off_out))
         del self.fm
         
-        self.r_freq_edit.setText(str(freq_out))
-        self.r_amp_edit.setText(str(amp_out))
-        self.r_off_edit.setText(str(off_out))
         
     def read_fm(self):
         '''Open connection to generator and read FM settings'''
