@@ -97,7 +97,10 @@ settings:
             port: 23
             timeout: 2              # Telnet timeout in secs
             freq: 140               # Power meter set freq in GHz
-        lj-ip: 129.57.160.6     # LabJack device IP, 129.57.37.33 is pt-labjack1
+        lj-ip: 129.57.160.6     # LabJack device IP
+    temp_settings:
+        enable: true           # Turn on or off temp monitor tab
+        ip: 129.57.160.6       # R&S supply IP   
     shim_settings:
         enable: false
         ip: 129.57.160.4       # R&S supply IP
