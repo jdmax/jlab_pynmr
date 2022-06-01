@@ -6,7 +6,7 @@ channels:
         species: proton 
         cent_freq: 212.882            # Center frequency in MHz   (float)
         mod_freq: 400.0             # Frequency modulation in kHz   (float)
-        power: 200.0                # RF power in mV  (float)
+        power: 200.0                # RF power in mV  (float), typically 200
         sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
     Proton4.87T:
         name: Proton4.87T
@@ -41,10 +41,10 @@ settings:
     default_channel: Proton5T     # Default from channels listed above
     daq_type: FPGA             # Select DAQ mode (FPGA, NIDAQ or Test)
     test_signal: app/d_signal_event.txt  # signal to use for test mode
-    event_dir: ../group_rgc/NMR-P/data             # Directory to put eventfiles in, relative to main.py or absolute
-    te_dir: ../group_rgc/NMR-P/te                  # Directory to put te files in, relative to main.py or absolute
-    log_dir: ../group_rgc/NMR-P/log                # Directory to put log files in, relative to main.py or absolute
-    ss_dir: ../group_rgc/screens               # Directory to put screenshots files in, screenshots not taken if False
+    event_dir: data-p            # Directory to put eventfiles in, relative to main.py or absolute
+    te_dir: te                  # Directory to put te files in, relative to main.py or absolute
+    log_dir: log                # Directory to put log files in, relative to main.py or absolute
+    ss_dir: screens               # Directory to put screenshots files in, screenshots not taken if False
     steps: 512                  # Frequency points per sweep (must match for test sweeps, set to 512 otherwise)
     num_per_chunk: 64           # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
     tune_per_chunk:  32         # Number of sweeps per chunk to take in tune mode
@@ -142,7 +142,7 @@ epics_writes:                   # Dict of channels to write, key is channel, val
     TGT:PT12:Polarization: pol 
     TGT:PT12:NMR_Area: area
     TGT:PT12:NMR_CC: cc
-    TGT:PT12:NMR_Time: stop_stamp  
+#    TGT:PT12:NMR_Time: stop_stamp  
     TGT:PT12:uwave_Freq: uwave_freq
     TGT:PT12:uwave_Power: uwave_power
 ...

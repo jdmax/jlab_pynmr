@@ -197,6 +197,7 @@ class Event():
         base_file: Filename string where baseline event can be found
         uwave_freq: Microwave frequency (GHz) as read from GPIB
         uwave_power: Microwave power (W) as read from serial
+        elapsed: Number of seconds taken to finish sweeps
     '''
    
     def __init__(self, parent):

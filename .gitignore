@@ -1,7 +1,11 @@
 data/*
 !data/.gitkeep
-log/*
+data-p/*
+!data-p/.gitkeeplog/*
+data-d/*
+!data-d/.gitkeep
 !log/.gitkeep
+log/*
 screenshots/*
 !screenshots/.gitkeep
 te/*
