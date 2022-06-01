@@ -116,7 +116,8 @@ class MainWindow(QMainWindow):
         self.settings = self.config_dict['settings']                    # dict of settings
         self.epics_reads = self.config_dict['epics_reads']              # dict of epics channels: name string
         self.epics_writes = self.config_dict['epics_writes']            # dict of epics channels: name string
-        self.status_bar.showMessage(f"Loaded settings from {self.config_filename}.")
+        #self.status_bar.showMessage(f"Loaded settings from {self.config_filename}.")
+        print(f"Loaded settings from {self.config_filename}.")
         
     def restore_settings(self):
         '''Restore settings from previous session'''
@@ -277,12 +278,14 @@ class MainWindow(QMainWindow):
             self.tune_tab.phase_slider.setEnabled(False)
             self.tune_tab.diode_spin.setEnabled(False)
             self.tune_tab.diode_slider.setEnabled(False)
+            #self.setWindowFlag(Qt.WindowCloseButtonHint, False)
         else:
             self.tune_tab.run_button.setEnabled(True)
             self.tune_tab.phase_spin.setEnabled(True)
             self.tune_tab.phase_slider.setEnabled(True)
             self.tune_tab.diode_spin.setEnabled(True)
             self.tune_tab.diode_slider.setEnabled(True)
+            #self.setWindowFlag(Qt.WindowCloseButtonHint, True)
         if self.tune_tab.run_button.isChecked():
             self.run_tab.run_button.setEnabled(False)
         else:

@@ -38,7 +38,7 @@ class TempTab(QWidget):
 
         self.read_layout = QGridLayout() 
         self.mon_box.layout().addLayout(self.read_layout) 
-        self.temp_label = QLabel('Chassis Temp (K):')
+        self.temp_label = QLabel('Chassis Temp (deg F):')
         self.read_layout.addWidget(self.temp_label, 0, 0)
         self.temp_edit = QLineEdit('0')
         self.read_layout.addWidget(self.temp_edit, 0, 1)
@@ -53,13 +53,11 @@ class TempTab(QWidget):
     def read(self):
         '''Open connection to generator and read FM settings'''
         
-        self.fm = LabJack(self.parent.config)
-        freq_out, amp_out, off_out = self.fm.read()
-        del self.fm
+        self.temp = LabJack(self.parent.config)
+        temp = self.temp.read()
+        del self.temp
         
-        self.r_freq_edit.setText(str(freq_out))
-        self.r_amp_edit.setText(str(amp_out))
-        self.r_off_edit.setText(str(off_out))
+        self.temp_edit.setText(str(freq_out))
 
     
     def divider(self):
@@ -86,7 +84,7 @@ class LabJack():
     def read_temp(self):
         '''Read temperature and potentiometer position from LabJack. Returns array of ADC values.
         '''
-        aNames = ["AIN4","AIN5"]
+        aNames = ["AIN0",]
         return ljm.eReadNames(self.lj, len(aNames), aNames)
         
     # def __del__(self):
