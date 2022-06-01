@@ -196,6 +196,7 @@ class Event():
         base_stamp: Timestamp int of baseline event
         base_file: Filename string where baseline event can be found
         uwave_freq: Microwave frequency (GHz) as read from GPIB
+        uwave_power: Microwave power (W) as read from serial
     '''
    
     def __init__(self, parent):
@@ -226,6 +227,7 @@ class Event():
         self.base_file = 'None'        
         
         self.uwave_freq = 0
+        self.uwave_power = 0
         
     def update_event(self, new_sigs):  # new_sigs looks like ((p_tup1,d_tup1), (p_tup2,d_tup2)...)
         '''Method to update event with new signal chunk
@@ -290,7 +292,8 @@ class Event():
         #self.stop_time =  datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
         self.stop_time =  datetime.datetime.now(tz=datetime.timezone.utc)
         self.stop_stamp = self.stop_time.timestamp()
-        print(self.stop_time, self.stop_stamp)
+        self.elapsed = (self.stop_time - self.start_time).seconds
+        #print(self.stop_time, self.stop_stamp)
              
         self.signal_analysis(base_method, sub_method, res_method)       
     

@@ -1,20 +1,6 @@
 # PyNMR Config file, YAML
 ---
 channels:    
-    Proton5T:
-        name: Proton5T
-        species: proton 
-        cent_freq: 212.882            # Center frequency in MHz   (float)
-        mod_freq: 400.0             # Frequency modulation in kHz   (float)
-        power: 200.0                # RF power in mV  (float)
-        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
-    Proton4.87T:
-        name: Proton4.87T
-        species: proton 
-        cent_freq: 207.38            # Center frequency in MHz   (float)
-        mod_freq: 400.0             # Frequency modulation in kHz   (float)
-        power: 200.0                # RF power in mV  (float)
-        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
     Deuteron5T:
         name: Deuteron5T
         species: deuteron
@@ -35,25 +21,39 @@ channels:
         cent_freq: 224.5       
         mod_freq: 400.0        
         power: 200.0      
-        sweep_file: tri 
+        sweep_file: tri
+    Proton5T:
+        name: Proton5T
+        species: proton 
+        cent_freq: 212.882            # Center frequency in MHz   (float)
+        mod_freq: 400.0             # Frequency modulation in kHz   (float)
+        power: 200.0                # RF power in mV  (float)
+        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
+    Proton4.87T:
+        name: Proton4.87T
+        species: proton 
+        cent_freq: 207.38            # Center frequency in MHz   (float)
+        mod_freq: 400.0             # Frequency modulation in kHz   (float)
+        power: 200.0                # RF power in mV  (float)
+        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
      
 settings:
-    default_channel: Proton5T     # Default from channels listed above
+    default_channel: Deuteron5T     # Default from channels listed above
     daq_type: FPGA             # Select DAQ mode (FPGA, NIDAQ or Test)
     test_signal: app/d_signal_event.txt  # signal to use for test mode
-    event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
-    te_dir: te                  # Directory to put te files in, relative to main.py or absolute
-    log_dir: log                # Directory to put log files in, relative to main.py or absolute
-    ss_dir: false               # Directory to put screenshots files in, screenshots not taken if False
+    event_dir: ../group_rgc/NMR-D/data             # Directory to put eventfiles in, relative to main.py or absolute
+    te_dir: ../group_rgc/NMR-D/te                  # Directory to put te files in, relative to main.py or absolute
+    log_dir: ../group_rgc/NMR-D/log                # Directory to put log files in, relative to main.py or absolute
+    ss_dir: ../group_rgc/screens               # Directory to put screenshots files in, screenshots not taken if False
     steps: 512                  # Frequency points per sweep (must match for test sweeps, set to 512 otherwise)
     num_per_chunk: 64           # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
     tune_per_chunk:  32         # Number of sweeps per chunk to take in tune mode
     epics_settings:
-        epics_enable: false         # If false, doesn't attempt to contact EPICS server
-        monitor_time: 5             # Time between calls to get EPICS data
-        epics_temp: 4he             # EPICS channel of temp to use as default 
+        epics_enable: true         # If false, doesn't attempt to contact EPICS server
+        monitor_time: 5            # Time between calls to get EPICS data
+        epics_temp: TGT:PT12:Bath_Top_T      # EPICS channel of temp to use as default 
     fpga_settings:    
-        ip: 129.57.161.3       # Device IP address (str)
+        ip: 129.57.160.2        # Device IP address (str)
         port: 1028              # Device port  (int)
         tcp_buffer: 1460        # Default TCP buffer size  (int)
         dwell: 10               # Settle time in usec between frequency switch and ADC read (int) (was 10)
@@ -81,25 +81,23 @@ settings:
         port: 5025 
         timeout: 2              # Telnet timeout in secs
     uWave_settings:
-        enable: false          # Turn on uWave controls
+        enable: true         # Turn on uWave controls
         monitor_time: .4         # How long to wait between reading frequency when on monitor in s
         counter:
             ip: 129.57.160.5       # GPIB IP
             port: 1234
-            timeout: 2              # Telnet timeout in secs
-            counter_addr: 20        # EIP 588C frequency counter GPIB address
-            cent_freq: 136.6        # Microwave counter center frequency in GHz
+            timeout: 4              # Telnet timeout in secs
+            addr: 19        # EIP 588C frequency counter GPIB address
+            cent_freq: 140.0        # Microwave counter center frequency in GHz
             band: 3                 # Microwave counter band
             subband: 8              # Microwwave counter subband
-            rate: 100               # Counter sample rate in ms
+            rate: 1000               # Counter sample rate in ms
         power_meter:
             ip: 129.57.160.11       # Serial interface IP
             port: 23
             timeout: 2              # Telnet timeout in secs
-        lj-ip: 129.57.37.33     # LabJack device IP, 129.57.37.33 is pt-labjack1
-    temp_settings:
-        enable: true           # Turn on or off temp monitor tab
-        ip: 129.57.37.33       # R&S supply IP   
+            freq: 140               # Power meter set freq in GHz
+        lj-ip: 129.57.160.6     # LabJack device IP, 129.57.37.33 is pt-labjack1
     shim_settings:
         enable: false
         ip: 129.57.160.4       # R&S supply IP
@@ -132,19 +130,19 @@ settings:
             eta : 0.09
             xi : -0.1
 epics_reads:                    # EPICS channels to read: key is channel name, value is string to display
-    4he: 4He Temp (K)
-    3he: 3He Temp (K)
-    bath_top: Bath Top (K)
-    bath_bot: Bath Bottom (K)
-    uwave_p: uWave Power (mW)
-    main_f: Main Flow (slpm)
-    sep_f: Separator Flow (slpm)
-    mag_i: Magnet Current (A)
-    posit: Target Position
+    TGT:PT12:Bath_LL: Bath Level
+    TGT:PT12:Bath_Top_T: Bath Top (K)
+    TGT:PT12:Bath_Bottom_T: Bath Bottom (K)
+    TGT:PT12:HT_Bath: Bath Heater
+    TGT:PT12:Fridge_F: Main Flow (slpm)
+    TGT:PT12:Separator_F: Separator Flow (slpm)
+    #mag_i: Magnet Current (A)
+    #posit: Target Position
 epics_writes:                   # Dict of channels to write, key is channel, value is attribute of Event class 
-    targ_pol: pol 
-    targ_area: area
-    targ_cc: cc
-    targ_time: stop_stamp  
-    #uwave_f: uwave_freq
+    TGT:PT12:Polarization: pol 
+    TGT:PT12:NMR_Area: area
+    TGT:PT12:NMR_CC: cc
+    TGT:PT12:NMR_Time: stop_stamp  
+    TGT:PT12:uwave_Freq: uwave_freq
+    TGT:PT12:uwave_Power: uwave_power
 ...

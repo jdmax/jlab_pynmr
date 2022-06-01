@@ -281,9 +281,9 @@ class RunTab(QWidget):
         '''Finished sweeps: close event. If stop button checked, reset buttons, else run again.'''
         self.parent.end_event()        
         now = datetime.datetime.now(tz=datetime.timezone.utc)
-        elapsed = self.parent.event.stop_time - self.parent.event.start_time
         if not self.run_button.isChecked():     # done and stop
-            self.parent.status_bar.showMessage(f'Finished event at {now:%H:%M:%S} UTC. Event took {elapsed.seconds}s.')
+            self.parent.status_bar.showMessage(f'Finished event at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s.')
+            
             #self.abort_button.setEnabled(False)
             self.lock_button.setEnabled(True)
             self.run_button.setText('Run')
@@ -292,7 +292,7 @@ class RunTab(QWidget):
             self.update_run_plot()
             self.parent.run_toggle()
         else:                                    # done, continue running
-            self.parent.status_bar.showMessage(f'Finished event at  at {now:%H:%M:%S} UTC. Event took {elapsed.seconds}s. Running sweeps...')
+            self.parent.status_bar.showMessage(f'Finished event at  at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s. Running sweeps...')
             self.start_thread()
         
     
@@ -378,7 +378,7 @@ class RunTab(QWidget):
             except Exception as e: 
                 print('Exception starting microwave thread, lost connection: '+str(e)) 
                 self.enable_button.toggle()
-                self.enable_pushed() 
+                #self.enable_pushed() 
                 
         else: 
             sender.setText('Enable')
@@ -390,8 +390,9 @@ class RunTab(QWidget):
         freq = reply[0]
         pot = reply[1]
         temp = reply[2]
-        self.uwave_freq_label.setText(f"Freq: {freq/1e9:.2f} GHz")
-        self.uwave_power_label.setText(f"Power: {pow:.2f} mW")
+        power = reply[3]
+        self.uwave_freq_label.setText(f"Freq: {freq/1e9:.4f} GHz")
+        self.uwave_power_label.setText(f"Power: {power}")
         #self.uwave_freq_label.setText(f"{pot, temp}")
         self.parent.event.uwave_freq = freq
         
