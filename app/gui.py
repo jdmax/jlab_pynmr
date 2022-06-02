@@ -23,6 +23,7 @@ from app.gui_anal_tab import AnalTab
 from app.gui_expl_tab import ExplTab
 from app.gui_shim_tab import ShimTab
 from app.gui_fm_tab import FMTab
+from app.gui_temp_tab import TempTab
 from app.gui_mag_tab import MagTab
 from app.daq import DAQConnection, UDP, TCP, RS_Connection, NI_Connection
 #from app.magnet_control import MagnetControl
@@ -60,6 +61,7 @@ class MainWindow(QMainWindow):
         self.restore_settings()
         channel_dict = self.config_dict['channels'][self.config_dict['settings']['default_channel']]  # dict of selected channel
         self.start_logger()
+        self.chassis_temp = 0
         
         self.config = Config(channel_dict, self.settings)           # current configuration
         self.event = Event(self)      # open empty event
@@ -102,6 +104,9 @@ class MainWindow(QMainWindow):
         if self.config.settings['fm_settings']['enable']:
             self.fm_tab = FMTab(self)
             self.tab_widget.addTab(self.fm_tab, "FM")
+        if self.config.settings['temp_settings']['enable']:
+            self.temp_tab = TempTab(self)
+            self.tab_widget.addTab(self.temp_tab, "Chassis Temp")
         self.expl_tab = ExplTab(self)
         self.tab_widget.addTab(self.expl_tab, "Event Explorer") 
         

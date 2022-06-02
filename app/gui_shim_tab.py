@@ -429,7 +429,9 @@ class ShimControl():
             try:
                 #print("Set shim channel", i+1, "to", {list[i]})
                 self.tn.write(bytes(f"INST:NSEL {i+1}\n", 'ascii'))
-                #self.tn.write(bytes(f"VOLT MAX\n", 'ascii'))
+                volt = list[i] * config.settings['shim_settings']['line_resistance'] + 0.5
+                # Set voltage based on current and setting of line resistance, plus 0.5 V
+                self.tn.write(bytes(f"VOLT {volt}\n", 'ascii'))
                 self.tn.write(bytes(f"CURR {list[i]}\n", 'ascii'))
                 time.sleep(0.1)
             except Exception as e:

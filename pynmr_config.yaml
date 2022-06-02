@@ -101,11 +101,13 @@ settings:
     temp_settings:
         enable: true           # Turn on or off temp monitor tab
         ip: 129.57.160.6       # R&S supply IP   
+        monitor_time: 60       # seconds
     shim_settings:
         enable: false
         ip: 129.57.160.4       # R&S supply IP
         port: 5025 
         timeout: 2  
+        line_resistance: 0.3     # Ohms
     fm_settings:
         enable: true
         ip: 129.57.160.12       # R&S supply IP
