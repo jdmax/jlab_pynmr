@@ -51,7 +51,7 @@ settings:
     epics_settings:
         epics_enable: true         # If false, doesn't attempt to contact EPICS server
         monitor_time: 5            # Time between calls to get EPICS data
-        epics_temp: TGT:PT12:Bath_Top_T      # EPICS channel of temp to use as default 
+        epics_temp: TGT:PT12:VaporPressure_T      # EPICS channel of temp to use as default 
     fpga_settings:    
         ip: 129.57.160.2        # Device IP address (str)
         port: 1028              # Device port  (int)
@@ -136,8 +136,10 @@ settings:
             xi : -0.1
 epics_reads:                    # EPICS channels to read: key is channel name, value is string to display
     TGT:PT12:Bath_LL: Bath Level
+    TGT:PT12:VaporPressure_T: Vapor Temp (K)
     TGT:PT12:Bath_Top_T: Bath Top (K)
     TGT:PT12:Bath_Bottom_T: Bath Bottom (K)
+    TGT:PT12:NMR_T: D Tank Temp (K)
     TGT:PT12:HT_Bath: Bath Heater
     TGT:PT12:Fridge_F: Main Flow (slpm)
     TGT:PT12:Separator_F: Sep Flow (slpm)
