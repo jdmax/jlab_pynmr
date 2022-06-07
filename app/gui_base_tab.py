@@ -33,6 +33,7 @@ class BaseTab(QWidget):
         #self.basefile_path = self.eventfile.name
         self.basefile_path = ''
         self.basetime = 0
+        self.recent_baselines_name = 'app/recent_baselines.json'
                
         self.base_box = QGroupBox('Baseline Controls')
         self.left.addWidget(self.base_box)
@@ -52,7 +53,9 @@ class BaseTab(QWidget):
         self.button_layout.addWidget(self.open_but)
         self.last_but = QPushButton('Select Current Eventfile')
         self.last_but.clicked.connect(self.use_last) 
-        self.button_layout.addWidget(self.last_but)        
+        self.recent_but = QPushButton('Show Recent Basefiles')
+        self.recent_but.clicked.connect(self.show_recent) 
+        self.button_layout.addWidget(self.recent_but)        
         # Selection list
         self.event_model = QStandardItemModel()
         self.event_model.setHorizontalHeaderLabels(['UTC Timestamp','Time','Sweep Count','Center (MHz)','Modulation (kHz)', 'Channel'])
@@ -91,6 +94,11 @@ class BaseTab(QWidget):
     def use_last(self):
         '''Open most recent eventfile for baselines'''
         self.basefile_path = self.parent.eventfile.name
+        self.open_basefile()
+        
+    def show_recent(self):
+        '''Open recently used baselines file'''
+        self.basefile_path = self.recent_baselines_name
         self.open_basefile()
         
     def open_basefile(self):
@@ -140,8 +148,7 @@ class BaseTab(QWidget):
         self.base_plot.setData(freqs, self.base_phase_avg)  
         sub = self.parent.event.scan.phase - self.base_phase_avg        
         self.sub_plot.setData(freqs,sub)
-        
-        
+        self.print_to_recent(base_dict)        
 
     def set_base(self):
         '''Send baselines chosen to be set as the baseline for future events'''
@@ -151,6 +158,15 @@ class BaseTab(QWidget):
             self.status_bar.showMessage(f"Error setting baseline: {self.events[self.last_stamp]['read_time']} {e}")
         filename = re.findall('data.*\.txt', self.parent.event.base_file)
         self.curr_base_line.setText(filename[0]+', '+ str(self.parent.event.base_time))
+        
+    def print_to_recent(self, base_dict)
+        '''Prints selected baseline information to recent baselines file for reuse'''
+        
+        recentfile = open(self.recent_baselines_name, "a")
+        json_record = json.dumps(base_dict)
+        recentfile.write(json_record+'\n')               # write to file as json line
+        recentfile.close()
+        
 
     def divider(self):
         div = QLabel ('')
