@@ -36,6 +36,7 @@ class MicrowaveThread(QThread):
                 freq = self.count.read_freq()
             except Exception as e:
                 print(f"Counter read failed: {e}")  
+                freq = 0
                 #self.parent.enable_button.toggle()
                 #self.parent.enable_pushed()
                 #break
@@ -44,6 +45,7 @@ class MicrowaveThread(QThread):
                 power = self.pow_meter.read_power()
             except Exception as e:
                 print(f"Power meter read failed: {e}")  
+                power = 0
                 #self.parent.enable_button.toggle()
                 #self.parent.enable_pushed()
                 #break

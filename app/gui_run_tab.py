@@ -394,8 +394,7 @@ class RunTab(QWidget):
         self.uwave_freq_label.setText(f"Freq: {freq/1e9:.4f} GHz")
         self.uwave_power_label.setText(f"Power: {power} mW")
         #self.uwave_freq_label.setText(f"{pot, temp}")
-        self.parent.event.uwave_freq = freq
-        self.parent.event.uwave_power = power
+        self.parent.event.set_uwave(freq, power)
         
     def up_micro(self):
         '''Up pressed'''

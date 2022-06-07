@@ -352,6 +352,11 @@ class Event():
         pf, success = optimize.leastsq(errfunc, pi[:], args=(X,Y))  # perform fit
         return pf
         
+    def set_uwave(self, freq, power):
+        '''Set microwave power and frequency'''
+        self.uwave_freq = freq
+        self.uwave_power = power
+        
 class Baseline():
     '''Data object for baseline event.
     
