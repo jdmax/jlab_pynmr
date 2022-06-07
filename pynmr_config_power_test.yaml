@@ -143,9 +143,11 @@ settings:
             xi : -0.1
 epics_reads:                    # EPICS channels to read: key is channel name, value is string to display
     TGT:PT12:Bath_LL: Bath Level
+    TGT:PT12:VaporPressure_T: Vapor Temp (K)
     TGT:PT12:Bath_Top_T: Bath Top (K)
     TGT:PT12:Bath_Bottom_T: Bath Bottom (K)
-    TGT:PT12:HT_Bath: Bath Heater
+    TGT:PT12:NMR_T: Tank Temp (K)
+    TGT:PT12:Bath_HTR_lvl: Bath Heater
     TGT:PT12:Fridge_F: Main Flow (slpm)
     TGT:PT12:Separator_F: Sep Flow (slpm)
     #mag_i: Magnet Current (A)

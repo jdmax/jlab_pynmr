@@ -154,10 +154,15 @@ class PowMeter():
             power = self.tn.read_some().decode('ascii')              
         except Exception as e:
             print(f"Connection to serial port failed on {self.host}: {e}")
-        if 'error' in power:
-            power = "Error"
-        power = power.strip().replace("U", "u")  
-        power = power.strip().replace("M", "m")    
+              
+        if 'U' in power:     # turn into float of mW 
+            p = power.strip().split()
+            power = float(p[0])/1000.0
+        elif 'error' in power:
+            power = -1                
+        else:
+            p = power.strip().split()
+            power = float(p[0])   
         return power
         
     def close(self):           

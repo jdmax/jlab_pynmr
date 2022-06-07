@@ -8,12 +8,12 @@ channels:
         mod_freq: 400.0             # Frequency modulation in kHz   (float)
         power: 200.0                # RF power in mV  (float), typically 200
         sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
-    Proton4.87T:
-        name: Proton4.87T
+    Proton5T-300mV:
+        name: Proton5T-300mV
         species: proton 
-        cent_freq: 207.38            # Center frequency in MHz   (float)
+        cent_freq: 212.882            # Center frequency in MHz   (float)
         mod_freq: 400.0             # Frequency modulation in kHz   (float)
-        power: 200.0                # RF power in mV  (float)
+        power: 300.0                # RF power in mV  (float), typically 200
         sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
     Deuteron5T:
         name: Deuteron5T
@@ -51,7 +51,7 @@ settings:
     epics_settings:
         epics_enable: true         # If false, doesn't attempt to contact EPICS server
         monitor_time: 5            # Time between calls to get EPICS data
-        epics_temp: TGT:PT12:Bath_Top_T      # EPICS channel of temp to use as default 
+        epics_temp: TGT:PT12:VaporPressure_T     # EPICS channel of temp to use as default 
     fpga_settings:    
         ip: 129.57.160.2        # Device IP address (str)
         port: 1028              # Device port  (int)
@@ -136,9 +136,11 @@ settings:
             xi : -0.1
 epics_reads:                    # EPICS channels to read: key is channel name, value is string to display
     TGT:PT12:Bath_LL: Bath Level
+    TGT:PT12:VaporPressure_T: Vapor Temp (K)
     TGT:PT12:Bath_Top_T: Bath Top (K)
     TGT:PT12:Bath_Bottom_T: Bath Bottom (K)
-    TGT:PT12:HT_Bath: Bath Heater
+    TGT:PT12:NMR_T: Tank Temp (K)
+    TGT:PT12:Bath_HTR_lvl: Bath Heater
     TGT:PT12:Fridge_F: Main Flow (slpm)
     TGT:PT12:Separator_F: Sep Flow (slpm)
     #mag_i: Magnet Current (A)

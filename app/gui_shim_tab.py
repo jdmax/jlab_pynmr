@@ -138,7 +138,7 @@ class ShimTab(QWidget):
         self.shim_opts.append(Flatten(self))  
         self.shim_opts.append(AllSame(self))  
         self.shim_opts.append(Tilt(self)) 
-        self.shim_opts.append(LikeCLAS(self))       
+        #self.shim_opts.append(LikeCLAS(self))       
         for o in self.shim_opts:
             self.shim_op_combo.addItem(o.name)
             self.shim_op_stack.addWidget(o)
@@ -257,7 +257,7 @@ class Flatten(QWidget):
                 
         self.grid = QGridLayout()
         self.space.addLayout(self.grid)
-        self.current_label = QLabel("FROST Magnet Current (A):")
+        self.current_label = QLabel("CLAS12 Magnet Current (A):")
         self.grid.addWidget(self.current_label, 0, 0)
         self.current_edit = QLineEdit('0')
         self.current_edit.setValidator(QDoubleValidator(0, 90, 4))
@@ -274,7 +274,7 @@ class Flatten(QWidget):
     def calc_clicked(self):
         '''
         '''  
-        self.parent.background = self.parent.frost/5*float(self.current_edit.text())*0.061594  # calibration for current at 5T 
+        self.parent.background = self.parent.clas/5*float(self.current_edit.text())*0.002068252  # calibration for current at 5T 
         self.parent.goals = [float(self.goal_edit.text())]*61
         self.parent.just_shims, self.parent.shimmed, self.parent.x = self.parent.calc_currents(self.parent.background, self.parent.goals)
         self.parent.update_plots()
@@ -295,7 +295,7 @@ class AllSame(QWidget):
                 
         self.grid = QGridLayout()
         self.space.addLayout(self.grid)
-        self.current_label = QLabel("FROST Magnet Current (A):")
+        self.current_label = QLabel("CLAS12 Magnet Current (A):")
         self.grid.addWidget(self.current_label, 0, 0)
         self.current_edit = QLineEdit('0')
         self.current_edit.setValidator(QDoubleValidator(0, 90, 4))
@@ -312,7 +312,7 @@ class AllSame(QWidget):
     def calc_clicked(self):
         '''
         '''  
-        self.background = self.parent.frost/5*float(self.current_edit.text())*0.061594  # calibration for current at 5T 
+        self.background = self.parent.clas/5*float(self.current_edit.text())*0.002068252  # calibration for current at 5T 
         self.parent.goals = [float('nan')]*61
         self.parent.just_shims = [float('nan')]*61
         self.parent.x = [float(self.goal_edit.text())]*4
@@ -334,7 +334,7 @@ class Tilt(QWidget):
                 
         self.grid = QGridLayout()
         self.space.addLayout(self.grid)
-        self.current_label = QLabel("FROST Magnet Current (A):")
+        self.current_label = QLabel("CLAS12 Magnet Current (A):")
         self.grid.addWidget(self.current_label, 0, 0)
         self.current_edit = QLineEdit('0')
         self.current_edit.setValidator(QDoubleValidator(0, 90, 4))
@@ -356,7 +356,7 @@ class Tilt(QWidget):
     def calc_clicked(self):
         '''
         '''  
-        self.parent.background = self.parent.frost/5*float(self.current_edit.text())*0.061594  # calibration for current at 5T 
+        self.parent.background = self.parent.clas/5*float(self.current_edit.text())*0.002068252  # calibration for current at 5T 
         self.parent.goals = self.parent.tilt(float(self.off_edit.text()), float(self.goal_edit.text()))
         self.parent.just_shims = [float('nan')]*61
         self.parent.just_shims, self.parent.shimmed, self.parent.x = self.parent.calc_currents(self.parent.background, self.parent.goals)
@@ -377,7 +377,7 @@ class LikeCLAS(QWidget):
                 
         self.grid = QGridLayout()
         self.space.addLayout(self.grid)
-        self.current_label = QLabel("FROST Magnet Current (A):")
+        self.current_label = QLabel("CLAS12 Magnet Current (A):")
         self.grid.addWidget(self.current_label, 0, 0)
         self.current_edit = QLineEdit('0')
         self.current_edit.setValidator(QDoubleValidator(0, 90, 4))
@@ -394,7 +394,7 @@ class LikeCLAS(QWidget):
     def calc_clicked(self):
         '''
         '''  
-        self.parent.background = self.parent.frost/5*float(self.current_edit.text())*0.061594  # calibration for current at 5T 
+        self.parent.background = self.parent.clas/5*float(self.current_edit.text())*0.002068252  # calibration for current at 5T 
         self.parent.goals = self.parent.clas/5*float(self.goal_edit.text())
         self.parent.just_shims, self.parent.shimmed, self.parent.x = self.parent.calc_currents(self.parent.background, self.parent.goals)
         self.parent.update_plots()
