@@ -51,11 +51,12 @@ class BaseTab(QWidget):
         self.open_but = QPushButton('Eventfile Selection Dialog')
         self.open_but.clicked.connect(self.pick_basefile) 
         self.button_layout.addWidget(self.open_but)
-        self.last_but = QPushButton('Select Current Eventfile')
-        self.last_but.clicked.connect(self.use_last) 
         self.recent_but = QPushButton('Show Recent Basefiles')
         self.recent_but.clicked.connect(self.show_recent) 
-        self.button_layout.addWidget(self.recent_but)        
+        self.button_layout.addWidget(self.recent_but)  
+        self.last_but = QPushButton('Select Current Eventfile')
+        self.last_but.clicked.connect(self.use_last) 
+        self.button_layout.addWidget(self.last_but)         
         # Selection list
         self.event_model = QStandardItemModel()
         self.event_model.setHorizontalHeaderLabels(['UTC Timestamp','Time','Sweep Count','Center (MHz)','Modulation (kHz)', 'Channel'])
@@ -75,11 +76,11 @@ class BaseTab(QWidget):
         # Right Side
         self.right = QVBoxLayout()        
         self.base_wid = pg.PlotWidget(title='Selected Baseline')
-        self.base_wid.showGrid(True,True)
+        self.base_wid.showGrid(True, True)
         self.base_plot = self.base_wid.plot([], [], pen=self.sel_pen) 
         self.right.addWidget(self.base_wid)  
         self.sub_wid = pg.PlotWidget(title='Current Sweep minus Baseline')
-        self.sub_wid.showGrid(True,True)
+        self.sub_wid.showGrid(True, True)
         self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen) 
         self.right.addWidget(self.sub_wid)  
         
@@ -111,6 +112,16 @@ class BaseTab(QWidget):
                     dt = parse(jd['stop_time'])
                     time = dt.strftime("%H:%M:%S")
                     utcstamp = str(jd['stop_stamp'])
+                    print(jd['channel']['name'])
+                    print(jd['freq_list'])
+                    print(jd['sweeps'])
+                    print(jd['phase'])
+                    print(jd['channel']['cent_freq'])
+                    print(jd['channel']['mod_freq'])
+                    print(dt)
+                    print(time)
+                    print(jd['stop_stamp'])
+                    print(self.basefile_path)
                     self.events.update({utcstamp: {'channel':jd['channel']['name'], 'freq_list':jd['freq_list'], 'sweeps':jd['sweeps'], 'phase':jd['phase'], 'cent_freq':jd['channel']['cent_freq'], 'mod_freq':jd['channel']['mod_freq'], 'stop_time':dt, 'read_time':time, 'stop_stamp':jd['stop_stamp'], 'base_file':self.basefile_path}})
                       
             self.status_bar.showMessage('Opened event file '+self.basefile_path)
@@ -147,8 +158,7 @@ class BaseTab(QWidget):
         #self.base_stamp = self.event_model.data(self.event_model.index(item.row(),0))        #self.base_plot.setData(self.events[self.base_stamp]['freq_list'],self.events[self.base_stamp]['phase'])  
         self.base_plot.setData(freqs, self.base_phase_avg)  
         sub = self.parent.event.scan.phase - self.base_phase_avg        
-        self.sub_plot.setData(freqs,sub)
-        self.print_to_recent(base_dict)        
+        self.sub_plot.setData(freqs,sub)    
 
     def set_base(self):
         '''Send baselines chosen to be set as the baseline for future events'''
@@ -158,11 +168,17 @@ class BaseTab(QWidget):
             self.status_bar.showMessage(f"Error setting baseline: {self.events[self.last_stamp]['read_time']} {e}")
         filename = re.findall('data.*\.txt', self.parent.event.base_file)
         self.curr_base_line.setText(filename[0]+', '+ str(self.parent.event.base_time))
+        self.print_to_recent(self.base_dict)    
         
-    def print_to_recent(self, base_dict)
+    def print_to_recent(self, base_dict):
         '''Prints selected baseline information to recent baselines file for reuse'''
         
         recentfile = open(self.recent_baselines_name, "a")
+        for key, entry in base_dict.items():   
+            if isinstance(entry, np.ndarray):       
+                base_dict[key] = entry.tolist()            
+            if isinstance(entry, datetime.datetime):
+                base_dict.update({key:entry.__str__()})  # datetime to string  
         json_record = json.dumps(base_dict)
         recentfile.write(json_record+'\n')               # write to file as json line
         recentfile.close()
