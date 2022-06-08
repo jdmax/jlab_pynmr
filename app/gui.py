@@ -8,7 +8,7 @@ import os
 import yaml
 import pytz
 import logging
-from PyQt5.QtWidgets import QMainWindow, QErrorMessage, QTabWidget, QLabel, QWidget
+from PyQt5.QtWidgets import QMainWindow, QErrorMessage, QTabWidget, QLabel, QWidget, QDialog, QDialogButtonBox, QVBoxLayout
 from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from logging.handlers import TimedRotatingFileHandler
@@ -283,14 +283,12 @@ class MainWindow(QMainWindow):
             self.tune_tab.phase_slider.setEnabled(False)
             self.tune_tab.diode_spin.setEnabled(False)
             self.tune_tab.diode_slider.setEnabled(False)
-            #self.setWindowFlag(Qt.WindowCloseButtonHint, False)
         else:
             self.tune_tab.run_button.setEnabled(True)
             self.tune_tab.phase_spin.setEnabled(True)
             self.tune_tab.phase_slider.setEnabled(True)
             self.tune_tab.diode_spin.setEnabled(True)
             self.tune_tab.diode_slider.setEnabled(True)
-            #self.setWindowFlag(Qt.WindowCloseButtonHint, True)
         if self.tune_tab.run_button.isChecked():
             self.run_tab.run_button.setEnabled(False)
         else:
@@ -330,10 +328,42 @@ class MainWindow(QMainWindow):
         div.setMaximumHeight (2)
         return div
 
+
     def closeEvent(self, event):
         '''Things to do on close of window ("events" here are not related to nmr data events)
         '''
-        self.epics.monitor_running = False
-        self.close_eventfile()
-        self.save_settings()
-        event.accept()
+        if self.run_tab.run_button.isChecked():
+            self.dlg = ExitDialog()
+            if self.dlg.exec():
+                self.epics.monitor_running = False
+                self.close_eventfile()
+                self.save_settings()
+                event.accept()
+            else: 
+                event.ignore()  
+        else:
+            self.epics.monitor_running = False
+            self.close_eventfile()
+            self.save_settings()
+            event.accept()
+        
+        
+         
+class ExitDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Exit While Running?")
+
+        QBtn = QDialogButtonBox.Ignore | QDialogButtonBox.Abort
+
+        self.buttonBox = QDialogButtonBox(QBtn)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        self.layout = QVBoxLayout()
+        message = QLabel("Exiting the program while sweeps\nare running will require entry to the hall\nto reboot the DAQ. Click 'Abort'\nunless you know what you are doing!")
+        self.layout.addWidget(message)
+        self.layout.addWidget(self.buttonBox)
+        self.setLayout(self.layout)       
+        
