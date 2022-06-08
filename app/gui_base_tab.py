@@ -3,6 +3,7 @@
 import datetime
 import re
 import json
+import os
 from dateutil.parser import parse
 from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QTableView, QAbstractItemView, QAbstractScrollArea, QFileDialog
 from PyQt5.QtCore import QThread, pyqtSignal,Qt
@@ -32,8 +33,18 @@ class BaseTab(QWidget):
         # Baseline controls box     
         #self.basefile_path = self.eventfile.name
         self.basefile_path = ''
-        self.basetime = 0
-        self.recent_baselines_name = 'app/recent_baselines.json'
+        self.basetime = 0        
+        self.basefile_name = os.path.join(self.config.settings["event_dir"], f'recent_baselines.txt')
+        with open(self.basefile_name, "w+") as file:
+            count = 0     
+            for line in file: 
+                count+=1
+            if count+1 > 30:    # make a new baseline file after 50 lines
+                now = datetime.datetime.now(tz=datetime.timezone.utc)
+                new = f'baselines_{now.strftime("%Y-%m-%d_%H-%M-%S")}.txt'
+                file.close()
+                os.rename(self.basefile_name, os.path.join(self.config.settings["event_dir"], new))
+                newfile = open(self.basefile_name, "x")
                
         self.base_box = QGroupBox('Baseline Controls')
         self.left.addWidget(self.base_box)
@@ -99,7 +110,7 @@ class BaseTab(QWidget):
         
     def show_recent(self):
         '''Open recently used baselines file'''
-        self.basefile_path = self.recent_baselines_name
+        self.basefile_path = self.basefile_name
         self.open_basefile()
         
     def open_basefile(self):
@@ -174,14 +185,15 @@ class BaseTab(QWidget):
             self.parent.new_base(self.base_dict)
         except Exception as e:
             self.status_bar.showMessage(f"Error setting baseline: {self.events[self.last_stamp]['read_time']} {e}")
-        filename = re.findall('data.*\.txt', self.parent.event.base_file)
-        self.curr_base_line.setText(filename[0]+', '+ str(self.parent.event.base_time))
+        #filename = re.findall('data.*\.txt', self.parent.event.base_file)
+        #self.curr_base_line.setText(filename[0]+', '+ str(self.parent.event.base_time))
+        self.curr_base_line.setText(str(self.parent.event.base_time))
         self.print_to_recent(self.base_dict)    
         
     def print_to_recent(self, base_dict):
         '''Prints selected baseline information to recent baselines file for reuse'''
         
-        recentfile = open(self.recent_baselines_name, "a")
+        recentfile = open(self.basefile_name, "a")
         for key, entry in base_dict.items():   
             if isinstance(entry, np.ndarray):       
                 base_dict[key] = entry.tolist()            
