@@ -45,10 +45,12 @@ class RunTab(QWidget):
         self.stat_values = {}
         for key, name in self.parent.epics.read_names.items():
             self.status_box.layout().addWidget(QLabel(name+':'), i, 0)
-            self.stat_values[key] = QLineEdit(str(0))
-            self.stat_values[key].setEnabled(False)
+            self.stat_values[key] = QLabel(str(0))
+            #self.stat_values[key].setEnabled(False)
             self.status_box.layout().addWidget(self.stat_values[key], i, 1)
             i+=1
+        #self.epics_beat = AnimatedWidget(self.config.settings['epics_settings']['monitor_time']*1000)
+        #self.status_box.layout().addWidget(self.epics_beat, i+1, 1)
         
         self.midlayout = QVBoxLayout()
         self.upperlayout.addLayout(self.midlayout)
@@ -411,7 +413,8 @@ class RunTab(QWidget):
     def update_status(self):
         '''Update gui with status from EPICS values'''        
         for key in self.parent.epics.read_list:
-            self.stat_values[key].setText(str(self.parent.epics.read_pvs[key]))
+            self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:6f}')
+
         
    
 class RunThread(QThread):
