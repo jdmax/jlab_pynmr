@@ -15,31 +15,23 @@ channels:
         mod_freq: 400.0             # Frequency modulation in kHz   (float)
         power: 300.0                # RF power in mV  (float), typically 200
         sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
-    Deuteron5T:
-        name: Deuteron5T
-        species: deuteron
-        cent_freq: 32.7       
-        mod_freq: 400.0        
-        power: 200.0      
-        sweep_file: tri   
-    Deuteron4.87T:
-        name: Deuteron4.87T
-        species: deuteron
-        cent_freq: 31.83       
-        mod_freq: 400.0        
-        power: 200.0      
-        sweep_file: tri 
-    Crystal:
-        name: Crystal
-        species: proton
-        cent_freq: 224.5       
-        mod_freq: 400.0        
-        power: 200.0      
-        sweep_file: tri 
-     
+    Proton5T-350mV:
+        name: Proton5T-350mV
+        species: proton 
+        cent_freq: 212.882            # Center frequency in MHz   (float)
+        mod_freq: 400.0             # Frequency modulation in kHz   (float)
+        power: 350.0                # RF power in mV  (float), typically 200
+        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
+    Proton5T-400mV:
+        name: Proton5T-400mV
+        species: proton 
+        cent_freq: 212.882            # Center frequency in MHz   (float)
+        mod_freq: 400.0             # Frequency modulation in kHz   (float)
+        power: 400.0                # RF power in mV  (float), typically 200
+        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)     
 settings:
     default_channel: Proton5T     # Default from channels listed above
-    daq_type: Test              # Select DAQ mode (FPGA, NIDAQ or Test)
+    daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ or Test)
     test_signal: app/d_signal_event.txt  # signal to use for test mode
     event_dir: data-p            # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
