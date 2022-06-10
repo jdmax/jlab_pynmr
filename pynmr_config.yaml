@@ -39,7 +39,7 @@ channels:
      
 settings:
     default_channel: Proton5T     # Default from channels listed above
-    daq_type: FPGA             # Select DAQ mode (FPGA, NIDAQ or Test)
+    daq_type: Test             # Select DAQ mode (FPGA, NIDAQ or Test)
     test_signal: app/d_signal_event.txt  # signal to use for test mode
     event_dir: ../group_rgc/NMR-P/data             # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: ../group_rgc/NMR-P/te                  # Directory to put te files in, relative to main.py or absolute
@@ -49,7 +49,7 @@ settings:
     num_per_chunk: 64           # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
     tune_per_chunk:  32         # Number of sweeps per chunk to take in tune mode
     epics_settings:
-        epics_enable: true         # If false, doesn't attempt to contact EPICS server
+        epics_enable: false         # If false, doesn't attempt to contact EPICS server
         monitor_time: 5            # Time between calls to get EPICS data
         epics_temp: TGT:PT12:Bath_Top_T      # EPICS channel of temp to use as default 
     fpga_settings:    
