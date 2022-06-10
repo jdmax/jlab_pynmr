@@ -48,9 +48,9 @@ class RunTab(QWidget):
             self.stat_values[key] = QLabel(str(0))
             #self.stat_values[key].setEnabled(False)
             self.status_box.layout().addWidget(self.stat_values[key], i, 1)
+            self.stat_values[key].setStyleSheet("color : blue")
             i+=1
-        #self.epics_beat = AnimatedWidget(self.config.settings['epics_settings']['monitor_time']*1000)
-        #self.status_box.layout().addWidget(self.epics_beat, i+1, 1)
+        self.epics_beat = True
         
         self.midlayout = QVBoxLayout()
         self.upperlayout.addLayout(self.midlayout)
@@ -411,9 +411,17 @@ class RunTab(QWidget):
         self.utune.change_freq('off')        
         
     def update_status(self):
-        '''Update gui with status from EPICS values'''        
+        '''Update gui with status from EPICS values, toggle color'''  
+        
         for key in self.parent.epics.read_list:
             self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:6f}')
+            if self.epics_beat: 
+                self.stat_values[key].setStyleSheet("color : blue")
+                self.epics_beat = False
+            else: 
+                self.stat_values[key].setStyleSheet("color : black")
+                self.epics_beat = True
+        
 
         
    
