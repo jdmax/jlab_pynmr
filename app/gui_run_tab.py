@@ -48,7 +48,7 @@ class RunTab(QWidget):
             self.stat_values[key] = QLabel(str(0))
             #self.stat_values[key].setEnabled(False)
             self.status_box.layout().addWidget(self.stat_values[key], i, 1)
-            self.stat_values[key].setStyleSheet("color : blue")
+            self.stat_values[key].setStyleSheet("color : black")
             i+=1
         self.epics_beat = True
         

@@ -166,8 +166,7 @@ class MainWindow(QMainWindow):
         with open('app/saved_settings.yaml', 'w') as file:
             documents = yaml.dump(saved_dict, file)
             #print(saved_dict)            
-            logging.info(f"Printed settings on exit to {file}.")
-    
+            logging.info(f"Printed settings on exit to {file}.")    
     
     def end_event(self):
         '''Start ending the event
