@@ -198,6 +198,7 @@ class Event():
         uwave_freq: Microwave frequency (GHz) as read from GPIB
         uwave_power: Microwave power (W) as read from serial
         elapsed: Number of seconds taken to finish sweeps
+        label: type of event from combobox
     '''
    
     def __init__(self, parent):
@@ -225,7 +226,8 @@ class Event():
         
         self.base_time = datetime.datetime(2000,1,1)
         self.base_stamp = datetime.datetime(2000,1,1).timestamp()
-        self.base_file = 'None'        
+        self.base_file = 'None'       
+        self.label = 'None'
         
         self.uwave_freq = 0
         self.uwave_power = 0

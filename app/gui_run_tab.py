@@ -74,6 +74,16 @@ class RunTab(QWidget):
         self.progress_bar.setTextVisible(False)
         #self.progress_bar.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Expanding)
         self.controls_box.layout().addWidget(self.progress_bar, 0, 1)
+        self.label = QLabel("Event Label:")
+        self.controls_box.layout().addWidget(self.label, 1, 0)
+        self.label_combo = QComboBox()
+        self.label_combo.setEditable(True)
+        self.controls_box.layout().addWidget(self.label_combo, 1, 1)
+        self.labels = ('None', 'Baseline', 'TE', 'Polarize', 'Junk')
+        self.label_combo.addItems(self.labels)
+        self.label_combo.currentTextChanged.connect(self.parent.label_changed)
+        
+        
        
         # Populate uWave settings if enabled
         if self.parent.config.settings['uWave_settings']['enable']:

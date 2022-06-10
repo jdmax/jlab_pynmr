@@ -63,6 +63,8 @@ class MainWindow(QMainWindow):
         self.start_logger()
         self.chassis_temp = 0
         
+        self.label_changed('None')
+        
         self.config = Config(channel_dict, self.settings)           # current configuration
         self.event = Event(self)      # open empty event
         self.previous_event = self.event      # there is no previous event
@@ -170,7 +172,8 @@ class MainWindow(QMainWindow):
     def end_event(self):
         '''Start ending the event
         '''
-        self.previous_event = self.event      
+        self.previous_event = self.event    
+        self.previous_event.label = self.label        
         self.previous_event.close_event(self.anal_tab.base_chosen, self.anal_tab.sub_chosen, self.anal_tab.res_chosen)  
         self.start_end = datetime.datetime.now(tz=datetime.timezone.utc)    
         
@@ -308,6 +311,10 @@ class MainWindow(QMainWindow):
             else:
                 color = '#f6989d' # red
             sender.setStyleSheet('QLineEdit { background-color: %s }' % color)
+
+    def label_changed(self, label):
+        '''Change event label'''
+        self.label = label
 
     def start_logger(self):
         '''Start logger
