@@ -65,8 +65,10 @@ settings:
         adc_drate1: true        # ADC data rate settings, see manual
         adc_drate0: true
         adc_fpath: false        # ADC fpath setting, see manual
-        phase_cal: 1672129    # Conversion int to divide phase ADC values by to get max of 1
-        diode_cal: 1672129       # Conversion int to divide diode ADC values by to get max of 1
+        phase_cal: 211692085    # Conversion int to divide phase ADC values by to get max of 1
+        diode_cal: 829421       # Conversion int to divide diode ADC values by to get max of 1
+#       #phase_cal: 1672129    # Conversion int to divide phase ADC values by to get max of 1
+#       #diode_cal: 1672129       # Conversion int to divide diode ADC values by to get max of 1
         test_freqs: false       # Send test frequencies to FPGA
         adc_test: false         # ADC test mode flag
     nidaq_settings:

@@ -116,7 +116,7 @@ class TuneTab(QWidget):
         '''Spinbox value changed, spinbox is 1/10 of slider, value out is 1/100 of spinbox'''
         self.phase_slider.setValue(int(self.phase_spin.value()*10))
         self.parent.config.phase_vout = self.phase_spin.value()/100
-        self.send_to_dac(self.parent.config.phase_vout, 2)
+        self.send_to_dac(self.parent.config.phase_vout, 1)
         
     def diode_slider_changed(self):
         '''Slider value changed'''
@@ -128,14 +128,14 @@ class TuneTab(QWidget):
         '''Spinbox value changed'''
         self.diode_slider.setValue(int(self.diode_spin.value()*10))
         self.parent.config.diode_vout = self.diode_spin.value()/100
-        self.send_to_dac(self.parent.config.diode_vout, 1)
+        self.send_to_dac(self.parent.config.diode_vout, 2)
         
     def send_to_dac(self, value, dac_c):
         '''Send DAC voltage to DAQ, check to see if tune is running. If not, start DAQConnection to send.
         
         Arguments:
             value: Relative value to send (0 is no voltage to 1 is max)
-            dac_c: channel, 1 (diode), 2 (phase), or 3 (both same)
+            dac_c: channel, 1 (phase), 2 (diode), or 3 (both same)
         
         '''
         self.dac_v = value

@@ -145,7 +145,7 @@ class UDP():
         
     Attributes:
         dac_v: DAC value for given dac_c channel to set, from 0 (off) to 1 (max)
-        dac_c: DAC channel to set (1 is diode, 2 is phase, 3 is both)
+        dac_c: DAC channel to set (1 is phase, 2 is diode, 3 is both)
     '''
     def __init__(self, config, tune_mode):
         '''Start connection, send nmr_settings dict'''
@@ -154,7 +154,7 @@ class UDP():
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
         self.s.settimeout(config.settings['fpga_settings']['timeout_udp'])
         self.config = config
-        self.dac_v = 0
+        self.dac_v = 0  
         self.dac_c = 0
         self.ip = config.settings['fpga_settings']['ip']
         self.port = config.settings['fpga_settings']['port']
