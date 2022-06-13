@@ -298,7 +298,7 @@ class Event():
         self.stop_time =  datetime.datetime.now(tz=datetime.timezone.utc)
         self.stop_stamp = self.stop_time.timestamp()
         self.elapsed = (self.stop_time - self.start_time).seconds
-        #print(self.stop_time, self.stop_stamp)
+        #print(self.stop_time, self.stop_stamp, self.elapsed)
              
         self.signal_analysis(base_method, sub_method, res_method)       
     
