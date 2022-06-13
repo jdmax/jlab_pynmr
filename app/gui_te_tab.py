@@ -161,11 +161,9 @@ class TETab(QWidget):
         
         self.te_model.setRowCount(0)    # empty table
         for i,stamp in enumerate(list(self.te_data[:,0])):        # put data in table, hist_points keyed on timestamp
-            if 'TE' in self.hist_points[stamp].dt or 'None' in self.hist_points[stamp].dt:  
-            # exclude unless labelled as TE, or not labeled
-                self.te_model.setItem(i,0,QStandardItem(self.hist_points[stamp].dt.strftime("%H:%M:%S")))
-                self.te_model.setItem(i,1,QStandardItem(str(self.hist_points[stamp].area)))
-                self.te_model.setItem(i,2,QStandardItem(str(self.hist_points[stamp].epics_reads[self.parent.settings['epics_settings']['epics_temp']])))
+            self.te_model.setItem(i,0,QStandardItem(self.hist_points[stamp].dt.strftime("%H:%M:%S")))
+            self.te_model.setItem(i,1,QStandardItem(str(self.hist_points[stamp].area)))
+            self.te_model.setItem(i,2,QStandardItem(str(self.hist_points[stamp].epics_reads[self.parent.settings['epics_settings']['epics_temp']])))
         
     def double_clicked(self, item):
         '''Remove event from table when double clicked'''
@@ -178,7 +176,12 @@ class TETab(QWidget):
     
     def update_event_plots(self): 
         '''Update time plot as running'''
-        hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())  # dict of Hist objects keyed on stamps 
+        hist_data = {}
+        new_hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())  # dict of Hist objects keyed on stamps
+        for k,v in new_hist_data.items():
+            if 'TE' in v.label or 'None' in v.label:  
+                hist_data[k] = v
+            # exclude unless labelled as TE, or not labeled
         self.time_data = np.column_stack((list(hist_data.keys()),[hist_data[k].area for k in hist_data.keys()])) # 2-d nparray to plot 
         lo, hi = self.region1.getRegion()
         if hi < self.time_data[0,0]:
