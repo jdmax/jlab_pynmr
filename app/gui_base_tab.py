@@ -35,7 +35,7 @@ class BaseTab(QWidget):
         self.basefile_path = ''
         self.basetime = 0        
         self.basefile_name = os.path.join(self.config.settings["event_dir"], f'recent_baselines.txt')
-        with open(self.basefile_name, "w+") as file:
+        with open(self.basefile_name, "r") as file:
             count = 0     
             for line in file: 
                 count+=1
