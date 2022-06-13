@@ -161,9 +161,11 @@ class TETab(QWidget):
         
         self.te_model.setRowCount(0)    # empty table
         for i,stamp in enumerate(list(self.te_data[:,0])):        # put data in table, hist_points keyed on timestamp
-            self.te_model.setItem(i,0,QStandardItem(self.hist_points[stamp].dt.strftime("%H:%M:%S")))
-            self.te_model.setItem(i,1,QStandardItem(str(self.hist_points[stamp].area)))
-            self.te_model.setItem(i,2,QStandardItem(str(self.hist_points[stamp].epics_reads[self.parent.settings['epics_settings']['epics_temp']])))
+            if 'TE' in self.hist_points[stamp].dt or 'None' in self.hist_points[stamp].dt:  
+            # exclude unless labelled as TE, or not labeled
+                self.te_model.setItem(i,0,QStandardItem(self.hist_points[stamp].dt.strftime("%H:%M:%S")))
+                self.te_model.setItem(i,1,QStandardItem(str(self.hist_points[stamp].area)))
+                self.te_model.setItem(i,2,QStandardItem(str(self.hist_points[stamp].epics_reads[self.parent.settings['epics_settings']['epics_temp']])))
         
     def double_clicked(self, item):
         '''Remove event from table when double clicked'''

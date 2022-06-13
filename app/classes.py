@@ -410,6 +410,7 @@ class HistPoint():
         self.pol = event.pol
         self.cc = event.cc
         self.area = event.area
+        self.label = event.label
         self.epics_reads = event.status
         
         
