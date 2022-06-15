@@ -6,8 +6,8 @@ data-d/*
 !data-d/.gitkeep
 !log/.gitkeep
 log/*
-screenshots/*
-!screenshots/.gitkeep
+screens/*
+!screens/.gitkeep
 te/*
 !te/.gitkeep
 docs/
