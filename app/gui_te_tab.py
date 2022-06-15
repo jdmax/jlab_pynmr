@@ -184,9 +184,10 @@ class TETab(QWidget):
             # exclude unless labelled as TE, or not labeled
         self.time_data = np.column_stack((list(hist_data.keys()),[hist_data[k].area for k in hist_data.keys()])) # 2-d nparray to plot 
         lo, hi = self.region1.getRegion()
-        if hi < self.time_data[0,0]:
-            self.region1.setRegion([self.time_data[0,0],self.time_data[0,0]])     
-            self.fit1_plot.setData([self.time_data[0,0]], np.zeros(1))         
+        if np.any(self.time_data):
+            if hi < self.time_data[0,0]:
+                self.region1.setRegion([self.time_data[0,0],self.time_data[0,0]])     
+                self.fit1_plot.setData([self.time_data[0,0]], np.zeros(1))         
         self.time_plot.setData(self.time_data)   #plot
         self.hist_points = {t:hist_data[t] for t in list(self.time_data[:,0])}    # keyed on timestamp
            

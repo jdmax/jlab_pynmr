@@ -110,8 +110,9 @@ class MainWindow(QMainWindow):
             self.temp_tab = TempTab(self)
             self.tab_widget.addTab(self.temp_tab, "Chassis Temp")
         self.expl_tab = ExplTab(self)
-        self.tab_widget.addTab(self.expl_tab, "Event Explorer") 
+        self.tab_widget.addTab(self.expl_tab, "Event Explorer")         
         
+        self.set_cc(self.restore_dict['cc'])   
         self.connect_daq()
         
     def load_settings(self):
@@ -162,6 +163,7 @@ class MainWindow(QMainWindow):
         saved_dict  =  {
             'phase_tune' : self.config.phase_vout,
             'diode_tune' : self.config.diode_vout,
+            'cc' : float(self.run_tab.controls_lines['cc'].text())
         }
         with open('app/saved_settings.yaml', 'w') as file:
             documents = yaml.dump(saved_dict, file)
