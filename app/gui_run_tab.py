@@ -121,11 +121,12 @@ class RunTab(QWidget):
         self.channel_combo.setEnabled(False)
         self.channel_label = QLabel()
         self.channel_combo.addItems(self.parent.channels)
-        i = self.channel_combo.findText(self.config.settings['default_channel'],Qt.MatchFixedString)
-        if i>=0: 
-            self.channel_combo.setCurrentIndex(i) 
-        self.channel_combo.currentIndexChanged.connect(self.parent.channel_change)
-        self.combo_changed()        
+        #i = self.channel_combo.findText(self.config.settings['default_channel'],Qt.MatchFixedString)
+        #if i>=0: 
+        #    self.channel_combo.setCurrentIndex(i) 
+        self.channel_combo.setCurrentIndex(self.parent.restore_dict['channel']) 
+        self.channel_combo.currentIndexChanged.connect(self.combo_changed)
+        self.combo_changed(self.parent.restore_dict['channel'])
         self.settings_box.layout().addWidget(self.channel_combo)
         self.settings_box.layout().addWidget(self.channel_label)
         self.settings_box.layout().addWidget(self.parent.divider())        
@@ -227,7 +228,8 @@ class RunTab(QWidget):
         self.lowerlayout.addWidget(self.fin_wid)
            
         self.main.addLayout(self.lowerlayout)
-        self.setLayout(self.main)
+        self.setLayout(self.main)        
+        
     
     def run_pushed(self):
         '''Start main loop if conditions met'''
@@ -258,8 +260,9 @@ class RunTab(QWidget):
         except Exception as e: 
             print('Exception starting run thread, lost connection: '+str(e))   
 
-    def combo_changed(self):
-        '''Channel changed, so change label'''
+    def combo_changed(self, i):
+        '''Channel changed'''
+        self.parent.channel_change(i)
         self.channel_label.setText(f'Frequency: {self.parent.config.channel["cent_freq"]} MHz ± {self.parent.config.channel["mod_freq"]} kHz\n' \
             f'RF Power: {self.parent.config.channel["power"]} mV')
 

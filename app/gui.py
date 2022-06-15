@@ -163,7 +163,8 @@ class MainWindow(QMainWindow):
         saved_dict  =  {
             'phase_tune' : self.config.phase_vout,
             'diode_tune' : self.config.diode_vout,
-            'cc' : float(self.run_tab.controls_lines['cc'].text())
+            'cc' : float(self.run_tab.controls_lines['cc'].text()),
+            'channel' : self.run_tab.channel_combo.currentIndex()
         }
         with open('app/saved_settings.yaml', 'w') as file:
             documents = yaml.dump(saved_dict, file)
@@ -244,7 +245,6 @@ class MainWindow(QMainWindow):
         self.config = Config(self.config_dict['channels'][name], self.settings)           # new configuration
         self.event = Event(self)      # open empty event
         self.rs = RS_Connection(self.config)   # send new settings to R&S
-        self.run_tab.combo_changed()
         logging.info(f"Changed channel to {self.config.channel['name']}.")
 
     def init_connects(self):
