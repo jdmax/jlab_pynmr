@@ -70,7 +70,7 @@ class BaseTab(QWidget):
         self.button_layout.addWidget(self.recent_but)         
         # Selection list
         self.event_model = QStandardItemModel()
-        self.event_model.setHorizontalHeaderLabels(['Timestamp','Date','Time','Sweep Count','Center (MHz)','Mod (kHz)', 'Channel'])
+        self.event_model.setHorizontalHeaderLabels(['Timestamp','Date','Time','Sweep Count','Center (MHz)','Mod (kHz)', 'Channel', 'Label'])
         self.event_table = QTableView()
         self.event_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.event_table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
@@ -130,14 +130,14 @@ class BaseTab(QWidget):
                         'freq_list':jd['freq_list'], 'sweeps':jd['sweeps'], 
                         'phase':jd['phase'], 'cent_freq':jd['cent_freq'], 
                         'mod_freq':jd['mod_freq'], 'stop_time':dt, 'read_time':time,
-                        'stop_stamp':jd['stop_stamp'],'date':jd['date'],
+                        'stop_stamp':jd['stop_stamp'],'date':jd['date'],'label':jd['label'],
                          'base_file':self.basefile_path}})                    
                     else:               # if reading from eventfile
                         self.events.update({utcstamp: {'channel':jd['channel']['name'],
                             'freq_list':jd['freq_list'], 'sweeps':jd['sweeps'], 
                             'phase':jd['phase'], 'cent_freq':jd['channel']['cent_freq'], 
                             'mod_freq':jd['channel']['mod_freq'], 'stop_time':dt, 
-                            'read_time':time, 'stop_stamp':jd['stop_stamp'],'date':date,
+                            'read_time':time, 'stop_stamp':jd['stop_stamp'],'date':date,'label':jd['label'],
                             'base_file':self.basefile_path}})
                       
             self.status_bar.showMessage('Opened event file '+self.basefile_path)
@@ -151,6 +151,7 @@ class BaseTab(QWidget):
                 self.event_model.setItem(i,4,QStandardItem(str(self.events[stamp]['cent_freq'])))
                 self.event_model.setItem(i,5,QStandardItem(str(self.events[stamp]['mod_freq'])))
                 self.event_model.setItem(i,6,QStandardItem(str(self.events[stamp]['channel'])))
+                self.event_model.setItem(i,7,QStandardItem(str(self.events[stamp]['label'])))
  
     def select_event(self):    #,item):      
         '''Choose events selected from table, average to set as baseline and plot'''

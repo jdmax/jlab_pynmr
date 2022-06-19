@@ -57,7 +57,7 @@ class TETab(QWidget):
         self.calc_top.addWidget(self.species_box, 0, 1)
         self.field_label = QLabel('B Field (T):')
         self.calc_top.addWidget(self.field_label, 0, 2)
-        self.field_value = QLineEdit('5.003')
+        self.field_value = QLineEdit('5.00')
         self.field_value.setValidator(QDoubleValidator(0.0, 10.0, 3))
         self.calc_top.addWidget(self.field_value, 0, 3)
         self.calc_box.layout().addLayout(self.calc_top)
@@ -67,7 +67,7 @@ class TETab(QWidget):
         self.calc_box.layout().addWidget(self.fitselect_label)
         
         self.te_model = QStandardItemModel()
-        self.te_model.setHorizontalHeaderLabels(['Date/Time','Area','Temperature (K)'])
+        self.te_model.setHorizontalHeaderLabels(['Date/Time','Area','Temp (K)'])
         self.te_table = QTableView()
         self.te_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.te_table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
@@ -162,8 +162,8 @@ class TETab(QWidget):
         self.te_model.setRowCount(0)    # empty table
         for i,stamp in enumerate(list(self.te_data[:,0])):        # put data in table, hist_points keyed on timestamp
             self.te_model.setItem(i,0,QStandardItem(self.hist_points[stamp].dt.strftime("%H:%M:%S")))
-            self.te_model.setItem(i,1,QStandardItem(str(self.hist_points[stamp].area)))
-            self.te_model.setItem(i,2,QStandardItem(str(self.hist_points[stamp].epics_reads[self.parent.settings['epics_settings']['epics_temp']])))
+            self.te_model.setItem(i,1,QStandardItem(f"{self.hist_points[stamp].area:.10f}"))
+            self.te_model.setItem(i,2,QStandardItem(f"{self.hist_points[stamp].epics_reads[self.parent.settings['epics_settings']['epics_temp']]:.4f}"))
         
     def double_clicked(self, item):
         '''Remove event from table when double clicked'''
