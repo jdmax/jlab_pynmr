@@ -174,7 +174,7 @@ class RunTab(QWidget):
         self.pol_box = QGroupBox("Polarization")
         self.pol_box.setLayout(QVBoxLayout())
         self.results_lay.addWidget(self.pol_box)
-        self.pol_value = QLabel('{:.1%}'.format(self.parent.event.pol))
+        self.pol_value = QLabel('{:.2%}'.format(self.parent.event.pol))
         self.pol_value.setStyleSheet("font:30pt")
         self.pol_value.setAlignment(Qt.AlignCenter)
         self.pol_box.layout().addWidget(self.pol_value)
