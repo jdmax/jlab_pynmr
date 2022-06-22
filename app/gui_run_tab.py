@@ -321,7 +321,7 @@ class RunTab(QWidget):
         self.fin_plot.setData(self.parent.previous_event.scan.freq_list, self.parent.previous_event.fitsub)
         #self.fin_plot.setData(self.parent.config.adc_timing, self.parent.event.fitsub)
               
-        self.pol_value.setText('{:.1%}'.format(self.parent.previous_event.pol))                    # updates indicators
+        self.pol_value.setText('{:.2%}'.format(self.parent.previous_event.pol))                    # updates indicators
         self.area_value.setText('{:.6f}'.format(self.parent.previous_event.area))
         time = self.parent.previous_event.stop_time
         start_time = self.parent.previous_event.start_time
