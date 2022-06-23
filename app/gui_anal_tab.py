@@ -772,7 +772,7 @@ class PeakHeightRes(QWidget):
                 
         
 class FitPeakRes(QWidget):
-    '''Layout and methods for fitting Gaussian on subtracted signal. Results type.
+    '''Layout and methods for fitting Gaussian  on subtracted signal. Results type.
     '''
     
     def __init__(self, parent):
@@ -851,6 +851,9 @@ class FitPeakRes(QWidget):
         return fit, area, pol 
     
     def gaussian(self, x, *p): return p[0]*np.exp(-np.power((x-p[1]),2)/(2*np.power(p[2],2)))
+    
+    def lorentzian(self, x, *p): return p[1] / np.pi / ((x-p[0])**2 + p[1]**2)
+    
     
  
 class FitDeuteron(QWidget):
