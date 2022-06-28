@@ -8,28 +8,57 @@ channels:
         mod_freq: 400.0        
         power: 200.0      
         sweep_file: tri   
-    Deuteron4.87T:
-        name: Deuteron4.87T
+    Deuteron5T-250mV:
+        name: Deuteron5T-250mV
         species: deuteron
-        cent_freq: 31.83       
+        cent_freq: 32.7       
+        mod_freq: 400.0        
+        power: 250.0      
+        sweep_file: tri 
+    Deuteron5T-300mV:
+        name: Deuteron5T-300mV
+        species: deuteron
+        cent_freq: 32.7       
+        mod_freq: 400.0        
+        power: 300.0      
+        sweep_file: tri 
+    Deuteron5T-350mV:
+        name: Deuteron5T-350mV
+        species: deuteron
+        cent_freq: 32.7       
+        mod_freq: 400.0        
+        power: 350.0      
+        sweep_file: tri 
+    Deuteron5T-400mV:
+        name: Deuteron5T-400mV
+        species: deuteron
+        cent_freq: 32.7       
+        mod_freq: 400.0        
+        power: 400.0      
+        sweep_file: tri    
+    Deuteron35MHz:
+        name: Deuteron35MHz
+        species: deuteron
+        cent_freq: 35      
         mod_freq: 400.0        
         power: 200.0      
         sweep_file: tri 
-    Proton5T:
-        name: Proton5T
-        species: proton 
-        cent_freq: 212.882            # Center frequency in MHz   (float)
-        mod_freq: 400.0             # Frequency modulation in kHz   (float)
-        power: 200.0                # RF power in mV  (float)
-        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
-    Proton4.87T:
-        name: Proton4.87T
-        species: proton 
-        cent_freq: 207.38            # Center frequency in MHz   (float)
-        mod_freq: 400.0             # Frequency modulation in kHz   (float)
-        power: 200.0                # RF power in mV  (float)
-        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
-     
+    Deuteron38MHz:
+        name: Deuteron38MHz
+        species: deuteron
+        cent_freq: 38      
+        mod_freq: 400.0        
+        power: 200.0      
+        sweep_file: tri 
+   
+    Deuteron37MHz:
+        name: Deuteron37MHz
+        species: deuteron
+        cent_freq: 37      
+        mod_freq: 400.0        
+        power: 200.0      
+        sweep_file: tri 
+   
 settings:
     default_channel: Deuteron5T     # Default from channels listed above
     daq_type: FPGA             # Select DAQ mode (FPGA, NIDAQ or Test)
@@ -44,7 +73,7 @@ settings:
     epics_settings:
         epics_enable: true         # If false, doesn't attempt to contact EPICS server
         monitor_time: 5            # Time between calls to get EPICS data
-        epics_temp: TGT:PT12:Bath_Top_T      # EPICS channel of temp to use as default 
+        epics_temp: TGT:PT12:VaporPressure_T     # EPICS channel of temp to use as default 
     fpga_settings:    
         ip: 129.57.160.2        # Device IP address (str)
         port: 1028              # Device port  (int)
@@ -92,11 +121,11 @@ settings:
             freq: 140               # Power meter set freq in GHz
         lj-ip: 129.57.160.6     # LabJack device IP, 129.57.37.33 is pt-labjack1
     temp_settings:
-        enable: true           # Turn on or off temp monitor tab
-        ip: 129.57.160.6       # R&S supply IP 
+        enable: false           # Turn on or off temp monitor tab
+        ip: 129.57.160.8       # R&S supply IP 
         monitor_time: 60       # seconds  
     shim_settings:
-        enable: false
+        enable: true
         ip: 129.57.160.4       # R&S supply IP
         port: 5025 
         timeout: 2  
