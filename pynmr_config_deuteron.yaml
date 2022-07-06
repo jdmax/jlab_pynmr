@@ -8,12 +8,12 @@ channels:
         mod_freq: 400.0        
         power: 200.0      
         sweep_file: tri   
-    Deuteron5T-250mV:
-        name: Deuteron5T-250mV
+    Deuteron5T-150mV:
+        name: Deuteron5T-150mV
         species: deuteron
         cent_freq: 32.7       
         mod_freq: 400.0        
-        power: 250.0      
+        power: 150.0      
         sweep_file: tri 
     Deuteron5T-300mV:
         name: Deuteron5T-300mV
@@ -75,7 +75,7 @@ settings:
         monitor_time: 5            # Time between calls to get EPICS data
         epics_temp: TGT:PT12:VaporPressure_T     # EPICS channel of temp to use as default 
     fpga_settings:    
-        ip: 129.57.160.2        # Device IP address (str)
+        ip: 129.57.161.8        # Device IP address (str)
         port: 1028              # Device port  (int)
         tcp_buffer: 1460        # Default TCP buffer size  (int)
         dwell: 10               # Settle time in usec between frequency switch and ADC read (int) (was 10)
@@ -99,7 +99,7 @@ settings:
         time_per_pt: 29         # Dwell time at frequency, usecs
         settling_ratio: 0.5     # Where in the dwell time the read occurs (0 to 1)     
     RS_settings:
-        ip: 129.57.160.3              # R&S RF generator IP
+        ip: 129.57.160.8              # R&S RF generator IP
         port: 5025 
         timeout: 2              # Telnet timeout in secs
     uWave_settings:
