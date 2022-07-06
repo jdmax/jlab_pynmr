@@ -12,3 +12,5 @@ te/*
 !te/.gitkeep
 docs/
 app/__pycache__/*
+*.pyc
+app/__pycache__/gui_anal_tab.cpython-37.pyc
