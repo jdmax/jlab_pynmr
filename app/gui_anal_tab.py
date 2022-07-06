@@ -518,7 +518,7 @@ class PolyFitSub(QWidget):
         self.grid.addWidget(self.poly_label, 0, 0)
         self.poly_combo = QComboBox()
         self.grid.addWidget(self.poly_combo, 0, 1)
-        self.poly_opts = ['2nd Order', '3rd Order', '4th Order']
+        self.poly_opts = ['2nd Order', '3rd Order', '4th Order', '6th Order', '8th Order']
         self.poly_combo.addItems(self.poly_opts)
         self.poly_combo.currentIndexChanged.connect(self.change_poly)
         self.change_poly(1)
@@ -551,6 +551,12 @@ class PolyFitSub(QWidget):
         elif i==2:
             self.poly = self.poly4
             self.pi = [0.01, 0.8, 0.01, 0.001, 0.00001]
+        elif i==3:
+            self.poly = self.poly6
+            self.pi = [0.01, 0.8, 0.01, 0.001, 0.00001, 0.00001, 0.00001]
+        elif i==4:
+            self.poly = self.poly8
+            self.pi = [0.01, 0.8, 0.01, 0.001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001]
         self.parent.run_analysis()        
     
     def switch_here(self):
@@ -610,6 +616,10 @@ class PolyFitSub(QWidget):
     def poly3(self, x, *p): return p[0] + p[1]*x + p[2]*np.power(x,2) + p[3]*np.power(x,3) 
         
     def poly4(self, x, *p): return p[0] + p[1]*x + p[2]*np.power(x,2) + p[3]*np.power(x,3) + p[4]*np.power(x,4)
+    
+    def poly6(self, x, *p): return p[0] + p[1]*x + p[2]*np.power(x,2) + p[3]*np.power(x,3) + p[4]*np.power(x,4)+ p[5]*np.power(x,5)+ p[6]*np.power(x,6)
+    
+    def poly8(self, x, *p): return p[0] + p[1]*x + p[2]*np.power(x,2) + p[3]*np.power(x,3) + p[4]*np.power(x,4)+ p[5]*np.power(x,5)+ p[6]*np.power(x,6)+ p[7]*np.power(x,7)+ p[8]*np.power(x,8)
         
 
 

@@ -150,10 +150,10 @@ settings:
             - 0.65
         d_fit_params:           # initial parameters for Dulya fits
             A : 0.03
-            G : -0.003
+            G : -0.0003
             r : 0.99
             wQ : 0.025
-            wL : 31.83
+            wL : 32.7
             eta : 0.09
             xi : -0.1
 epics_reads:                    # EPICS channels to read: key is channel name, value is string to display
@@ -166,7 +166,7 @@ epics_reads:                    # EPICS channels to read: key is channel name, v
     TGT:PT12:Fridge_F: Main Flow (slpm)
     TGT:PT12:Separator_F: Sep Flow (slpm)
     B_SOL:MPS:I_ZFCT: Solenoid Current (A)
-    #posit: Target Position
+    scaler_calc1: Beam Current (nA)
 epics_writes:                   # Dict of channels to write, key is channel, value is attribute of Event class 
     TGT:PT12:Polarization: pol 
     TGT:PT12:NMR_Area: area
