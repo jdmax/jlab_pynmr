@@ -67,6 +67,7 @@ settings:
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
     log_dir: log                # Directory to put log files in, relative to main.py or absolute
     ss_dir: screens               # Directory to put screenshots files in, screenshots not taken if False
+    session_file: deuteron_session
     steps: 512                  # Frequency points per sweep (must match for test sweeps, set to 512 otherwise)
     num_per_chunk: 64           # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
     tune_per_chunk:  32         # Number of sweeps per chunk to take in tune mode
