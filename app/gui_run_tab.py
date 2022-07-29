@@ -428,6 +428,7 @@ class RunTab(QWidget):
         
         for key in self.parent.epics.read_list:
             self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:6f}')
+            self.parent.event.read_pvs = self.parent.epics.read_pvs   # put epics variables into event
             if self.epics_beat: 
                 self.stat_values[key].setStyleSheet("color : blue")
                 self.epics_beat = False

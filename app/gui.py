@@ -99,8 +99,8 @@ class MainWindow(QMainWindow):
         #self.tab_widget.addTab(self.mag_tab, "Magnet")
         self.te_tab = TETab(self)
         self.tab_widget.addTab(self.te_tab, "TE")
-        self.super_tab = SuperTab(self)
-        self.tab_widget.addTab(self.super_tab, "Super TE")
+        #self.super_tab = SuperTab(self)
+        #self.tab_widget.addTab(self.super_tab, "Super TE")
         self.anal_tab = AnalTab(self)
         self.tab_widget.addTab(self.anal_tab, "Analysis")
         if self.config.settings['shim_settings']['enable']:

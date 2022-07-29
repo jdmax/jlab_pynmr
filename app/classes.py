@@ -411,7 +411,7 @@ class HistPoint():
         self.cc = event.cc
         self.area = event.area
         self.label = event.label
-        self.epics_reads = event.status
+        self.epics_reads = event.read_pvs
         
         
 class History():
