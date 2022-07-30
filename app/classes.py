@@ -377,7 +377,7 @@ class Baseline():
         
   
  
-class Status():
+#class Status():
     '''Data object for external EPICS status variables, handles calls to get new values
     
     Arguments:
@@ -390,9 +390,9 @@ class Status():
     Todo:
         Calls to EPICS to get values
     '''
-    def __init__(self, chan_names):
-        self.chan_names = chan_names
-        self.chan = dict.fromkeys(self.chan_names.keys(),0)
+#    def __init__(self, chan_names):
+#        self.chan_names = chan_names
+#        self.chan = dict.fromkeys(self.chan_names.keys(),0)
 
    
 class HistPoint():
