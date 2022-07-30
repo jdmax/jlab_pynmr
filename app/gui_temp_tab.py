@@ -34,6 +34,8 @@ class TempTab(QWidget):
         self.read_layout.addWidget(self.temp_label, 0, 0)
         self.temp_edit = QLineEdit('0', enabled=False)
         self.read_layout.addWidget(self.temp_edit, 0, 1)
+        self.time_edit = QLineEdit('0', enabled=False)
+        self.read_layout.addWidget(self.time_edit, 0, 1)
                 
         # Right Side
         self.right = QVBoxLayout()  
@@ -62,6 +64,7 @@ class TempTab(QWidget):
         del self.temp_lj
         
         self.temp_edit.setText(str(freq_out))
+        self.time_edit.setText(now.strftime("%Y-%m-%d_%H-%M-%S"))
 
     
     def divider(self):
