@@ -77,6 +77,8 @@ class FMTab(QWidget):
         self.read_button = QPushButton('Readback Now', checkable=False)
         self.read_layout.addWidget(self.read_button, 4, 2)
         self.read_button.clicked.connect(self.read_fm)
+        self.note_label = QLabel('Note: If all fields are "0" after a set or read, this indicates an error in setting. Amplitude\ncannot be set less than 0.5 V, and offset cannot be set less than 0.1 V.')
+        self.read_layout.addWidget(self.note_label, 5, 2)
         
         # Right Side
         self.right = QVBoxLayout()  

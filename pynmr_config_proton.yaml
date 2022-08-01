@@ -110,6 +110,7 @@ settings:
         ip: 129.57.160.4       # R&S supply IP
         port: 5025 
         timeout: 2  
+        monitor_time: 30           # in minutes  
         line_resistance: 0.3     # Ohms
     fm_settings:
         enable: true

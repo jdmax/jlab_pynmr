@@ -26,9 +26,13 @@ class ShimTab(QWidget):
         self.goal_pen = pg.mkPen(color=(0, 200, 0), width=1.5)
         self.back_pen = pg.mkPen(color=(200, 0, 0), width=1.5)
         
-        self.shims = ShimControl(self.parent.config)
-        self.read_back = self.shims.read_currents()
-        self.shim_state = self.shims.read_outstat()
+        try:
+            shims = ShimControl(self.parent.config)
+            self.read_back = shims.read_currents()
+            self.shim_state = shims.read_outstat()
+            shims.close_socket()
+        except Exception as e:
+            print("Error connecting to R&S current supply.", e)    
         
         self.z_axis = np.arange(-30,31)        
         self.frost = np.array([4.9995, 4.999595, 4.99969, 4.9997575, 4.999825, 4.9998675,
@@ -114,6 +118,10 @@ class ShimTab(QWidget):
         self.set_button.clicked.connect(self.set_clicked)
         self.shim_con_box.layout().addWidget(self.set_button, 0, 2)
         
+        self.read_button = QPushButton('Read Now') 
+        self.read_button.clicked.connect(self.read_clicked)
+        self.shim_con_box.layout().addWidget(self.read_button, 1, 2)
+        
         self.turn_button = QPushButton('Turn ON', checkable=True) 
         self.turn_button.clicked.connect(self.turn_clicked)
         self.shim_con_box.layout().addWidget(self.turn_button, len(self.shim_currents)-1, 2)
@@ -143,6 +151,13 @@ class ShimTab(QWidget):
             self.shim_op_combo.addItem(o.name)
             self.shim_op_stack.addWidget(o)
     
+        try:
+            self.shim_thread = ShimThread(self, self.parent.config)
+            self.shim_thread.start()
+        except Exception as e: 
+            print('Exception starting shim monitor thread, lost connection: '+str(e)) 
+    
+    
     def change_op(self, i):
         '''Set chosen stack
         '''
@@ -150,19 +165,53 @@ class ShimTab(QWidget):
         
     def set_clicked(self):
         '''
-        '''  
-        list = [float(self.cur_edit[k].text()) for k in self.shim_currents.keys()]
-        self.shims.set_currents(list)
-        self.read_back = self.shims.read_currents()
-        self.fill_readback()
+        ''' 
+        try:         
+            shims = ShimControl(self.parent.config)
+            list = [float(self.cur_edit[k].text()) for k in self.shim_currents.keys()]
+            shims.set_currents(list)
+            self.read_back = shims.read_currents()
+            self.fill_readback()
+            shims.close_socket()
+        except Exception as e:
+            print("Error connecting to R&S current supply.", e)    
+        return 
+        
+    def read_clicked(self):
+        '''
+        ''' 
+        try:         
+            shims = ShimControl(self.parent.config)
+            self.read_back = shims.read_currents()
+            self.fill_readback()
+            out = shims.read_outstat() 
+            shims.close_socket()
+            
+            if '1' in out:
+                self.turn_button.setChecked(True)
+            else:
+                self.turn_button.setChecked(False)  
+            if self.turn_button.isChecked():
+                self.turn_button.setText('Turn OFF')
+            else:
+                self.turn_button.setText('Turn ON')
+            
+            
+        except Exception as e:
+            print("Error connecting to R&S current supply.", e)    
         return
         
     def turn_clicked(self):
         '''Button clicked, send new state to shim controller, check to be sure button is right
-        '''  
-        state_to_set = '1' if self.turn_button.isChecked() else '0'     
-        out = self.shims.set_outstat(state_to_set) 
-        
+        '''    
+        try:      
+            shims = ShimControl(self.parent.config)
+            state_to_set = '1' if self.turn_button.isChecked() else '0'     
+            out = shims.set_outstat(state_to_set)             
+            shims.close_socket()
+        except Exception as e:
+            print("Error connecting to R&S current supply.", e)       
+            
         if not state_to_set in out:
             self.turn_button.toggle()
             print("Shim state didn't match", state_to_set, out)
@@ -413,7 +462,8 @@ class ShimControl():
         '''
         self.host = config.settings['shim_settings']['ip']
         self.timeout = config.settings['shim_settings']['timeout']
-        self.port = config.settings['shim_settings']['port']   
+        self.port = config.settings['shim_settings']['port']  
+        self.config = config 
         
         try:
             self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
@@ -429,8 +479,9 @@ class ShimControl():
             try:
                 #print("Set shim channel", i+1, "to", {list[i]})
                 self.tn.write(bytes(f"INST:NSEL {i+1}\n", 'ascii'))
-                volt = list[i] * config.settings['shim_settings']['line_resistance'] + 0.5
+                #volt = list[i] * self.config.settings['shim_settings']['line_resistance'] + 0.5
                 # Set voltage based on current and setting of line resistance, plus 0.5 V
+                volt = 2
                 self.tn.write(bytes(f"VOLT {volt}\n", 'ascii'))
                 self.tn.write(bytes(f"CURR {list[i]}\n", 'ascii'))
                 time.sleep(0.1)
@@ -468,4 +519,40 @@ class ShimControl():
         self.tn.write(bytes(f"OUTP:GEN {state} \n", 'ascii'))
         self.tn.write(bytes(f"OUTP:GEN? \n", 'ascii'))
         return self.tn.read_some().decode('ascii') 
+        
+        
+    def close_socket(self):
+        self.tn.close()    
+        
+        
+
+class ShimThread(QThread):
+    '''Thread class for shim monitoring
+    Args:
+        config: Config object of settings
+    '''
+    finished = pyqtSignal()       # finished signal
+    def __init__(self, parent, config):
+        QThread.__init__(self)
+        self.config = config
+        self.parent = parent 
+            
+                
+    def __del__(self):
+        self.wait()
+        
+    def run(self):
+        '''Main shim read loop
+        '''    
+            
+        while True:   
+            try:
+                time.sleep(self.config.settings['shim_settings']['monitor_time']*60)
+                self.parent.read_clicked()
+            except Exception as e:
+                print('Exception in shim monitor thread: '+str(e))          
+          
+        self.finished.emit()
+        
+        
         
