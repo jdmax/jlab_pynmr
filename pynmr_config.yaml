@@ -106,7 +106,7 @@ settings:
         ip: 129.57.160.6       # R&S supply IP   
         monitor_time: 60       # seconds
     shim_settings:
-        enable: false
+        enable: true
         ip: 129.57.160.4       # R&S supply IP
         port: 5025 
         timeout: 2  
