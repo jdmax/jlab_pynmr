@@ -34,8 +34,10 @@ class TempTab(QWidget):
         self.read_layout.addWidget(self.temp_label, 0, 0)
         self.temp_edit = QLineEdit('0', enabled=False)
         self.read_layout.addWidget(self.temp_edit, 0, 1)
+        self.time_label = QLabel('Update Time:')
+        self.read_layout.addWidget(self.time_label, 0, 2)
         self.time_edit = QLineEdit('0', enabled=False)
-        self.read_layout.addWidget(self.time_edit, 0, 1)
+        self.read_layout.addWidget(self.time_edit, 0, 3)
                 
         # Right Side
         self.right = QVBoxLayout()  
