@@ -46,11 +46,11 @@ class FMTab(QWidget):
         self.setit_layout.addWidget(self.freq_edit, 1, 2)
         self.amp_label = QLabel('Amplitude (V):')
         self.setit_layout.addWidget(self.amp_label, 2, 1)
-        self.amp_edit = QLineEdit('1')
+        self.amp_edit = QLineEdit('1.5')
         self.setit_layout.addWidget(self.amp_edit, 2, 2)
         self.off_label = QLabel('Offset (V):')
         self.setit_layout.addWidget(self.off_label, 3, 1)
-        self.off_edit = QLineEdit('0')
+        self.off_edit = QLineEdit('-1.0')
         self.setit_layout.addWidget(self.off_edit, 3, 2)
         self.setit_button = QPushButton('Set Now', checkable=False)
         self.setit_layout.addWidget(self.setit_button, 4, 2)
@@ -77,6 +77,8 @@ class FMTab(QWidget):
         self.read_button = QPushButton('Readback Now', checkable=False)
         self.read_layout.addWidget(self.read_button, 4, 2)
         self.read_button.clicked.connect(self.read_fm)
+        self.note_label = QLabel('Note: If all fields are "0" after a set or read, this indicates an error in setting. Amplitude\ncannot be set less than 0.5 V, and offset cannot be set less than 0.1 V.')
+        self.read_layout.addWidget(self.note_label, 5, 2)
         
         # Right Side
         self.right = QVBoxLayout()  

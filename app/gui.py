@@ -59,7 +59,6 @@ class MainWindow(QMainWindow):
         self.config_filename = config_file
         #self.config_filename = 'pynmr_config.yaml'
         self.load_settings()
-        self.restore_settings()
         channel_dict = self.config_dict['channels'][self.config_dict['settings']['default_channel']]  # dict of selected channel
         self.start_logger()
         self.chassis_temp = 0
@@ -72,7 +71,7 @@ class MainWindow(QMainWindow):
         self.baseline = Baseline(self.config, {})     # open empty baseline
         self.history = History()   # for now, starting new history with each window
         self.new_eventfile()
-
+        self.restore_session()
         self.init_connects()
         
         self.tz = pytz.timezone('US/Eastern')
@@ -130,9 +129,9 @@ class MainWindow(QMainWindow):
         #self.status_bar.showMessage(f"Loaded settings from {self.config_filename}.")
         print(f"Loaded settings from {self.config_filename}.")
         
-    def restore_settings(self):
+    def restore_session(self):
         '''Restore settings from previous session'''
-        with open('app/saved_settings.yaml') as f:                           # Load settings from YAML files
+        with open(f'app/{self.config.settings["session_file"]}.yaml') as f:                     
            self.restore_dict = yaml.load(f, Loader=yaml.FullLoader)
         
     def new_event(self):
@@ -161,7 +160,7 @@ class MainWindow(QMainWindow):
         except AttributeError:
             logging.info(f"Error closing eventfile.")
     
-    def save_settings(self):
+    def save_session(self):
         '''Print settings before app exit to a file for recall on restart'''
         saved_dict  =  {
             'phase_tune' : self.config.phase_vout,
@@ -169,7 +168,7 @@ class MainWindow(QMainWindow):
             'cc' : float(self.run_tab.controls_lines['cc'].text()),
             'channel' : self.run_tab.channel_combo.currentIndex()
         }
-        with open('app/saved_settings.yaml', 'w') as file:
+        with open(f'app/{self.config.settings["session_file"]}.yaml', 'w') as file:
             documents = yaml.dump(saved_dict, file)
             #print(saved_dict)            
             logging.info(f"Printed settings on exit to {file}.")    
@@ -348,14 +347,14 @@ class MainWindow(QMainWindow):
             if self.dlg.exec():
                 self.epics.monitor_running = False
                 self.close_eventfile()
-                self.save_settings()
+                self.save_session()
                 event.accept()
             else: 
                 event.ignore()  
         else:
             self.epics.monitor_running = False
             self.close_eventfile()
-            self.save_settings()
+            self.save_session()
             event.accept()
         
         
