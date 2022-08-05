@@ -76,7 +76,7 @@ settings:
         timeout: 5
         epics_temp: TGT:PT12:VaporPressure_T     # EPICS channel of temp to use as default 
     fpga_settings:    
-        ip: 129.57.160.2        # Device IP address (str)
+        ip: 129.57.161.8         # Device IP address (str)
         port: 1028              # Device port  (int)
         tcp_buffer: 1460        # Default TCP buffer size  (int)
         dwell: 10               # Settle time in usec between frequency switch and ADC read (int) (was 10)
