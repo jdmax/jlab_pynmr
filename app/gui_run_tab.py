@@ -29,7 +29,7 @@ class RunTab(QWidget):
         self.fit_pen = pg.mkPen(color=(255, 255, 0), width=3)
         self.fin_pen = pg.mkPen(color=(0, 160, 0), width=1.5)
         self.res_pen = pg.mkPen(color=(190, 0, 190), width=2)
-        self.pol_pen = pg.mkPen(color=(250, 0, 0), width=2)
+        self.pol_pen = pg.mkPen(color=(250, 0, 0), width=1.5)
         self.wave_pen = pg.mkPen(color=(153, 204, 255), width=1.5)
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
@@ -168,19 +168,20 @@ class RunTab(QWidget):
         self.pol_time_wid = pg.PlotWidget(
             title='', axisItems={'bottom': self.time_axis}
         )
-        if self.parent.config.settings['epics_settings']['enable']:   # turn on uwave freq plot
-            self.pol_time_plot =  self.pol_time_wid.plotItem
-            
-            self.wave_time_plot = pg.ViewBox()
-            self.pol_time_plot.showAxis('right')
-            self.pol_time_plot.setLabels(left = 'Polarization')
-            self.pol_time_plot.scene().addItem(self.wave_time_plot)
-            self.pol_time_plot.getAxis('right').linkToView(self.wave_time_plot)
-            self.wave_time_plot.setXLink(self.pol_time_plot)
-            self.pol_time_plot.getAxis('right').setLabel('Microwave Frequency (GHz)')
-            self.pol_time_plot.showGrid(True,True, alpha = 0.2)
-            
-            self.pol_time_plot.vb.sigResized.connect(self.sync_pol_time)
+        if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot
+            self.time_plot =  self.pol_time_wid.plotItem
+            self.pol_time_plot = self.time_plot.plot([], [], pen=self.pol_pen) 
+            self.wave_time_view = pg.ViewBox()
+            self.time_plot.showAxis('right')
+            self.time_plot.setLabels(left = 'Polarization')
+            self.time_plot.scene().addItem(self.wave_time_view)
+            self.time_plot.getAxis('right').linkToView(self.wave_time_view)
+            self.wave_time_view.setXLink(self.time_plot)
+            self.time_plot.getAxis('right').setLabel('Microwave Frequency (GHz)')
+            self.time_plot.showGrid(True,True, alpha = 0.2)
+            self.wave_time_plot = pg.PlotDataItem([], [], pen=self.wave_pen)
+            self.wave_time_view.addItem(self.wave_time_plot)
+            self.time_plot.vb.sigResized.connect(self.sync_pol_time)
         else:
             self.pol_time_wid.showGrid(True,True, alpha = 0.2)
             self.pol_time_plot = self.pol_time_wid.plot([], [], pen=self.pol_pen) 
@@ -254,7 +255,7 @@ class RunTab(QWidget):
         
     def sync_pol_time(self):
         '''Sync resized on time plot'''
-        self.wave_time_plot.setGeometry(self.pol_time_plot.vb.sceneBoundingRect())        
+        self.wave_time_view.setGeometry(self.time_plot.vb.sceneBoundingRect())        
     
     def run_pushed(self):
         '''Start main loop if conditions met'''
@@ -357,9 +358,9 @@ class RunTab(QWidget):
         uwave_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
         # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.
              
-        if self.parent.config.settings['epics_settings']['enable']:   # turn on uwave freq plot
-            self.pol_time_plot.plot(pol_data, pen=self.pol_pen)    
-            self.wave_time_plot.addItem(pg.PlotDataItem(uwave_data, pen=self.wave_pen))
+        if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot
+            self.pol_time_plot.setData(pol_data)    
+            self.wave_time_plot.setData(uwave_data)
         else:       
             self.pol_time_plot.setData(pol_data)  
         self.progress_bar.setValue(0)
