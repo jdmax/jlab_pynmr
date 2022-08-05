@@ -29,6 +29,8 @@ class RunTab(QWidget):
         self.fit_pen = pg.mkPen(color=(255, 255, 0), width=3)
         self.fin_pen = pg.mkPen(color=(0, 160, 0), width=1.5)
         self.res_pen = pg.mkPen(color=(190, 0, 190), width=2)
+        self.pol_pen = pg.mkPen(color=(250, 0, 0), width=2)
+        self.wave_pen = pg.mkPen(color=(153, 204, 255), width=1.5)
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         
@@ -53,7 +55,10 @@ class RunTab(QWidget):
         self.epics_beat = True
         
         self.midlayout = QVBoxLayout()
-        self.upperlayout.addLayout(self.midlayout)
+        self.midwidget = QWidget()
+        self.midwidget.setLayout(self.midlayout)
+        self.midwidget.setMaximumWidth(400)
+        self.upperlayout.addWidget(self.midwidget)
         
         # Populate Controls box
         self.controls_box = QGroupBox('NMR Controls')
@@ -161,16 +166,33 @@ class RunTab(QWidget):
         # Populate pol v time plot
         self.time_axis = pg.DateAxisItem(orientation='bottom')
         self.pol_time_wid = pg.PlotWidget(
-            title='Polarization', axisItems={'bottom': self.time_axis}
+            title='', axisItems={'bottom': self.time_axis}
         )
-        self.pol_time_wid.showGrid(True,True)
-        self.pol_time_plot = self.pol_time_wid.plot([], [], pen=self.raw_pen) 
+        if self.parent.config.settings['epics_settings']['enable']:   # turn on uwave freq plot
+            self.pol_time_plot =  self.pol_time_wid.plotItem
+            
+            self.wave_time_plot = pg.ViewBox()
+            self.pol_time_plot.showAxis('right')
+            self.pol_time_plot.setLabels(left = 'Polarization')
+            self.pol_time_plot.scene().addItem(self.wave_time_plot)
+            self.pol_time_plot.getAxis('right').linkToView(self.wave_time_plot)
+            self.wave_time_plot.setXLink(self.pol_time_plot)
+            self.pol_time_plot.getAxis('right').setLabel('Microwave Frequency (GHz)')
+            self.pol_time_plot.showGrid(True,True, alpha = 0.2)
+            
+            self.pol_time_plot.vb.sigResized.connect(self.sync_pol_time)
+        else:
+            self.pol_time_wid.showGrid(True,True, alpha = 0.2)
+            self.pol_time_plot = self.pol_time_wid.plot([], [], pen=self.pol_pen) 
         #self.pol_time_wid.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding)
         self.upperlayout.addWidget(self.pol_time_wid)
 
         # Populate Results area
         self.results_lay = QVBoxLayout()
-        self.upperlayout.addLayout(self.results_lay)
+        self.results_wid = QWidget()
+        self.results_wid.setLayout(self.results_lay)
+        self.results_wid.setMaximumWidth(340)
+        self.upperlayout.addWidget(self.results_wid)
         self.pol_box = QGroupBox("Polarization")
         self.pol_box.setLayout(QVBoxLayout())
         self.results_lay.addWidget(self.pol_box)
@@ -209,20 +231,20 @@ class RunTab(QWidget):
         
         # Raw Plot
         self.raw_wid = pg.PlotWidget(title='Raw Signal')
-        self.raw_wid.showGrid(True,True)
+        self.raw_wid.showGrid(True,True, alpha = 0.2)
         self.raw_plot = self.raw_wid.plot([], [], pen=self.raw_pen) 
         self.lowerlayout.addWidget(self.raw_wid)
         
         # Sub plot
         self.sub_wid = pg.PlotWidget(title='Baseline Subtracted')
-        self.sub_wid.showGrid(True,True)
+        self.sub_wid.showGrid(True,True, alpha = 0.2)
         self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen) 
         self.fit_plot = self.sub_wid.plot([], [], pen=self.fit_pen) 
         self.lowerlayout.addWidget(self.sub_wid)
         
         # Final PLot
         self.fin_wid = pg.PlotWidget(title='Fit Subtracted')
-        self.fin_wid.showGrid(True,True)
+        self.fin_wid.showGrid(True,True, alpha = 0.2)
         self.fin_plot = self.fin_wid.plot([], [], pen=self.fin_pen)  
         self.res_plot = self.fin_wid.plot([], [], pen=self.res_pen)         
         self.lowerlayout.addWidget(self.fin_wid)
@@ -230,6 +252,9 @@ class RunTab(QWidget):
         self.main.addLayout(self.lowerlayout)
         self.setLayout(self.main)        
         
+    def sync_pol_time(self):
+        '''Sync resized on time plot'''
+        self.wave_time_plot.setGeometry(self.pol_time_plot.vb.sceneBoundingRect())        
     
     def run_pushed(self):
         '''Start main loop if conditions met'''
@@ -329,8 +354,14 @@ class RunTab(QWidget):
         
         hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())     
         pol_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
+        uwave_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
         # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.
-        self.pol_time_plot.setData(pol_data)    
+             
+        if self.parent.config.settings['epics_settings']['enable']:   # turn on uwave freq plot
+            self.pol_time_plot.plot(pol_data, pen=self.pol_pen)    
+            self.wave_time_plot.addItem(pg.PlotDataItem(uwave_data, pen=self.wave_pen))
+        else:       
+            self.pol_time_plot.setData(pol_data)  
         self.progress_bar.setValue(0)
     
     def changed_range(self):
@@ -427,8 +458,11 @@ class RunTab(QWidget):
         '''Update gui with status from EPICS values, toggle color'''  
         
         for key in self.parent.epics.read_list:
-            self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:6f}')
-            self.parent.event.read_pvs = self.parent.epics.read_pvs   # put epics variables into event
+            if self.parent.epics.read_pvs[key]:
+                self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:6f}')
+                self.parent.event.read_pvs = self.parent.epics.read_pvs   # put epics variables into event
+            else:
+                self.stat_values[key].setText(f'0')            
             if self.epics_beat: 
                 self.stat_values[key].setStyleSheet("color : blue")
                 self.epics_beat = False

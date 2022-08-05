@@ -228,6 +228,7 @@ class Event():
         self.base_stamp = datetime.datetime(2000,1,1).timestamp()
         self.base_file = 'None'       
         self.label = 'None'
+        self.epics = {}              # dict of epics reads
         
         self.uwave_freq = 0
         self.uwave_power = 0
@@ -411,7 +412,8 @@ class HistPoint():
         self.cc = event.cc
         self.area = event.area
         self.label = event.label
-        self.epics_reads = event.read_pvs
+        self.uwave_freq = event.uwave_freq
+        self.epics_reads = event.epics
         
         
 class History():

@@ -187,7 +187,7 @@ class MainWindow(QMainWindow):
         '''        
         self.epics.write_event(event)
         self.epics.read_all()
-        event.status = self.epics.read_pvs     # Put recently read EPICS variables in event
+        event.epics = self.epics.read_pvs     # Put recently read EPICS variables in event
     
     def end_finished(self):
         '''Analysis thread has returned. Finish up closing event, closing the event instance and calling updates for each tab. Updates plots, prints to file, makes new eventfile if lines are more than 500.'''
