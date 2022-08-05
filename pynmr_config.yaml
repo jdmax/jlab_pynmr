@@ -154,4 +154,3 @@ epics_writes:                   # Dict of channels to write, key is channel, val
     TGT:PT12:NMR_Time: stop_stamp  
     TGT:PT12:uwave_Freq: uwave_freq
     TGT:PT12:uwave_Power: uwave_power
-...
