@@ -463,12 +463,12 @@ class RunTab(QWidget):
                 self.parent.event.read_pvs = self.parent.epics.read_pvs   # put epics variables into event
             else:
                 self.stat_values[key].setText(f'0')            
-            if self.epics_beat: 
-                self.stat_values[key].setStyleSheet("color : blue")
-                self.epics_beat = False
-            else: 
-                self.stat_values[key].setStyleSheet("color : black")
-                self.epics_beat = True
+ #           if self.epics_beat: 
+ #               self.stat_values[key].setStyleSheet("color : blue")
+ #               self.epics_beat = False
+ #           else: 
+ #               self.stat_values[key].setStyleSheet("color : black")
+ #               self.epics_beat = True
         
 
         
