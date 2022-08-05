@@ -427,7 +427,7 @@ class RunTab(QWidget):
         '''Update gui with status from EPICS values, toggle color'''  
         
         for key in self.parent.epics.read_list:
-            if float(self.parent.epics.read_pvs[key])<10000:
+            if abs(float(self.parent.epics.read_pvs[key]))<10000:
                 self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:6f}')
             else:                    
                 self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:.3e}')
