@@ -1,9 +1,4 @@
 cc: -5.246731
 channel: 2
-<<<<<<< Updated upstream
-diode_tune: 0
-phase_tune: 0.518
-=======
 diode_tune: 0.132
 phase_tune: 0.1267
->>>>>>> Stashed changes
