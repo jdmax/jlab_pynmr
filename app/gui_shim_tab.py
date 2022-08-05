@@ -189,8 +189,10 @@ class ShimTab(QWidget):
             
             if '1' in out:
                 self.turn_button.setChecked(True)
+                self.parent.event.shims = [0]*4
             else:
-                self.turn_button.setChecked(False)  
+                self.turn_button.setChecked(False) 
+                self.parent.event.shims = self.read_back
             if self.turn_button.isChecked():
                 self.turn_button.setText('Turn OFF')
             else:
