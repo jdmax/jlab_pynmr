@@ -150,12 +150,12 @@ class ShimTab(QWidget):
         for o in self.shim_opts:
             self.shim_op_combo.addItem(o.name)
             self.shim_op_stack.addWidget(o)
-    
-        try:
-            self.shim_thread = ShimThread(self, self.parent.config)
-            self.shim_thread.start()
-        except Exception as e: 
-            print('Exception starting shim monitor thread, lost connection: '+str(e)) 
+    # Turning off shim monitor thread for now
+        # try:
+            # self.shim_thread = ShimThread(self, self.parent.config)
+            # self.shim_thread.start()
+        # except Exception as e: 
+            # print('Exception starting shim monitor thread, lost connection: '+str(e)) 
     
     
     def change_op(self, i):
