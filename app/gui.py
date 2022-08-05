@@ -19,6 +19,7 @@ from app.gui_run_tab import RunTab
 from app.gui_base_tab import BaseTab
 from app.gui_tune_tab import TuneTab
 from app.gui_te_tab import TETab
+from app.gui_superte_tab import SuperTab
 from app.gui_anal_tab import AnalTab
 from app.gui_expl_tab import ExplTab
 from app.gui_shim_tab import ShimTab
@@ -97,6 +98,8 @@ class MainWindow(QMainWindow):
         #self.tab_widget.addTab(self.mag_tab, "Magnet")
         self.te_tab = TETab(self)
         self.tab_widget.addTab(self.te_tab, "TE")
+        #self.super_tab = SuperTab(self)
+        #self.tab_widget.addTab(self.super_tab, "Super TE")
         self.anal_tab = AnalTab(self)
         self.tab_widget.addTab(self.anal_tab, "Analysis")
         if self.config.settings['shim_settings']['enable']:
@@ -183,7 +186,7 @@ class MainWindow(QMainWindow):
         '''        
         self.epics.write_event(event)
         self.epics.read_all()
-        event.status = self.epics.read_pvs     # Put recently read EPICS variables in event
+        event.epics = self.epics.read_pvs     # Put recently read EPICS variables in event
     
     def end_finished(self):
         '''Analysis thread has returned. Finish up closing event, closing the event instance and calling updates for each tab. Updates plots, prints to file, makes new eventfile if lines are more than 500.'''

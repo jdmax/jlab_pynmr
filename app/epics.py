@@ -21,8 +21,9 @@ class EPICS():
     def __init__(self, parent):       
         
         self.parent = parent
-        self.enable = parent.settings['epics_settings']['epics_enable']
+        self.enable = parent.settings['epics_settings']['enable']
         self.monitor_time = parent.settings['epics_settings']['monitor_time']
+        self.timeout = parent.settings['epics_settings']['timeout']
         self.read_names = parent.epics_reads             # Dict of PV names and namestring
         self.read_list = self.read_names.keys()   # List of PV names to read from server
         self.write_atts = parent.epics_writes    # Dict of event attributes to write keyed on PV name
@@ -59,7 +60,7 @@ class EPICS():
             return {k:0 for k in self.read_list} 
         else:
             try:
-                values = caget_many(self.read_list)
+                values = caget_many(self.read_list, timeout = self.timeout)
                 self.read_pvs = dict(zip(self.read_list, values))
             except Exception as e: 
                 print("Error getting EPICS variables:", e)
@@ -75,7 +76,7 @@ class EPICS():
         if self.enable:
             try:
                 values = [event.__dict__[att] for key, att in self.write_atts.items()]
-                caput_many(self.write_atts.keys(), values)
+                caput_many(self.write_atts.keys(), values, put_timeout = self.timeout)
                 #print("Tried to write to EPICS:", self.write_atts.keys(), values)
             except Exception as e:    
                 print("Failed to put event data into EPICS server:", e)

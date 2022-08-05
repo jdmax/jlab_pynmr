@@ -12,3 +12,4 @@ te/*
 !te/.gitkeep
 docs/
 app/__pycache__/*
+*.pyc

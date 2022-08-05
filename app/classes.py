@@ -228,6 +228,7 @@ class Event():
         self.base_stamp = datetime.datetime(2000,1,1).timestamp()
         self.base_file = 'None'       
         self.label = 'None'
+        self.epics = {}              # dict of epics reads
         
         self.uwave_freq = 0
         self.uwave_power = 0
@@ -377,7 +378,7 @@ class Baseline():
         
   
  
-class Status():
+#class Status():
     '''Data object for external EPICS status variables, handles calls to get new values
     
     Arguments:
@@ -390,9 +391,9 @@ class Status():
     Todo:
         Calls to EPICS to get values
     '''
-    def __init__(self, chan_names):
-        self.chan_names = chan_names
-        self.chan = dict.fromkeys(self.chan_names.keys(),0)
+#    def __init__(self, chan_names):
+#        self.chan_names = chan_names
+#        self.chan = dict.fromkeys(self.chan_names.keys(),0)
 
    
 class HistPoint():
@@ -411,7 +412,8 @@ class HistPoint():
         self.cc = event.cc
         self.area = event.area
         self.label = event.label
-        self.epics_reads = event.status
+        self.uwave_freq = event.uwave_freq
+        self.epics_reads = event.epics
         
         
 class History():
