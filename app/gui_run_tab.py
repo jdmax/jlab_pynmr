@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout
 from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 import pyqtgraph as pg
+import numpy as np
  
 from app.classes import *
 from app.daq import *
@@ -441,14 +442,17 @@ class RunTab(QWidget):
         power = reply[3]
         if 'Error' in freq:
             self.uwave_freq_label.setText("Freq: Read Error")
+            freq = np.nan
         else:    
-            self.uwave_freq_label.setText(f"Freq: {freq/1e9:.4f} GHz")
+            freq = freq/1e9
+            self.uwave_freq_label.setText(f"Freq: {freq:.4f} GHz")
         if 'Error' in power:
             self.uwave_power_label.setText("Power: Read Error")
+            power = np.nan
         else:    
             self.uwave_power_label.setText(f"Power: {power} mW")
         #self.uwave_freq_label.setText(f"{pot, temp}")
-        self.parent.event.set_uwave(freq/1e9, power)
+        self.parent.event.set_uwave(freq, power)
         
     def up_micro(self):
         '''Up pressed'''
