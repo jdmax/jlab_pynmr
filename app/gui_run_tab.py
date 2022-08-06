@@ -32,6 +32,7 @@ class RunTab(QWidget):
         self.res_pen = pg.mkPen(color=(190, 0, 190), width=2)
         self.pol_pen = pg.mkPen(color=(250, 0, 0), width=2)
         self.wave_pen = pg.mkPen(color=(153, 204, 255), width=1.5)
+        self.beam_brush = pg.mkBrush(color=(153, 255, 204, 30))
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         
@@ -188,6 +189,7 @@ class RunTab(QWidget):
             self.pol_time_wid.showGrid(True,True, alpha = 0.2)
             self.pol_time_plot = self.pol_time_wid.plot([], [], pen=self.pol_pen) 
         #self.pol_time_wid.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding)
+        self.beam_regions = [] # list of linear regions on time widget
         self.upperlayout.addWidget(self.pol_time_wid)
 
         # Populate Results area
@@ -356,16 +358,48 @@ class RunTab(QWidget):
         self.dt_value.setText(time.replace(tzinfo=pytz.utc).astimezone(self.parent.tz).strftime("%m/%d/%Y, %H:%M:%S")+"\n"+self.parent.previous_event.stop_time.strftime("%H:%M:%S")+" UTC")
         
         hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())     
-        pol_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
-        uwave_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
+        time_fix = 0
+        #time_fix = 3600
+        pol_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
+        uwave_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
         # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.
              
-        if self.parent.config.settings['epics_settings']['enable']:   # turn on uwave freq plot
+        if self.parent.config.settings['uwave_settings']['enable']:   # turn on uwave freq plot
             self.pol_time_plot.plot(pol_data, pen=self.pol_pen)    
             self.wave_time_plot.addItem(pg.PlotDataItem(uwave_data, pen=self.wave_pen))
         else:       
-            self.pol_time_plot.setData(pol_data)  
-        self.progress_bar.setValue(0)
+            self.pol_time_plot.setData(pol_data)          
+        self.progress_bar.setValue(0)        
+        
+        if self.parent.config.settings['epics_settings']['enable']:   # turn on beam on plot if we are geting epics
+            self.beam_current_regions(hist_data)
+        
+    def beam_current_regions(self, hist_data):
+        '''Draw regions in the time plot to show when beam is on. Pass list of history points to include.'''
+        threshold = self.parent.config.settings['epics_settings']['current_threshold']
+        beam_var = 'scaler_calc1'  # Beam current epics variable
+        
+        # Clear previous regions
+        for r in self.beam_regions: 
+            self.pol_time_wid.removeItem(r)
+        
+        # Divide into time periods to draw
+        num_periods = 50
+        time_periods = np.array_split(list(hist_data.keys()),num_periods)  # divides list of times into list of lists
+        
+        for times in time_periods:
+            on = 0
+            for time in times:
+                try:
+                    if hist_data[time].epics[beam_var] > threshold:
+                        on = on + 1
+                except KeyError:
+                    print('Epics key error in beam current plotting')
+            if on > len(times)/1.33:   # on more than 3/4 of the time                 
+                self.beam_regions.append((pg.LinearRegionItem(brush = beam_brush, movable = False)))    
+                self.beam_regions[-1].setRegion(times[0],times[-1])
+                self.pol_time_wid.addItem(self.beam_region[-1])
+        
     
     def changed_range(self):
         '''Change time range of pol v time plot'''
