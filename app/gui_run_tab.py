@@ -366,11 +366,12 @@ class RunTab(QWidget):
         uwave_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
         # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.
              
-        if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot
-            self.pol_time_plot.plot(pol_data, pen=self.pol_pen)    
-            self.wave_time_plot.addItem(pg.PlotDataItem(uwave_data, pen=self.wave_pen))
+        if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot        
+            uwave_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
+            self.pol_time_plot.setData(pol_data)    
+            self.wave_time_plot.setData(uwave_data)
         else:       
-            self.pol_time_plot.setData(pol_data)          
+            self.pol_time_plot.setData(pol_data)         
         self.progress_bar.setValue(0)        
         
         if self.parent.config.settings['epics_settings']['enable']:   # turn on beam on plot if we are geting epics
