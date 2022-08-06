@@ -36,7 +36,7 @@ class MicrowaveThread(QThread):
                 freq = self.count.read_freq()
             except Exception as e:
                 print(f"Counter read failed: {e}")  
-                freq = 0
+                freq = "Read Error"
                 #self.parent.enable_button.toggle()
                 #self.parent.enable_pushed()
                 #break
@@ -45,7 +45,7 @@ class MicrowaveThread(QThread):
                 power = self.pow_meter.read_power()
             except Exception as e:
                 print(f"Power meter read failed: {e}")  
-                power = 0
+                power = "Read Error"
                 #self.parent.enable_button.toggle()
                 #self.parent.enable_pushed()
                 #break
@@ -110,7 +110,11 @@ class Counter():
         self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
         freq = self.tn.read_until(b'\r', timeout=self.timeout).decode('ascii')  
         #print(int(freq.strip()))
-        return int(freq.strip())  
+        try:
+            ret = int(freq.strip())
+        except ValueError:
+            ret = 'Read Error'
+        return ret  
         #except exception as e:
         #   print(f"GPIB connection failed on {self.host}: {e}")  
         
