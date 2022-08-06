@@ -101,9 +101,9 @@ class RunTab(QWidget):
             self.uwave_layout.addWidget(self.uwave_freq_label, 1, 0)
             self.uwave_power_label = QLabel('Power:')
             self.uwave_layout.addWidget(self.uwave_power_label, 1, 1)
-            self.enable_button = QPushButton("Enable",checkable=True)      # Enable button
-            self.uwave_layout.addWidget(self.enable_button, 0, 0)
-            self.enable_button.clicked.connect(self.enable_uwave_pushed)
+           # self.enable_button = QPushButton("Enable",checkable=True)      # Enable button
+            #self.uwave_layout.addWidget(self.enable_button, 0, 0)
+            #self.enable_button.clicked.connect(self.enable_uwave_pushed)
             #self.uwave_freq_line = QLineEdit(str(0))
             #self.uwave_freq_line.setEnabled(False)
             #self.uwave_layout.addWidget(self.uwave_freq_line, 0, 1)
@@ -115,6 +115,8 @@ class RunTab(QWidget):
             self.up_button.pressed.connect(self.up_micro)
             self.up_button.released.connect(self.off_micro)
             self.uwave_layout.addWidget(self.up_button, 2, 1)
+            
+            self.enable_uwave_pushed   # got rid of enable button, now always enable when start  8/6/2022
         
         
         # Populate NMR Settings box 
@@ -437,8 +439,14 @@ class RunTab(QWidget):
         pot = reply[1]
         temp = reply[2]
         power = reply[3]
-        self.uwave_freq_label.setText(f"Freq: {freq/1e9:.4f} GHz")
-        self.uwave_power_label.setText(f"Power: {power} mW")
+        if 'Error' in freq:
+            self.uwave_freq_label.setText("Freq: Read Error")
+        else:    
+            self.uwave_freq_label.setText(f"Freq: {freq/1e9:.4f} GHz")
+        if 'Error' in power:
+            self.uwave_power_label.setText("Power: Read Error")
+        else:    
+            self.uwave_power_label.setText(f"Power: {power} mW")
         #self.uwave_freq_label.setText(f"{pot, temp}")
         self.parent.event.set_uwave(freq/1e9, power)
         
