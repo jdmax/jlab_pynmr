@@ -54,6 +54,7 @@ settings:
         monitor_time: 5            # Time between calls to get EPICS data
         timeout: 5
         epics_temp: TGT:PT12:VaporPressure_T     # EPICS channel of temp to use as default 
+        current_threshold: 3     # Current in nA at which we consider beam to be on
     fpga_settings:    
         ip: 129.57.160.2        # Device IP address (str)
         port: 1028              # Device port  (int)
