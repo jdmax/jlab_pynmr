@@ -30,7 +30,7 @@ class RunTab(QWidget):
         self.fit_pen = pg.mkPen(color=(255, 255, 0), width=3)
         self.fin_pen = pg.mkPen(color=(0, 160, 0), width=1.5)
         self.res_pen = pg.mkPen(color=(190, 0, 190), width=2)
-        self.pol_pen = pg.mkPen(color=(250, 0, 0), width=2)
+        self.pol_pen = pg.mkPen(color=(250, 0, 0), width=1.5)
         self.wave_pen = pg.mkPen(color=(153, 204, 255), width=1.5)
         self.beam_brush = pg.mkBrush(color=(153, 255, 204, 30))
         pg.setConfigOption('background', 'w')
@@ -172,19 +172,20 @@ class RunTab(QWidget):
         self.pol_time_wid = pg.PlotWidget(
             title='', axisItems={'bottom': self.time_axis}
         )
-        if self.parent.config.settings['epics_settings']['enable']:   # turn on uwave freq plot
-            self.pol_time_plot =  self.pol_time_wid.plotItem
-            
-            self.wave_time_plot = pg.ViewBox()
-            self.pol_time_plot.showAxis('right')
-            self.pol_time_plot.setLabels(left = 'Polarization')
-            self.pol_time_plot.scene().addItem(self.wave_time_plot)
-            self.pol_time_plot.getAxis('right').linkToView(self.wave_time_plot)
-            self.wave_time_plot.setXLink(self.pol_time_plot)
-            self.pol_time_plot.getAxis('right').setLabel('Microwave Frequency (GHz)')
-            self.pol_time_plot.showGrid(True,True, alpha = 0.2)
-            
-            self.pol_time_plot.vb.sigResized.connect(self.sync_pol_time)
+        if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot
+            self.time_plot =  self.pol_time_wid.plotItem
+            self.pol_time_plot = self.time_plot.plot([], [], pen=self.pol_pen) 
+            self.wave_time_view = pg.ViewBox()
+            self.time_plot.showAxis('right')
+            self.time_plot.setLabels(left = 'Polarization')
+            self.time_plot.scene().addItem(self.wave_time_view)
+            self.time_plot.getAxis('right').linkToView(self.wave_time_view)
+            self.wave_time_view.setXLink(self.time_plot)
+            self.time_plot.getAxis('right').setLabel('Microwave Frequency (GHz)')
+            self.time_plot.showGrid(True,True, alpha = 0.2)
+            self.wave_time_plot = pg.PlotDataItem([], [], pen=self.wave_pen)
+            self.wave_time_view.addItem(self.wave_time_plot)
+            self.time_plot.vb.sigResized.connect(self.sync_pol_time)
         else:
             self.pol_time_wid.showGrid(True,True, alpha = 0.2)
             self.pol_time_plot = self.pol_time_wid.plot([], [], pen=self.pol_pen) 
@@ -259,7 +260,7 @@ class RunTab(QWidget):
         
     def sync_pol_time(self):
         '''Sync resized on time plot'''
-        self.wave_time_plot.setGeometry(self.pol_time_plot.vb.sceneBoundingRect())        
+        self.wave_time_view.setGeometry(self.time_plot.vb.sceneBoundingRect())        
     
     def run_pushed(self):
         '''Start main loop if conditions met'''
@@ -358,6 +359,7 @@ class RunTab(QWidget):
         self.dt_value.setText(time.replace(tzinfo=pytz.utc).astimezone(self.parent.tz).strftime("%m/%d/%Y, %H:%M:%S")+"\n"+self.parent.previous_event.stop_time.strftime("%H:%M:%S")+" UTC")
         
         hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())     
+        
         time_fix = 0
         #time_fix = 3600
         pol_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
@@ -404,8 +406,13 @@ class RunTab(QWidget):
     def changed_range(self):
         '''Change time range of pol v time plot'''
         hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())               
-        pol_data = np.column_stack((list(hist_data.keys()),[hist_data[k].pol for k in hist_data.keys()]))
-        self.pol_time_plot.setData(pol_data) 
+        pol_data = np.column_stack((list(hist_data.keys()),[hist_data[k].pol for k in hist_data.keys()]))     
+        if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot
+            uwave_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))   
+            self.pol_time_plot.setData(pol_data)    
+            self.wave_time_plot.setData(uwave_data)
+        else:       
+            self.pol_time_plot.setData(pol_data)  
     
     def lock_pushed(self):
         '''Enable changing settings'''
