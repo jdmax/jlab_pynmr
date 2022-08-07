@@ -50,7 +50,7 @@ settings:
     num_per_chunk: 64           # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
     tune_per_chunk:  32         # Number of sweeps per chunk to take in tune mode
     epics_settings:
-        enable: false       # If false, doesn't attempt to contact EPICS server
+        enable: true       # If false, doesn't attempt to contact EPICS server
         monitor_time: 5            # Time between calls to get EPICS data
         timeout: 1
         epics_temp: TGT:PT12:Bath_Top_T      # EPICS channel of temp to use as default 
