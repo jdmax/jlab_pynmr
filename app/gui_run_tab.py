@@ -32,7 +32,8 @@ class RunTab(QWidget):
         self.res_pen = pg.mkPen(color=(190, 0, 190), width=2)
         self.pol_pen = pg.mkPen(color=(250, 0, 0), width=1.5)
         self.wave_pen = pg.mkPen(color=(153, 204, 255), width=1.5)
-        self.beam_brush = pg.mkBrush(color=(153, 255, 204, 30))
+        self.beam_brush = pg.mkBrush(color=(0,0,160, 10))
+        self.beam_pen = pg.mkPen(color=(255,255,255, 0))
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         
@@ -384,25 +385,30 @@ class RunTab(QWidget):
         
         # Clear previous regions
         for r in self.beam_regions: 
-            self.pol_time_wid.removeItem(r)
+            self.pol_time_wid.removeItem(r)   
+        self.beam_regions = []            
         
         # Divide into time periods to draw
         num_periods = 50
-        time_periods = np.array_split(list(hist_data.keys()),num_periods)  # divides list of times into list of lists
-        
-        for times in time_periods:
-            on = 0
-            for time in times:
-                try:
-                    if hist_data[time].epics[beam_var] > threshold:
-                        on = on + 1
-                except KeyError:
-                    print('Epics key error in beam current plotting')
-            if on > len(times)/1.33:   # on more than 3/4 of the time                 
-                self.beam_regions.append((pg.LinearRegionItem(brush = beam_brush, movable = False)))    
-                self.beam_regions[-1].setRegion(times[0],times[-1])
-                self.pol_time_wid.addItem(self.beam_region[-1])
-        
+        beam_on = False   # in a period of beam on?
+        start = 0
+        for time in sorted(hist_data.keys()):
+            try:
+                #if hist_data[time].epics[beam_var] > threshold:  # beam on
+                if True:  # beam on
+                    if not beam_on:    # if not on, start a region
+                        self.beam_regions.append((pg.LinearRegionItem(movable = False, pen = self.beam_pen, brush = self.beam_brush)))
+                        start = time
+                        beam_on = True
+                else:    # beam off     
+                    if beam_on:  # if on, stop region, add to plot
+                        self.beam_regions[-1].setRegion([start,time])
+                        beam_on = False                    
+                        self.pol_time_wid.addItem(self.beam_regions[-1])      
+            except KeyError:
+                print('Epics key error in beam current plotting')              
+        self.beam_regions[-1].setRegion([start,sorted(hist_data.keys())[-1]])       # close last one             
+        self.pol_time_wid.addItem(self.beam_regions[-1]) 
     
     def changed_range(self):
         '''Change time range of pol v time plot'''
@@ -512,10 +518,13 @@ class RunTab(QWidget):
         '''Update gui with status from EPICS values, toggle color'''  
         
         for key in self.parent.epics.read_list:
-            if abs(float(self.parent.epics.read_pvs[key]))<10000:
-                self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:6f}')
-            else:                    
-                self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:.3e}')
+            try:
+                if abs(float(self.parent.epics.read_pvs[key]))<10000:
+                    self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:6f}')
+                else:                    
+                    self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:.3e}')
+            except TypeError:                
+                pass
             #if self.epics_beat: 
             #    self.stat_values[key].setStyleSheet("color : blue")
             #    self.epics_beat = False
