@@ -192,7 +192,10 @@ class ShimTab(QWidget):
                 self.parent.event.shims = [0]*4
             else:
                 self.turn_button.setChecked(False) 
-                self.parent.event.shims = self.read_back
+                self.parent.event.shimA = self.read_back[0]
+                self.parent.event.shimB = self.read_back[1]
+                self.parent.event.shimC = self.read_back[2]
+                self.parent.event.shimD = self.read_back[3]
             if self.turn_button.isChecked():
                 self.turn_button.setText('Turn OFF')
             else:
@@ -491,7 +494,7 @@ class ShimControl():
                 print("Error setting currents on R&S current supply.", e) 
             
     def read_currents(self):
-        '''Set currents on R&S from list passed
+        '''Read currents on R&S from list passed
         '''
         reads = [0]*4
         for i in range(0,4):        

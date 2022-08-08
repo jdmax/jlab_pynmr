@@ -392,9 +392,10 @@ class RunTab(QWidget):
         num_periods = 50
         beam_on = False   # in a period of beam on?
         start = 0
+        stop = 0
         for time in sorted(hist_data.keys()):
             try:
-                if hist_data[time].epics[beam_var] > threshold:  # beam on
+                if hist_data[time].epics_reads[beam_var] > threshold:  # beam on
                 #if True:  # beam on
                     if not beam_on:    # if not on, start a region
                         self.beam_regions.append((pg.LinearRegionItem(movable = False, pen = self.beam_pen, brush = self.beam_brush)))
@@ -407,19 +408,21 @@ class RunTab(QWidget):
                         self.pol_time_wid.addItem(self.beam_regions[-1])      
             except KeyError:
                 print('Epics key error in beam current plotting')              
-        self.beam_regions[-1].setRegion([start,sorted(hist_data.keys())[-1]])       # close last one             
-        self.pol_time_wid.addItem(self.beam_regions[-1]) 
+        
+        if beam_on:  # close last one if it was open
+            self.beam_regions[-1].setRegion([start, sorted(hist_data.keys())[-1]])       #
+            self.pol_time_wid.addItem(self.beam_regions[-1]) 
     
     def changed_range(self):
         '''Change time range of pol v time plot'''
         hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())               
-        pol_data = np.column_stack((list(hist_data.keys()),[hist_data[k].pol for k in hist_data.keys()]))     
+        pol_data = np.column_stack((list(hist_data.keys()),[hist_data[k].pol for k in hist_data.keys()]))       
+        self.pol_time_plot.setData(pol_data)   
         if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot
-            uwave_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))   
-            self.pol_time_plot.setData(pol_data)    
-            self.wave_time_plot.setData(uwave_data)
-        else:       
-            self.pol_time_plot.setData(pol_data)  
+            uwave_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))  
+            self.wave_time_plot.setData(uwave_data)        
+        if self.parent.config.settings['epics_settings']['enable']:   
+            self.beam_current_regions(hist_data)        
     
     def lock_pushed(self):
         '''Enable changing settings'''
@@ -500,6 +503,8 @@ class RunTab(QWidget):
                 self.uwave_power_label.setText("Power: Read Error")
                 power = np.nan
         except TypeError:    
+            if power < 0.01:
+                power = 0.0
             self.uwave_power_label.setText(f"Power: {power} mW")
         #self.uwave_freq_label.setText(f"{pot, temp}")
         self.parent.event.set_uwave(freq, power)
