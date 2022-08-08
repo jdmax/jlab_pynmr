@@ -30,6 +30,10 @@ class ShimTab(QWidget):
             shims = ShimControl(self.parent.config)
             self.read_back = shims.read_currents()
             self.shim_state = shims.read_outstat()
+            self.parent.shimA = self.read_back[0]
+            self.parent.shimB = self.read_back[1]
+            self.parent.shimC = self.read_back[2]
+            self.parent.shimD = self.read_back[3]
             shims.close_socket()
         except Exception as e:
             print("Error connecting to R&S current supply.", e)    
@@ -189,13 +193,16 @@ class ShimTab(QWidget):
             
             if '1' in out:
                 self.turn_button.setChecked(True)
-                self.parent.event.shims = [0]*4
+                self.parent.shimA = self.read_back[0]
+                self.parent.shimB = self.read_back[1]
+                self.parent.shimC = self.read_back[2]
+                self.parent.shimD = self.read_back[3]
             else:
-                self.turn_button.setChecked(False) 
-                self.parent.event.shimA = self.read_back[0]
-                self.parent.event.shimB = self.read_back[1]
-                self.parent.event.shimC = self.read_back[2]
-                self.parent.event.shimD = self.read_back[3]
+                self.turn_button.setChecked(False)
+                self.parent.shimA = 0
+                self.parent.shimB = 0
+                self.parent.shimC = 0
+                self.parent.shimD = 0
             if self.turn_button.isChecked():
                 self.turn_button.setText('Turn OFF')
             else:
