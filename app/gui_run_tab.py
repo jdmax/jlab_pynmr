@@ -394,7 +394,7 @@ class RunTab(QWidget):
         start = 0
         for time in sorted(hist_data.keys()):
             try:
-                if hist_data[time].epics[beam_var] > threshold:  # beam on
+                if hist_data[time].epics_reads[beam_var] > threshold:  # beam on
                 #if True:  # beam on
                     if not beam_on:    # if not on, start a region
                         self.beam_regions.append((pg.LinearRegionItem(movable = False, pen = self.beam_pen, brush = self.beam_brush)))
