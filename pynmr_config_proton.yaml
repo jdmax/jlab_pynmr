@@ -159,7 +159,7 @@ epics_writes:                   # Dict of channels to write, key is channel, val
     TGT:PT12:NMR_Time: stop_stamp  
     TGT:PT12:uwave_Freq: uwave_freq
     TGT:PT12:uwave_Power: uwave_power
-    TGT:PT12:ShimCurrent_A: shims[0]
-    TGT:PT12:ShimCurrent_B: shims[1]
-    TGT:PT12:ShimCurrent_C: shims[2]
-    TGT:PT12:ShimCurrent_D: shims[3]
+    TGT:PT12:ShimCurrent_A: shimA
+    TGT:PT12:ShimCurrent_B: shimB
+    TGT:PT12:ShimCurrent_C: shimC
+    TGT:PT12:ShimCurrent_D: shimD
