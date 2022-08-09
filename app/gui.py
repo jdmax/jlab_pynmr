@@ -62,6 +62,10 @@ class MainWindow(QMainWindow):
         channel_dict = self.config_dict['channels'][self.config_dict['settings']['default_channel']]  # dict of selected channel
         self.start_logger()
         self.chassis_temp = 0
+        self.shimA = 0
+        self.shimB = 0
+        self.shimC = 0
+        self.shimD = 0
         
         self.label_changed('None')
         

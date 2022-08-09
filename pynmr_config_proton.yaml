@@ -54,6 +54,7 @@ settings:
         monitor_time: 5            # Time between calls to get EPICS data
         timeout: 5
         epics_temp: TGT:PT12:VaporPressure_T     # EPICS channel of temp to use as default 
+        current_threshold: 3     # Current in nA at which we consider beam to be on
     fpga_settings:    
         ip: 129.57.160.2        # Device IP address (str)
         port: 1028              # Device port  (int)
@@ -158,4 +159,7 @@ epics_writes:                   # Dict of channels to write, key is channel, val
     TGT:PT12:NMR_Time: stop_stamp  
     TGT:PT12:uwave_Freq: uwave_freq
     TGT:PT12:uwave_Power: uwave_power
-...
+    TGT:PT12:ShimCurrent_A: shimA
+    TGT:PT12:ShimCurrent_B: shimB
+    TGT:PT12:ShimCurrent_C: shimC
+    TGT:PT12:ShimCurrent_D: shimD

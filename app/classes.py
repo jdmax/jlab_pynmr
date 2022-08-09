@@ -234,6 +234,10 @@ class Event():
         self.uwave_power = 0
         
         self.chassis_temp = self.parent.chassis_temp
+        self.shimA = self.parent.shimA
+        self.shimB = self.parent.shimB
+        self.shimC = self.parent.shimC
+        self.shimD = self.parent.shimD
         
     def update_event(self, new_sigs):  # new_sigs looks like ((p_tup1,d_tup1), (p_tup2,d_tup2)...)
         '''Method to update event with new signal chunk

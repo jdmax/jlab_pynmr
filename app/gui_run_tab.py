@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout
 from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 import pyqtgraph as pg
+import numpy as np
  
 from app.classes import *
 from app.daq import *
@@ -31,6 +32,8 @@ class RunTab(QWidget):
         self.res_pen = pg.mkPen(color=(190, 0, 190), width=2)
         self.pol_pen = pg.mkPen(color=(250, 0, 0), width=1.5)
         self.wave_pen = pg.mkPen(color=(153, 204, 255), width=1.5)
+        self.beam_brush = pg.mkBrush(color=(0,0,160, 10))
+        self.beam_pen = pg.mkPen(color=(255,255,255, 0))
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         
@@ -115,6 +118,8 @@ class RunTab(QWidget):
             self.up_button.pressed.connect(self.up_micro)
             self.up_button.released.connect(self.off_micro)
             self.uwave_layout.addWidget(self.up_button, 2, 1)
+            
+            #self.enable_uwave_pushed   # got rid of enable button, now always enable when start  8/6/2022
         
         
         # Populate NMR Settings box 
@@ -186,6 +191,7 @@ class RunTab(QWidget):
             self.pol_time_wid.showGrid(True,True, alpha = 0.2)
             self.pol_time_plot = self.pol_time_wid.plot([], [], pen=self.pol_pen) 
         #self.pol_time_wid.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding)
+        self.beam_regions = [] # list of linear regions on time widget
         self.upperlayout.addWidget(self.pol_time_wid)
 
         # Populate Results area
@@ -221,7 +227,7 @@ class RunTab(QWidget):
         self.range_layout.addWidget(self.range_label)
         self.range_value = QLineEdit('60')
         self.range_value.setValidator(QIntValidator(1,1000000))
-        self.range_value.textChanged.connect(self.changed_range)
+        self.range_value.textChanged.connect(self.update_time_plots)
         self.range_layout.addWidget(self.range_value)
         self.dt_box.layout().addLayout(self.range_layout)
         
@@ -352,30 +358,61 @@ class RunTab(QWidget):
         time = self.parent.previous_event.stop_time
         start_time = self.parent.previous_event.start_time
         self.dt_value.setText(time.replace(tzinfo=pytz.utc).astimezone(self.parent.tz).strftime("%m/%d/%Y, %H:%M:%S")+"\n"+self.parent.previous_event.stop_time.strftime("%H:%M:%S")+" UTC")
-        
-        hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())     
-        pol_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
-        # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.
-             
-        if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot        
-            uwave_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
-            self.pol_time_plot.setData(pol_data)    
-            self.wave_time_plot.setData(uwave_data)
-        else:       
-            self.pol_time_plot.setData(pol_data)  
-        self.progress_bar.setValue(0)
-    
-    def changed_range(self):
-        '''Change time range of pol v time plot'''
+  
+        self.update_time_plots()  
+            
+        self.progress_bar.setValue(0)          
+            
+    def update_time_plots(self):
+        '''Update pol v time plot'''
         hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())               
-        pol_data = np.column_stack((list(hist_data.keys()),[hist_data[k].pol for k in hist_data.keys()]))     
-        if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot
-            uwave_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))   
+        time_fix = 0
+        #time_fix = 3600
+        pol_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
+        # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.             
+        if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot        
+            uwave_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
             self.pol_time_plot.setData(pol_data)    
             self.wave_time_plot.setData(uwave_data)
         else:       
-            self.pol_time_plot.setData(pol_data)  
-    
+            self.pol_time_plot.setData(pol_data)               
+        
+        if self.parent.config.settings['epics_settings']['enable']:   # turn on beam on plot if we are geting epics
+            self.beam_current_regions(hist_data)     
+        
+    def beam_current_regions(self, hist_data):
+        '''Draw regions in the time plot to show when beam is on. Pass list of history points to include.'''
+        threshold = self.parent.config.settings['epics_settings']['current_threshold']
+        beam_var = 'scaler_calc1'  # Beam current epics variable
+        
+        # Clear previous regions
+        for r in self.beam_regions: 
+            self.pol_time_wid.removeItem(r)   
+        self.beam_regions = []            
+        
+        beam_on = False   # in a period of beam on?
+        start = 0
+        stop = 0
+        for time in sorted(hist_data.keys()):
+            try:
+                if hist_data[time].epics_reads[beam_var] > threshold:  # beam on
+                #if True:  # beam on
+                    if not beam_on:    # if not on, start a region
+                        self.beam_regions.append((pg.LinearRegionItem(movable = False, pen = self.beam_pen, brush = self.beam_brush)))
+                        start = time
+                        beam_on = True
+                else:    # beam off     
+                    if beam_on:  # if on, stop region, add to plot
+                        self.beam_regions[-1].setRegion([start,time])
+                        beam_on = False                    
+                        self.pol_time_wid.addItem(self.beam_regions[-1])      
+            except KeyError:
+                print('Epics key error in beam current plotting')              
+        
+        if beam_on:  # close last one if it was open
+            self.beam_regions[-1].setRegion([start, sorted(hist_data.keys())[-1]])       #
+            self.pol_time_wid.addItem(self.beam_regions[-1]) 
+   
     def lock_pushed(self):
         '''Enable changing settings'''
         sender = self.sender()
@@ -411,7 +448,7 @@ class RunTab(QWidget):
         self.parent.connect_daq()
     
     def enable_uwave_pushed(self):
-        '''Enable microwaves button pushed, turn on buttons and start thread if checked'''
+        '''Enable microwaves, turn on buttons and start thread if checked'''
         sender = self.enable_button
         if sender.isChecked():
             sender.setText('Disable')
@@ -443,10 +480,23 @@ class RunTab(QWidget):
         pot = reply[1]
         temp = reply[2]
         power = reply[3]
-        self.uwave_freq_label.setText(f"Freq: {freq/1e9:.4f} GHz")
-        self.uwave_power_label.setText(f"Power: {power} mW")
+        try:    # Hate this but it works for now 8/8/2022
+            if 'Error' in freq:
+                self.uwave_freq_label.setText("Freq: Read Error")
+                freq = np.nan
+        except TypeError:    
+            freq = freq/1e9
+            self.uwave_freq_label.setText(f"Freq: {freq:.4f} GHz")
+        try:
+            if 'Error' in power:
+                self.uwave_power_label.setText("Power: Read Error")
+                power = np.nan
+        except TypeError:    
+            if power < 0.01:
+                power = 0.0
+            self.uwave_power_label.setText(f"Power: {power} mW")
         #self.uwave_freq_label.setText(f"{pot, temp}")
-        self.parent.event.set_uwave(freq/1e9, power)
+        self.parent.event.set_uwave(freq, power)
         
     def up_micro(self):
         '''Up pressed'''
@@ -464,10 +514,13 @@ class RunTab(QWidget):
         '''Update gui with status from EPICS values, toggle color'''  
         
         for key in self.parent.epics.read_list:
-            if abs(float(self.parent.epics.read_pvs[key]))<10000:
-                self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:6f}')
-            else:                    
-                self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:.3e}')
+            try:
+                if abs(float(self.parent.epics.read_pvs[key]))<10000:
+                    self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:6f}')
+                else:                    
+                    self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:.3e}')
+            except TypeError:                
+                pass
             #if self.epics_beat: 
             #    self.stat_values[key].setStyleSheet("color : blue")
             #    self.epics_beat = False
