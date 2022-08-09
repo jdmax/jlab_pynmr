@@ -227,7 +227,7 @@ class RunTab(QWidget):
         self.range_layout.addWidget(self.range_label)
         self.range_value = QLineEdit('60')
         self.range_value.setValidator(QIntValidator(1,1000000))
-        self.range_value.textChanged.connect(self.changed_range)
+        self.range_value.textChanged.connect(self.update_time_plots)
         self.range_layout.addWidget(self.range_value)
         self.dt_box.layout().addLayout(self.range_layout)
         
@@ -358,25 +358,27 @@ class RunTab(QWidget):
         time = self.parent.previous_event.stop_time
         start_time = self.parent.previous_event.start_time
         self.dt_value.setText(time.replace(tzinfo=pytz.utc).astimezone(self.parent.tz).strftime("%m/%d/%Y, %H:%M:%S")+"\n"+self.parent.previous_event.stop_time.strftime("%H:%M:%S")+" UTC")
-        
-        hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())     
-        
+  
+        self.update_time_plots()  
+            
+        self.progress_bar.setValue(0)          
+            
+    def update_time_plots(self):
+        '''Update pol v time plot'''
+        hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())               
         time_fix = 0
         #time_fix = 3600
         pol_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
-        uwave_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
-        # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.
-             
+        # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.             
         if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot        
-            uwave_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
+            uwave_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
             self.pol_time_plot.setData(pol_data)    
             self.wave_time_plot.setData(uwave_data)
         else:       
-            self.pol_time_plot.setData(pol_data)         
-        self.progress_bar.setValue(0)        
+            self.pol_time_plot.setData(pol_data)               
         
         if self.parent.config.settings['epics_settings']['enable']:   # turn on beam on plot if we are geting epics
-            self.beam_current_regions(hist_data)
+            self.beam_current_regions(hist_data)     
         
     def beam_current_regions(self, hist_data):
         '''Draw regions in the time plot to show when beam is on. Pass list of history points to include.'''
@@ -412,18 +414,7 @@ class RunTab(QWidget):
         if beam_on:  # close last one if it was open
             self.beam_regions[-1].setRegion([start, sorted(hist_data.keys())[-1]])       #
             self.pol_time_wid.addItem(self.beam_regions[-1]) 
-    
-    def changed_range(self):
-        '''Change time range of pol v time plot'''
-        hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())               
-        pol_data = np.column_stack((list(hist_data.keys()),[hist_data[k].pol for k in hist_data.keys()]))       
-        self.pol_time_plot.setData(pol_data)   
-        if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot
-            uwave_data = np.column_stack((list([k + 3600 for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))  
-            self.wave_time_plot.setData(uwave_data)        
-        if self.parent.config.settings['epics_settings']['enable']:   
-            self.beam_current_regions(hist_data)        
-    
+   
     def lock_pushed(self):
         '''Enable changing settings'''
         sender = self.sender()
