@@ -390,8 +390,6 @@ class RunTab(QWidget):
             self.pol_time_wid.removeItem(r)   
         self.beam_regions = []            
         
-        # Divide into time periods to draw
-        num_periods = 50
         beam_on = False   # in a period of beam on?
         start = 0
         stop = 0
