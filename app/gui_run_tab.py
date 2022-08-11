@@ -369,7 +369,7 @@ class RunTab(QWidget):
         time_fix = 0
         #time_fix = 3600
         pol_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
-        # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.             
+        # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.       
         if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot        
             uwave_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
             self.pol_time_plot.setData(pol_data)    
