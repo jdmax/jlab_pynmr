@@ -369,7 +369,7 @@ class RunTab(QWidget):
         time_fix = 0
         #time_fix = 3600
         pol_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
-        # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.             
+        # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.       
         if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot        
             uwave_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
             self.pol_time_plot.setData(pol_data)    
@@ -395,7 +395,7 @@ class RunTab(QWidget):
         stop = 0
         for time in sorted(hist_data.keys()):
             try:
-                if hist_data[time].epics_reads[beam_var] > threshold:  # beam on
+                if hist_data[time].beam_current > threshold:  # beam on
                 #if True:  # beam on
                     if not beam_on:    # if not on, start a region
                         self.beam_regions.append((pg.LinearRegionItem(movable = False, pen = self.beam_pen, brush = self.beam_brush)))
@@ -511,7 +511,7 @@ class RunTab(QWidget):
         self.utune.change_freq('off')        
         
     def update_status(self):
-        '''Update gui with status from EPICS values, toggle color'''  
+        '''Update gui with status from EPICS values, toggle color. Do beam current sum.'''  
         
         for key in self.parent.epics.read_list:
             try:
@@ -521,6 +521,13 @@ class RunTab(QWidget):
                     self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:.3e}')
             except TypeError:                
                 pass
+        try:        
+            beam_var = self.parent.config.settings['epics_settings']['beam_current']        
+            self.parent.event.sum_beam_current(self.parent.epics.read_pvs[beam_var])
+        except KeyError:
+            pass
+            
+            
             #if self.epics_beat: 
             #    self.stat_values[key].setStyleSheet("color : blue")
             #    self.epics_beat = False
