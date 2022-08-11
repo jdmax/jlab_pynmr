@@ -88,8 +88,8 @@ settings:
         ip: 129.57.161.8        # Device IP address (str)
         port: 1028              # Device port  (int)
         tcp_buffer: 1460        # Default TCP buffer size  (int)
-        dwell: 10               # Settle time in usec between frequency switch and ADC read (int) (was 10)
-        per_point: 2            # Samples taken and averaged at each frequency point of a sweep (int)
+        dwell: 10              # Settle time in usec between frequency switch and ADC read (int) (was 10)
+        per_point: 2            # Samples taken and averaged at each frequency point of a sweep (int) power f 2
         timeout_run: 20         # TCP timeout for running sweeps
         timeout_tune: 1         # TCP timeout for tune
         timeout_check: 1        # TCP timeout for check
