@@ -239,6 +239,10 @@ class Event():
         self.shimC = self.parent.shimC
         self.shimD = self.parent.shimD
         
+        self.beam_current_sum = 0
+        self.beam_time_sum = 0
+        self.beam_current_update_time = self.start_time
+        
     def update_event(self, new_sigs):  # new_sigs looks like ((p_tup1,d_tup1), (p_tup2,d_tup2)...)
         '''Method to update event with new signal chunk
         
@@ -364,6 +368,14 @@ class Event():
         self.uwave_freq = freq
         self.uwave_power = power
         
+    def sum_beam_current(self, current):
+        '''Sum in time-weighted beam current to make average over event'''
+        
+        time = (datetime.datetime.now(tz=datetime.timezone.utc) - self.beam_current_update_time).total_seconds()
+        self.beam_current_sum = self.beam_current_sum + current*time
+        self.beam_time_sum = self.beam_time_sum + time
+        
+        
 class Baseline():
     '''Data object for baseline event.
     
@@ -408,6 +420,10 @@ class HistPoint():
         pol: Float measured polarization
         cc: Float calibration constant
         area: Float area under polyfit
+        label: event label
+        uwave_freq: microwave frequency in GHz
+        epics_reads: dict of all epics variables read
+        average_beam_current: time averaged beam current
     '''
     def __init__(self, event):
         self.dt = event.stop_time
@@ -417,7 +433,11 @@ class HistPoint():
         self.area = event.area
         self.label = event.label
         self.uwave_freq = event.uwave_freq
-        self.epics_reads = event.epics
+        self.epics_reads = event.epics   
+        try:
+            self.beam_current = event.beam_current_sum/event.beam_time_sum
+        except ZeroDivisionError:
+            self.beam_current = 0
         
         
 class History():
