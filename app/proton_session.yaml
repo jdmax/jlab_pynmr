@@ -1,4 +1,4 @@
 cc: -5.246731
 channel: 0
-diode_tune: 0.122
-phase_tune: 0.114
+diode_tune: 0.0785
+phase_tune: 0.335
