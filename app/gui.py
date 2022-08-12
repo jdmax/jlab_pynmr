@@ -132,12 +132,7 @@ class MainWindow(QMainWindow):
         self.epics_writes = self.config_dict['epics_writes']            # dict of epics channels: name string
         #self.status_bar.showMessage(f"Loaded settings from {self.config_filename}.")
         print(f"Loaded settings from {self.config_filename}.")
-        
-    def restore_session(self):
-        '''Restore settings from previous session'''
-        with open(f'app/{self.config.settings["session_file"]}.yaml') as f:                     
-           self.restore_dict = yaml.load(f, Loader=yaml.FullLoader)
-        
+                
     def new_event(self):
         '''Create new event instance'''
         self.event = Event(self)
@@ -175,9 +170,13 @@ class MainWindow(QMainWindow):
         with open(f'app/{self.config.settings["session_file"]}.yaml', 'w') as file:
             documents = yaml.dump(saved_dict, file)
             #print(saved_dict)            
-            logging.info(f"Printed settings on exit to {file}.")
-            logging.info(f"Printed settings on exit to {file}.")   
+            logging.info(f"Printed settings on exit to {file}.") 
             
+    def restore_session(self):
+        '''Restore settings from previous session'''
+        with open(f'app/{self.config.settings["session_file"]}.yaml') as f:                     
+           self.restore_dict = yaml.load(f, Loader=yaml.FullLoader)
+           
     def restore_history(self):
         '''Open history object and restore previous history into it'''       
         self.hist_file = open(f"app/{self.config_dict['settings']['history_file']}.json", "a+") 
