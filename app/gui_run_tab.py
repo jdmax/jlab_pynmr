@@ -384,7 +384,7 @@ class RunTab(QWidget):
         '''Draw regions in the time plot to show when beam is on. Pass list of history points to include.'''
         threshold = self.parent.config.settings['epics_settings']['current_threshold']
         beam_var = 'scaler_calc1'  # Beam current epics variable
-        
+        time_fix = 3600
         # Clear previous regions
         for r in self.beam_regions: 
             self.pol_time_wid.removeItem(r)   
@@ -403,14 +403,14 @@ class RunTab(QWidget):
                         beam_on = True
                 else:    # beam off     
                     if beam_on:  # if on, stop region, add to plot
-                        self.beam_regions[-1].setRegion([start,time])
+                        self.beam_regions[-1].setRegion([start + time_fix, time + time_fix])
                         beam_on = False                    
                         self.pol_time_wid.addItem(self.beam_regions[-1])      
             except KeyError:
                 print('Epics key error in beam current plotting')              
         
         if beam_on:  # close last one if it was open
-            self.beam_regions[-1].setRegion([start, sorted(hist_data.keys())[-1]])       #
+            self.beam_regions[-1].setRegion([start + time_fix, sorted(hist_data.keys())[-1] + time_fix])       #
             self.pol_time_wid.addItem(self.beam_regions[-1]) 
    
     def lock_pushed(self):
