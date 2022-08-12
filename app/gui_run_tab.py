@@ -368,8 +368,8 @@ class RunTab(QWidget):
     def update_time_plots(self):
         '''Update pol v time plot'''
         hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())               
-        time_fix = 0
-        #time_fix = 3600
+        #time_fix = 0
+        time_fix = 3600
         pol_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
         # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.       
         if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot        
@@ -386,7 +386,7 @@ class RunTab(QWidget):
         '''Draw regions in the time plot to show when beam is on. Pass list of history points to include.'''
         threshold = self.parent.config.settings['epics_settings']['current_threshold']
         beam_var = 'scaler_calc1'  # Beam current epics variable
-        
+        time_fix = 3600
         # Clear previous regions
         for r in self.beam_regions: 
             self.pol_time_wid.removeItem(r)   
@@ -405,14 +405,14 @@ class RunTab(QWidget):
                         beam_on = True
                 else:    # beam off     
                     if beam_on:  # if on, stop region, add to plot
-                        self.beam_regions[-1].setRegion([start,time])
+                        self.beam_regions[-1].setRegion([start + time_fix, time + time_fix])
                         beam_on = False                    
                         self.pol_time_wid.addItem(self.beam_regions[-1])      
             except KeyError:
                 print('Epics key error in beam current plotting')              
         
         if beam_on:  # close last one if it was open
-            self.beam_regions[-1].setRegion([start, sorted(hist_data.keys())[-1]])       #
+            self.beam_regions[-1].setRegion([start + time_fix, sorted(hist_data.keys())[-1] + time_fix])       #
             self.pol_time_wid.addItem(self.beam_regions[-1]) 
    
     def lock_pushed(self):
