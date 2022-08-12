@@ -175,19 +175,18 @@ class MainWindow(QMainWindow):
         with open(f'app/{self.config.settings["session_file"]}.yaml', 'w') as file:
             documents = yaml.dump(saved_dict, file)
             #print(saved_dict)            
+            logging.info(f"Printed settings on exit to {file}.")
             logging.info(f"Printed settings on exit to {file}.")   
-        self.hist_file.close()    
             
     def restore_history(self):
         '''Open history object and restore previous history into it'''       
         self.hist_file = open(f"app/{self.config_dict['settings']['history_file']}.json", "a+") 
         self.hist_file.seek(0)   #go to beginning to file to read
-        previous = {}
+        self.history = History()   # for now, starting new history with each window
         for line in self.hist_file:
-            jd = json.loads(line.rstrip('\n|\r'))
-            previous.update({jd['dt_stamp']: jd})
-        self.history = History(previous)   # for now, starting new history with each window
-    
+            jd = json.loads(line.rstrip('\n|\r'))            
+            self.history.res_hist(HistPoint(jd))
+        
     def end_event(self):
         '''Start ending the event
         '''
@@ -357,6 +356,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         '''Things to do on close of window ("events" here are not related to nmr data events)
         '''
+        self.hist_file.close()    
         if self.run_tab.run_button.isChecked():
             self.dlg = ExitDialog()
             if self.dlg.exec():

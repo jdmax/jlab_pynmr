@@ -5,6 +5,7 @@ from PyQt5.QtCore import QThread, pyqtSignal, Qt
 import random
 import os.path
 import datetime
+from dateutil.parser import parse
 import json
 import pytz
 from scipy import optimize
@@ -426,6 +427,25 @@ class HistPoint():
         average_beam_current: time averaged beam current
     '''
     def __init__(self, event):
+        if isinstance(event, Event):
+            self.new_point(event)
+        else:
+            self.restore_point(event)
+            
+    def restore_point(self, entry):
+        '''Make new point from a restored dict'''
+        self.dt = parse(entry['dt'])
+        self.dt_stamp =  entry['dt_stamp']
+        self.pol = entry['pol']
+        self.cc = entry['cc']
+        self.area = entry['area']
+        self.label = entry['label']
+        self.uwave_freq = entry['uwave_freq']
+        self.epics_reads = entry['epics_reads']
+        self.beam_current = entry['beam_current']    
+    
+    def new_point(self, event):
+        '''Make new point from event'''
         self.dt = event.stop_time
         self.dt_stamp = event.stop_stamp
         self.pol = event.pol
@@ -442,13 +462,18 @@ class HistPoint():
         
 class History():
     '''Contains polarization history since start, methods for returning subset of points'''
-    def __init__(self, previous):
+    def __init__(self):
         self.data = {}              # dict of HistPoints keyed on dt stamp
+        
     def add_hist(self, hp, hist_file):  
         '''Add to history dict, and write to history file'''
         self.data[hp.dt_stamp] = hp
         json_record = json.dumps(hp.__dict__, default=str)
-        hist_file.write(json_record+'\n')   
+        hist_file.write(json_record+'\n')           
+        
+    def res_hist(self, hp):  
+        '''Restore to history dict'''
+        self.data[hp.dt_stamp] = hp        
         
     def to_plot(self, start_stamp=0, stop_stamp=0):
         '''Gets datetimes and polarizations in history
