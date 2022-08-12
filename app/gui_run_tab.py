@@ -259,6 +259,8 @@ class RunTab(QWidget):
         self.main.addLayout(self.lowerlayout)
         self.setLayout(self.main)        
         
+        self.update_time_plots()
+        
     def sync_pol_time(self):
         '''Sync resized on time plot'''
         self.wave_time_view.setGeometry(self.time_plot.vb.sceneBoundingRect())        
