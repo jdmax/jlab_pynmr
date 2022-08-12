@@ -158,6 +158,7 @@ class MainWindow(QMainWindow):
             logging.info(f"Closed eventfile and moved to {new}.")
         except AttributeError:
             logging.info(f"Error closing eventfile.")
+            
     
     def save_session(self):
         '''Print settings before app exit to a file for recall on restart'''
