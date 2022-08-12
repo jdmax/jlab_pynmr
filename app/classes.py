@@ -442,10 +442,14 @@ class HistPoint():
         
 class History():
     '''Contains polarization history since start, methods for returning subset of points'''
-    def __init__(self):
+    def __init__(self, previous):
         self.data = {}              # dict of HistPoints keyed on dt stamp
-    def add_hist(self, hp):
+    def add_hist(self, hp, hist_file):  
+        '''Add to history dict, and write to history file'''
         self.data[hp.dt_stamp] = hp
+        json_record = json.dumps(hp.__dict__, default=str)
+        hist_file.write(json_record+'\n')   
+        
     def to_plot(self, start_stamp=0, stop_stamp=0):
         '''Gets datetimes and polarizations in history
         
