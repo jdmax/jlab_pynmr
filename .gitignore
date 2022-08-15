@@ -12,4 +12,5 @@ te/*
 !te/.gitkeep
 docs/
 app/__pycache__/*
+app/*history.json
 *.pyc
