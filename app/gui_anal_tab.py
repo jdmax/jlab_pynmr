@@ -596,7 +596,10 @@ class PolyFitSub(QWidget):
         X = np.array([x for x,y in data])
         Y = np.array([y for x,y in data])
         pf, pcov = optimize.curve_fit(self.poly, X, Y, p0 = self.pi)    
-        pstd = np.sqrt(np.diag(pcov))
+        try:
+            pstd = np.sqrt(np.diag(pcov))
+        except:
+            pass
         fit = self.poly(freqs, *pf)
         sub = sweep - fit
         
