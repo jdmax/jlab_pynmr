@@ -13,4 +13,5 @@ te/*
 docs/
 app/__pycache__/*
 app/*history.json
+app/*session.yaml
 *.pyc
