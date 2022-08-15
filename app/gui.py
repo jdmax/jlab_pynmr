@@ -8,6 +8,7 @@ import os
 import yaml
 import pytz
 import logging
+import json
 from PyQt5.QtWidgets import QMainWindow, QErrorMessage, QTabWidget, QLabel, QWidget, QDialog, QDialogButtonBox, QVBoxLayout
 from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
@@ -57,7 +58,6 @@ class MainWindow(QMainWindow):
         self.status_bar = self.statusBar()
         self.status_bar.showMessage('Ready.')
         self.config_filename = config_file
-        #self.config_filename = 'pynmr_config.yaml'
         self.load_settings()
         channel_dict = self.config_dict['channels'][self.config_dict['settings']['default_channel']]  # dict of selected channel
         self.start_logger()
@@ -73,8 +73,8 @@ class MainWindow(QMainWindow):
         self.event = Event(self)      # open empty event
         self.previous_event = self.event      # there is no previous event
         self.baseline = Baseline(self.config, {})     # open empty baseline
-        self.history = History()   # for now, starting new history with each window
-        self.new_eventfile()
+        self.restore_history()
+        self.new_eventfile()        
         self.restore_session()
         self.init_connects()
         
@@ -132,12 +132,7 @@ class MainWindow(QMainWindow):
         self.epics_writes = self.config_dict['epics_writes']            # dict of epics channels: name string
         #self.status_bar.showMessage(f"Loaded settings from {self.config_filename}.")
         print(f"Loaded settings from {self.config_filename}.")
-        
-    def restore_session(self):
-        '''Restore settings from previous session'''
-        with open(f'app/{self.config.settings["session_file"]}.yaml') as f:                     
-           self.restore_dict = yaml.load(f, Loader=yaml.FullLoader)
-        
+                
     def new_event(self):
         '''Create new event instance'''
         self.event = Event(self)
@@ -163,6 +158,7 @@ class MainWindow(QMainWindow):
             logging.info(f"Closed eventfile and moved to {new}.")
         except AttributeError:
             logging.info(f"Error closing eventfile.")
+            
     
     def save_session(self):
         '''Print settings before app exit to a file for recall on restart'''
@@ -175,8 +171,22 @@ class MainWindow(QMainWindow):
         with open(f'app/{self.config.settings["session_file"]}.yaml', 'w') as file:
             documents = yaml.dump(saved_dict, file)
             #print(saved_dict)            
-            logging.info(f"Printed settings on exit to {file}.")    
-    
+            logging.info(f"Printed settings on exit to {file}.") 
+            
+    def restore_session(self):
+        '''Restore settings from previous session'''
+        with open(f'app/{self.config.settings["session_file"]}.yaml') as f:                     
+           self.restore_dict = yaml.load(f, Loader=yaml.FullLoader)
+           
+    def restore_history(self):
+        '''Open history object and restore previous history into it'''       
+        self.hist_file = open(f"app/{self.config_dict['settings']['history_file']}.json", "a+") 
+        self.hist_file.seek(0)   #go to beginning to file to read
+        self.history = History()   # for now, starting new history with each window
+        for line in self.hist_file:
+            jd = json.loads(line.rstrip('\n|\r'))            
+            self.history.res_hist(HistPoint(jd))
+        
     def end_event(self):
         '''Start ending the event
         '''
@@ -199,7 +209,7 @@ class MainWindow(QMainWindow):
         self.eventfile_lines += 1
         if self.eventfile_lines > 500:            # open new eventfile once the current one has a number of entries
             self.new_eventfile()
-        self.history.add_hist(HistPoint(self.previous_event))
+        self.history.add_hist(HistPoint(self.previous_event), self.hist_file)
 
         self.run_tab.update_event_plots()
         self.te_tab.update_event_plots()
@@ -346,6 +356,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         '''Things to do on close of window ("events" here are not related to nmr data events)
         '''
+        self.hist_file.close()    
         if self.run_tab.run_button.isChecked():
             self.dlg = ExitDialog()
             if self.dlg.exec():
