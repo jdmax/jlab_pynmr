@@ -195,6 +195,11 @@ class LabJack():
         '''
         #print("changing to", direction)
         aNames = ["DAC0","DAC1"]
+               
+        aValues = [0, 0]
+        ljm.eWriteNames(self.lj, len(aNames), aNames, aValues)
+        time.sleep(0.128)
+            
         if "up" in direction:
             aValues = [5, 0]
         elif "down" in direction:
