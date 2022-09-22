@@ -2,6 +2,7 @@
 '''
 import telnetlib, time
 from labjack import ljm
+import requests
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 
   
@@ -176,6 +177,46 @@ class PowMeter():
             tn.close()
         except Exception as e:
             print(f"Network to serial connection failed on {self.host}: {e}")
+
+
+class NetRelay():
+    '''Access Ethernet Relay device to control EIO tune motor'''
+    
+    def __init__(self, config):
+        '''Open connection to relays
+        '''  
+        ip = config.settings['uWave_settings']['relay-ip']
+        port = '30000'
+        try:
+            r = requests.get(f'{ip}/{port}')        
+        except Exception as e:
+            print(f"Connection to EIO tune relays failed on {ip}: {e}")
+            
+    def change_freq(self, direction):
+        '''Write to relay to change microwave frequency up or down 
+        '''
+               
+               
+        try: 
+            r = requests.get(f'{ip}/{port}/00')          # it's not 00, whatever all open is
+        except Exception as e:
+            print(f"Connection to EIO tune relays failed on {ip}: {e}")
+        time.sleep(0.128)
+            
+        if "up" in direction:
+            commands = ['01','03']
+        elif "down" in direction:
+            commands = ['05','07']
+        else:    
+            commands = ['00']
+            
+        for c in commands:            
+            try:
+                r = requests.get(f'{ip}/{port}/c')        
+            except Exception as e:
+                print(f"Connection to EIO tune relays failed on {ip}: {e}")
+           
+           
            
 class LabJack():      
     '''Access LabJack device to change microwave frequency, readback temp, pot      
