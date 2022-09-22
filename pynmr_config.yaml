@@ -39,7 +39,7 @@ channels:
      
 settings:
     default_channel: Proton5T     # Default from channels listed above
-    daq_type: Test             # Select DAQ mode (FPGA, NIDAQ or Test)
+    daq_type: FPGA             # Select DAQ mode (FPGA, NIDAQ or Test)
     test_signal: app/d_signal_event.txt  # signal to use for test mode
     event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
@@ -58,7 +58,7 @@ settings:
         beam_current: scaler_calc1      # EPICS channel of beam current
         current_threshold: 3     # Current in nA at which we consider beam to be on
     fpga_settings:    
-        ip: 129.57.160.2        # Device IP address (str)
+        ip: 129.57.1.77        # Device IP address (str)
         port: 1028              # Device port  (int)
         tcp_buffer: 1460        # Default TCP buffer size  (int)
         dwell: 10               # Settle time in usec between frequency switch and ADC read (int) (was 10)
@@ -88,7 +88,7 @@ settings:
         port: 5025 
         timeout: 2              # Telnet timeout in secs
     uWave_settings:
-        enable: true         # Turn on uWave controls
+        enable: false         # Turn on uWave controls
         monitor_time: .4         # How long to wait between reading frequency when on monitor in s
         counter:
             ip: 129.57.160.5       # GPIB IP
@@ -106,18 +106,19 @@ settings:
             freq: 140               # Power meter set freq in GHz
         lj-ip: 129.57.160.6     # LabJack device IP
         relay-ip: 129.57.161.12     # Relay device IP, 129.57.161.123 is pt-eio-relay
+        eio_method: 'ip'            # 'ip' or 'lj'
     temp_settings:
-        enable: true           # Turn on or off temp monitor tab
+        enable: false           # Turn on or off temp monitor tab
         ip: 129.57.160.6       # R&S supply IP   
         monitor_time: 60       # seconds
     shim_settings:
-        enable: true
+        enable: false
         ip: 129.57.160.4       # R&S supply IP
         port: 5025 
         timeout: 2  
         line_resistance: 0.3     # Ohms
     fm_settings:
-        enable: true
+        enable: false
         ip: 129.57.160.12       # R&S supply IP
         port: 1234
         timeout: 2     

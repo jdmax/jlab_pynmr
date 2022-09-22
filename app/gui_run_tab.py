@@ -458,7 +458,10 @@ class RunTab(QWidget):
             self.down_button.setEnabled(True)
                               
             try: 
-                self.utune = LabJack(self.parent.config)
+                if 'ip' in self.parent.config.settings['uWave_settings']['eio_method']:  
+                    self.utune = NetRelay(self.parent.config)  
+                else:                
+                    self.utune = LabJack(self.parent.config)
             except Exception as e: 
                 print('Exception starting microwave tuner: '+str(e))          
             
