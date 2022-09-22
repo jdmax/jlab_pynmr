@@ -106,6 +106,7 @@ settings:
             freq: 140               # Power meter set freq in GHz
         lj-ip: 129.57.160.6     # LabJack device IP, 129.57.37.33 is pt-labjack1
         relay-ip: 129.57.161.12     # Relay device IP, 129.57.161.123 is pt-eio-relay
+        eio_method: 'ip'            # 'ip' or 'lj'
     temp_settings:
         enable: false           # Turn on or off temp monitor tab
         ip: 129.57.160.6       # Labjack supply IP   
