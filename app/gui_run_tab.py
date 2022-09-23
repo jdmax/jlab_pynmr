@@ -31,6 +31,7 @@ class RunTab(QWidget):
         self.fin_pen = pg.mkPen(color=(0, 160, 0), width=1.5)
         self.res_pen = pg.mkPen(color=(190, 0, 190), width=2)
         self.pol_pen = pg.mkPen(color=(250, 0, 0), width=1.5)
+        self.asym_pen = pg.mkPen(color=(250, 175, 0), width=1)
         self.wave_pen = pg.mkPen(color=(153, 204, 255), width=1.5)
         self.beam_brush = pg.mkBrush(color=(0,0,160, 10))
         self.beam_pen = pg.mkPen(color=(255,255,255, 0))
@@ -173,18 +174,21 @@ class RunTab(QWidget):
         self.pol_time_wid = pg.PlotWidget(
             title='', axisItems={'bottom': self.time_axis}
         )
+        self.legend = self.pol_time_wid.addLegend()
         if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot
             self.time_plot =  self.pol_time_wid.plotItem
-            self.pol_time_plot = self.time_plot.plot([], [], pen=self.pol_pen) 
+            self.pol_time_plot = self.time_plot.plot([], [], pen=self.pol_pen, name='Polarization') 
+            #self.asym_time_plot = self.time_plot.plot([], [], pen=self.asym_pen, name='Trigger Asym') 
             self.wave_time_view = pg.ViewBox()
             self.time_plot.showAxis('right')
             self.time_plot.setLabels(left = 'Polarization')
             self.time_plot.scene().addItem(self.wave_time_view)
             self.time_plot.getAxis('right').linkToView(self.wave_time_view)
             self.wave_time_view.setXLink(self.time_plot)
-            self.time_plot.getAxis('right').setLabel('Microwave Frequency (GHz)')
+            self.time_plot.getAxis('right').setLabel('uWave Frequency (GHz)')
             self.time_plot.showGrid(True,True, alpha = 0.2)
             self.wave_time_plot = pg.PlotDataItem([], [], pen=self.wave_pen)
+            self.legend.addItem(self.wave_time_plot, 'uWave Frequency (GHz)')
             self.wave_time_view.addItem(self.wave_time_plot)
             self.time_plot.vb.sigResized.connect(self.sync_pol_time)
         else:
@@ -374,12 +378,14 @@ class RunTab(QWidget):
         # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.       
         if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot        
             uwave_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
-            self.pol_time_plot.setData(pol_data)    
+            self.pol_time_plot.setData(pol_data)     
             self.wave_time_plot.setData(uwave_data)
         else:       
             self.pol_time_plot.setData(pol_data)               
         
-        if self.parent.config.settings['epics_settings']['enable']:   # turn on beam on plot if we are geting epics
+        if self.parent.config.settings['epics_settings']['enable']:   # turn on beam on plot if we are geting epics     
+            #asym_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
+            #self.asym_time_plot.setData(asym_data) 
             self.beam_current_regions(hist_data)     
         
     def beam_current_regions(self, hist_data):
@@ -517,8 +523,8 @@ class RunTab(QWidget):
         
         for key in self.parent.epics.read_list:
             try:
-                if abs(float(self.parent.epics.read_pvs[key]))<10000:
-                    self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:6f}')
+                if abs(float(self.parent.epics.read_pvs[key]))<1000000:
+                    self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:6g}')
                 else:                    
                     self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:.3e}')
             except TypeError:                
