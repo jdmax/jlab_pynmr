@@ -243,12 +243,14 @@ class RunTab(QWidget):
         # Raw Plot
         self.raw_wid = pg.PlotWidget(title='Raw Signal')
         self.raw_wid.showGrid(True,True, alpha = 0.2)
+        self.raw_wid.setMouseEnabled(x=False, y=False)
         self.raw_plot = self.raw_wid.plot([], [], pen=self.raw_pen) 
         self.lowerlayout.addWidget(self.raw_wid)
         
         # Sub plot
         self.sub_wid = pg.PlotWidget(title='Baseline Subtracted')
         self.sub_wid.showGrid(True,True, alpha = 0.2)
+        self.sub_wid.setMouseEnabled(x=False, y=False)
         self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen) 
         self.fit_plot = self.sub_wid.plot([], [], pen=self.fit_pen) 
         self.lowerlayout.addWidget(self.sub_wid)
@@ -256,6 +258,7 @@ class RunTab(QWidget):
         # Final PLot
         self.fin_wid = pg.PlotWidget(title='Fit Subtracted')
         self.fin_wid.showGrid(True,True, alpha = 0.2)
+        self.fin_wid.setMouseEnabled(x=False, y=False)
         self.fin_plot = self.fin_wid.plot([], [], pen=self.fin_pen)  
         self.res_plot = self.fin_wid.plot([], [], pen=self.res_pen)         
         self.lowerlayout.addWidget(self.fin_wid)
@@ -464,7 +467,10 @@ class RunTab(QWidget):
             self.down_button.setEnabled(True)
                               
             try: 
-                self.utune = LabJack(self.parent.config)
+                if 'ip' in self.parent.config.settings['uWave_settings']['eio_method']:  
+                    self.utune = NetRelay(self.parent.config)  
+                else:                
+                    self.utune = LabJack(self.parent.config)
             except Exception as e: 
                 print('Exception starting microwave tuner: '+str(e))          
             
