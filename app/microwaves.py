@@ -186,6 +186,7 @@ class NetRelay():
         '''Open connection to relays
         '''  
         self.ip = config.settings['uWave_settings']['relay-ip']
+        self.timeout = config.settings['uWave_settings']['relay-timeout']
         self.port = '30000'
         self.all_off = '44'   # command urls for each relay
         self.one_on = '01'
@@ -194,7 +195,7 @@ class NetRelay():
         self.four_on = '07'
         
         try:
-            r = requests.get(f'http://{self.ip}/{self.port}/{self.all_off}')        
+            r = requests.get(f'http://{self.ip}/{self.port}/{self.all_off}', timeout=self.timeout)        
         except Exception as e:
             print(f"Connection to EIO tune relays failed on {self.ip}: {e}")
             
@@ -203,23 +204,32 @@ class NetRelay():
         '''         
                
         try: 
-            r = requests.get(f'http://{self.ip}/{self.port}/{self.all_off}')          # it's not 00, whatever all open is
+            r = requests.get(f'http://{self.ip}/{self.port}/{self.all_off}', timeout=self.timeout)          # it's not 00, whatever all open is
         except Exception as e:
             print(f"Connection to EIO tune relays failed on {self.ip}: {e}")
         time.sleep(0.128)
             
         if "up" in direction:
-            commands = [self.one_on,self.two_on]
+            commands = [self.two_on,self.four_on]
         elif "down" in direction:
-            commands = [self.three_on,self.four_on]
+            commands = [self.one_on,self.three_on,self.two_on,self.four_on]
         else:    
             commands = [self.all_off]
             
-        for c in commands:            
+        for c in commands: 
+            time.sleep(0.1)           
             try:
-                r = requests.get(f'http://{self.ip}/{self.port}/{c}')        
+                r = requests.get(f'http://{self.ip}/{self.port}/{c}', timeout=self.timeout)    
+            except requests.exceptions.Timeout:
+                print('Relay timeout has been raised.')  
+                try: 
+                    r = requests.get(f'http://{self.ip}/{self.port}/{self.all_off}', timeout=self.timeout)          # it's not 00, whatever all open is
+                except Exception as e:
+                    print(f"Connection to EIO tune relays failed on {self.ip}: {e}")  
             except Exception as e:
-                print(f"Connection to EIO tune relays failed on {ip}: {e}")
+                print(f"Connection to EIO tune relays failed on {ip}: {e}")       
+               
+       
            
            
            
