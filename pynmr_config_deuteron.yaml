@@ -83,7 +83,7 @@ settings:
         monitor_time: 5            # Time between calls to get EPICS data
         timeout: 5
         epics_temp: TGT:PT12:VaporPressure_T     # EPICS channel of temp to use as default 
-        beam_current: scaler_calc1      # EPICS channel of beam current
+        beam_current: scaler_calc1      # EPICS channel of beam currentTGT:PT12:Polarization
         current_threshold: 3     # Current in nA at which we consider beam to be on
     fpga_settings:    
         ip: 129.57.161.8        # Device IP address (str)
@@ -121,7 +121,7 @@ settings:
             port: 1234
             timeout: 4              # Telnet timeout in secs
             addr: 19        # EIP 588C frequency counter GPIB address
-            cent_freq: 140.0        # Microwave counter center frequency in GHz
+            cent_freq: 140.0        # Microwave counter center frequency in GHzTGT:PT12:Polarization
             band: 3                 # Microwave counter band
             subband: 8              # Microwwave counter subband
             rate: 1000               # Counter sample rate in ms
@@ -130,9 +130,10 @@ settings:
             port: 23
             timeout: 2              # Telnet timeout in secs
             freq: 140               # Power meter set freq in GHz
+        eio_method: 'ip'            # 'ip' or 'lj'
         lj-ip: 129.57.160.6         # LabJack device IP, 129.57.37.33 is pt-labjack1
         relay-ip: 129.57.161.12     # Relay device IP, 129.57.161.123 is pt-eio-relay
-        eio_method: 'ip'            # 'ip' or 'lj'
+        relay-timeout: 2            # Relay timeout
     temp_settings:
         enable: true          # Turn on or off temp monitor tab
         ip: 129.57.160.6       # LabJack supply IP 
@@ -176,11 +177,11 @@ epics_reads:                    # EPICS channels to read: key is channel name, v
     TGT:PT12:Bath_Top_T: Bath Top (K)
     TGT:PT12:Bath_Bottom_T: Bath Bottom (K)
     TGT:PT12:NMR_T: Tank Temp (K)
-    TGT:PT12:Bath_HTR_lvl: Bath Heater
     TGT:PT12:Fridge_F: Main Flow (slpm)
-    TGT:PT12:Separator_F: Sep Flow (slpm)
     B_SOL:MPS:I_ZFCT: Solenoid Current (A)
     scaler_calc1: Beam Current (nA)
+    B_DAQ:run_number: Run Number
+    B_DAQ:HEL:60m:29:asycorr: Trigger Asym
     TGT:PT12:Target_Dose: Dose (e/cm^2)
 epics_writes:                   # Dict of channels to write, key is channel, value is attribute of Event class 
     TGT:PT12:Polarization: pol 
