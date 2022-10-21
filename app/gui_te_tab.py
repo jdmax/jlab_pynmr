@@ -216,7 +216,7 @@ class TETab(QWidget):
         
         '''
         now = datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
-        p0 = [0.05, 0.05, now, 10000]  # initial guess
+        p0 = [0.05, -0.05, now, 10000]  # initial guess
         x, y = np.hsplit(data,2)
         x, y = x.flatten(), y.flatten()
         pf, pcov = optimize.curve_fit(lambda t, a, b, c, d: a + b*np.exp((t-c)/d), x, y, p0 = p0)
