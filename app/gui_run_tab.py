@@ -99,25 +99,36 @@ class RunTab(QWidget):
             self.uwave_box = QGroupBox('Microwave Controls')
             self.uwave_box.setLayout(QVBoxLayout())
             self.midlayout.addWidget(self.uwave_box)
+            self.dur_layout = QHBoxLayout()
+            self.uwave_box.layout().addLayout(self.dur_layout)
+            self.enable_button = QPushButton("Enable",checkable=True)      # Enable button
+            self.dur_layout.addWidget(self.enable_button)
+            self.enable_button.clicked.connect(self.enable_uwave_pushed)
+            self.uwave_dur_label = QLabel('Duration (s):')
+            self.dur_layout.addWidget(self.uwave_dur_label)
+            self.uwave_dur_label.setAlignment(Qt.AlignCenter)
+            self.uwave_dur_edit = QLineEdit('0.1', enabled=False)
+            self.uwave_dur_edit.setValidator(QDoubleValidator(0, 10, 3, notation=QDoubleValidator.StandardNotation))
+            self.uwave_dur_edit.setMaximumWidth(80)
+            self.dur_layout.addWidget(self.uwave_dur_edit)
             self.uwave_layout = QGridLayout()
             self.uwave_box.layout().addLayout(self.uwave_layout)
             self.uwave_freq_label = QLabel('Freq:')
             self.uwave_layout.addWidget(self.uwave_freq_label, 1, 0)
             self.uwave_power_label = QLabel('Power:')
             self.uwave_layout.addWidget(self.uwave_power_label, 1, 1)
-            self.enable_button = QPushButton("Enable",checkable=True)      # Enable button
-            self.uwave_layout.addWidget(self.enable_button, 0, 0)
-            self.enable_button.clicked.connect(self.enable_uwave_pushed)
             #self.uwave_freq_line = QLineEdit(str(0))
             #self.uwave_freq_line.setEnabled(False)
             #self.uwave_layout.addWidget(self.uwave_freq_line, 0, 1)
             self.down_button = QPushButton("Down",checkable=False, enabled=False)       # Decrease freq button
-            self.down_button.pressed.connect(self.down_micro)
-            self.down_button.released.connect(self.off_micro)
+            self.down_button.clicked.connect(self.down_micro)
+            #self.down_button.pressed.connect(self.down_micro)
+            #self.down_button.released.connect(self.off_micro)
             self.uwave_layout.addWidget(self.down_button, 2, 0)
             self.up_button = QPushButton("Up",checkable=False, enabled=False)       # Increase freq button
-            self.up_button.pressed.connect(self.up_micro)
-            self.up_button.released.connect(self.off_micro)
+            self.up_button.clicked.connect(self.up_micro)
+            #self.up_button.pressed.connect(self.up_micro)
+            #self.up_button.released.connect(self.off_micro)
             self.uwave_layout.addWidget(self.up_button, 2, 1)
             
             #self.enable_uwave_pushed   # got rid of enable button, now always enable when start  8/6/2022
@@ -465,6 +476,7 @@ class RunTab(QWidget):
             sender.setText('Disable')
             self.up_button.setEnabled(True)
             self.down_button.setEnabled(True)
+            self.uwave_dur_edit.setEnabled(True)
                               
             try: 
                 if 'ip' in self.parent.config.settings['uWave_settings']['eio_method']:  
@@ -487,6 +499,7 @@ class RunTab(QWidget):
             sender.setText('Enable')
             self.up_button.setEnabled(False)
             self.down_button.setEnabled(False)
+            self.uwave_dur_edit.setEnabled(False)
     
     def freq_reply(self, reply):
         '''Got replay from micro thread, display it'''
@@ -514,11 +527,11 @@ class RunTab(QWidget):
         
     def up_micro(self):
         '''Up pressed'''
-        self.utune.change_freq('up')
+        self.utune.change_freq('up', float(self.uwave.dur_edit.text()))
         
     def down_micro(self):
         '''Down pressed'''
-        self.utune.change_freq('down')
+        self.utune.change_freq('down', float(self.uwave.dur_edit.text()))
         
     def off_micro(self):
         '''Button released'''

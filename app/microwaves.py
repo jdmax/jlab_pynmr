@@ -199,8 +199,8 @@ class NetRelay():
         except Exception as e:
             print(f"Connection to EIO tune relays failed on {self.ip}: {e}")
             
-    def change_freq(self, direction):
-        '''Write to relay to change microwave frequency up or down 
+    def change_freq(self, direction, duration):
+        '''Write to relay to change microwave frequency up or down for a certain duration
         '''         
                
         try: 
@@ -220,6 +220,10 @@ class NetRelay():
             time.sleep(0.1)           
             try:
                 r = requests.get(f'http://{self.ip}/{self.port}/{c}', timeout=self.timeout)    
+                print(direction, duration)
+                time.sleep(duration)  
+                r = requests.get(f'http://{self.ip}/{self.port}/{self.all_of}', timeout=self.timeout) 
+                print('off')
             except requests.exceptions.Timeout:
                 print('Relay timeout has been raised.')  
                 try: 
