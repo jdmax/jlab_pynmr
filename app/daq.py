@@ -322,6 +322,13 @@ class TCP():
         self.freq_num = config.settings['steps']
         self.phase_cal = config.settings['fpga_settings']['phase_cal']
         self.diode_cal = config.settings['fpga_settings']['diode_cal']
+                
+        if config.settings['fpga_settings']['phase_adc_number'] == 2:
+            self.adc_one = 'diode'
+            self.adc_two = 'phase'
+        else:
+            self.adc_one = 'phase'
+            self.adc_two = 'diode'
         
     def __del__(self):
         '''Stop connection'''
@@ -352,7 +359,7 @@ class TCP():
                     num_in_chunk = int.from_bytes(response[7:9],'little')
                     #print(num_in_chunk, response[:2].hex())
                     response = response[9:]
-                    sweep_type = 'phase'
+                    sweep_type = self.adc_one
                     
                 # add in check if we don't have the type set and it's not the beginning of the chunk  
                        
@@ -361,7 +368,7 @@ class TCP():
                 if sweep_type == '':
                     #print("no type: ",b)
                     if b == b'\xbb':
-                        sweep_type = 'diode'
+                        sweep_type = self.adc_two
                     continue
                 #if sweep_type == 'diode': print(b.hex())
                 chunk[sweep_type] += bytearray(b)

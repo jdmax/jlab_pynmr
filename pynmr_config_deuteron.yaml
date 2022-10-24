@@ -102,6 +102,7 @@ settings:
         diode_cal: 829421       # Conversion int to divide diode ADC values by to get max of 1
         test_freqs: false       # Send test frequencies to FPGA
         adc_test: false         # ADC test mode flag
+        phase_adc_number: 1         # Which ADC channel will be phase signal? 1 or 2
     nidaq_settings:
         phase_chan: Dev1/ai0
         diode_chan: Dev1/ai1
