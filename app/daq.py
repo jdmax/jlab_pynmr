@@ -552,7 +552,7 @@ class NI_Connection():
         if  num_in_chunk < 1:      
             pchunk = np.zeros(self.pts_per_ramp)
             dchunk = np.zeros(self.pts_per_ramp)
-            return num_in_chunk, pchunk, dchunk
+            return 0, num_in_chunk, pchunk, dchunk
         pchunks = pchunks[:2*(num_in_chunk*self.pts_per_ramp//2)]    # discard extra samples if partially accumulated
         dchunks = dchunks[:2*(num_in_chunk*self.pts_per_ramp//2)]
         pchunks = np.array(pchunks).reshape(num_in_chunk, self.pts_per_ramp)  # 2D array with steps number of rows

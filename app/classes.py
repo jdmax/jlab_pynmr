@@ -125,7 +125,7 @@ class Scan():
     def change_set(self, new_sigs):
         '''Accept a new set of points, already averaged. This is used for the NIDAQ, as it accumulates internally
         '''
-        num_in_chunk, phase_chunk, diode_chunk = new_sigs
+        num, num_in_chunk, phase_chunk, diode_chunk = new_sigs
         self.num = num_in_chunk
         self.phase = phase_chunk
         self.diode = diode_chunk
