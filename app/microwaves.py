@@ -217,13 +217,10 @@ class NetRelay():
             commands = [self.all_off]
             
         for c in commands: 
-            time.sleep(0.1)           
+            time.sleep(0.05)           
             try:
                 r = requests.get(f'http://{self.ip}/{self.port}/{c}', timeout=self.timeout)    
                 print(direction, duration)
-                time.sleep(duration)  
-                r = requests.get(f'http://{self.ip}/{self.port}/{self.all_of}', timeout=self.timeout) 
-                print('off')
             except requests.exceptions.Timeout:
                 print('Relay timeout has been raised.')  
                 try: 
@@ -231,10 +228,20 @@ class NetRelay():
                 except Exception as e:
                     print(f"Connection to EIO tune relays failed on {self.ip}: {e}")  
             except Exception as e:
-                print(f"Connection to EIO tune relays failed on {ip}: {e}")       
+                print(f"Connection to EIO tune relays failed on {self.ip}: {e}")       
                
        
-           
+        time.sleep(duration)  
+        try:
+            r = requests.get(f'http://{self.ip}/{self.port}/{self.all_off}', timeout=self.timeout) 
+        except requests.exceptions.Timeout:
+            print('Relay timeout has been raised.')  
+            try: 
+                r = requests.get(f'http://{self.ip}/{self.port}/{self.all_off}', timeout=self.timeout)          # it's not 00, whatever all open is
+            except Exception as e:
+                print(f"Connection to EIO tune relays failed on {self.ip}: {e}")  
+        except Exception as e:
+            print(f"Connection to EIO tune relays failed on {self.ip}: {e}") 
            
            
 class LabJack():      
