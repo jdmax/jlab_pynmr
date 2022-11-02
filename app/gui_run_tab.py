@@ -527,11 +527,11 @@ class RunTab(QWidget):
         
     def up_micro(self):
         '''Up pressed'''
-        self.utune.change_freq('up', float(self.uwave.dur_edit.text()))
+        self.utune.change_freq('up', float(self.uwave_dur_edit.text()))
         
     def down_micro(self):
         '''Down pressed'''
-        self.utune.change_freq('down', float(self.uwave.dur_edit.text()))
+        self.utune.change_freq('down', float(self.uwave_dur_edit.text()))
         
     def off_micro(self):
         '''Button released'''
