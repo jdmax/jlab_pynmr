@@ -375,7 +375,7 @@ class Event():
         time = (datetime.datetime.now(tz=datetime.timezone.utc) - self.beam_current_update_time).total_seconds()
         self.beam_current_sum = self.beam_current_sum + current*time
         self.beam_time_sum = self.beam_time_sum + time
-        
+        self.beam_current_update_time = datetime.datetime.now(tz=datetime.timezone.utc)
         
 class Baseline():
     '''Data object for baseline event.
