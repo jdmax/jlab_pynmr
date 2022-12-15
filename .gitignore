@@ -15,3 +15,4 @@ app/__pycache__/*
 app/*history.json
 app/*session.yaml
 *.pyc
+app/history.json
