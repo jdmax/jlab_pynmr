@@ -121,7 +121,7 @@ settings:
     explorer:
         enable: false
     compare_tab:
-        enable: false
+        enable: true
         rf_switch:
             ip: 129.57.160.4      
             port: 5025 
