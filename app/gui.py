@@ -115,8 +115,9 @@ class MainWindow(QMainWindow):
         if self.config.settings['temp_settings']['enable']:
             self.temp_tab = TempTab(self)
             self.tab_widget.addTab(self.temp_tab, "Chassis Temp")
-        self.expl_tab = ExplTab(self)
-        self.tab_widget.addTab(self.expl_tab, "Event Explorer")         
+        if self.config.settings['explorer']['enable']:
+            self.expl_tab = ExplTab(self)
+            self.tab_widget.addTab(self.expl_tab, "Event Explorer")         
         
         self.set_cc(self.restore_dict['cc'])   
         self.connect_daq()
