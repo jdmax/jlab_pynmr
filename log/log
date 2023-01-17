@@ -35,3 +35,13 @@
 2023-01-17 10:23:01 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:23:01 UTC, after 15.7s.
 2023-01-17 10:23:01 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:23:01 UTC, after 15.9s.
 2023-01-17 10:23:02 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:23:02 UTC, after 16.3s.
+2023-01-17 10:27:00 Closed eventfile and moved to 2023-01-17_15-15-33__2023-01-17_15-27-00.txt.
+2023-01-17 10:27:00 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
+2023-01-17 10:28:48 Started new instance.
+2023-01-17 10:28:48 Loaded config file {self.config_filename}.
+2023-01-17 10:28:48 Error closing eventfile.
+2023-01-17 10:28:48 Opened new evenfile data\current_2023-01-17_15-28-48.txt
+2023-01-17 10:28:53 Changed channel to Proton5T.
+2023-01-17 10:28:53 Saved TE data and set new calibration constant -5.246731.
+2023-01-17 10:28:53 DAQ Test mode.
+2023-01-17 10:44:26 Finished event at 15:44:26 UTC, after 3s. Analysis returned at 15:44:26 UTC, after 0.0s.
