@@ -220,7 +220,7 @@ class NetRelay():
             time.sleep(0.05)           
             try:
                 r = requests.get(f'http://{self.ip}/{self.port}/{c}', timeout=self.timeout)    
-                print(direction, duration)
+                print('microwaves',direction, duration)
             except requests.exceptions.Timeout:
                 print('Relay timeout has been raised.')  
                 try: 

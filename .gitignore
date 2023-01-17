@@ -18,3 +18,5 @@ app/*history.json
 app/*session.yaml
 *.pyc
 app/history.json
+app/history.json
+log/log
