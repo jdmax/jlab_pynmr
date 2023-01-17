@@ -147,6 +147,8 @@ settings:
         timeout: 2  
         monitor_time: 30           # in minutes  
         line_resistance: 0.3     # Ohms
+    explorer:
+        enable: false
     fm_settings:
         enable: true
         ip: 129.57.160.12       # R&S supply IP
