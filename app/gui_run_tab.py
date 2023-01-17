@@ -616,7 +616,7 @@ class RunThread(QThread):
                 break
             #start_time = time.time()    
             new_sigs = self.daq.get_chunk()
-            print(new_sigs)
+            #print(new_sigs)
             chunk_num, num_in_chunk, pchunk, dchunk = new_sigs
             #print(f"get_chunk took {time.time() - start_time }s")
             if num_in_chunk > 0:
