@@ -6,6 +6,7 @@ data-d/*
 !data-d/
 log/*
 !log/
+!log/log
 screens/*
 !screens/
 te/*
