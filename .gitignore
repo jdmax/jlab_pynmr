@@ -1,5 +1,6 @@
 data/*
 !data/current.txt
+!data/recent_baselines.txt
 data-p/*
 !data-p/
 data-d/*
