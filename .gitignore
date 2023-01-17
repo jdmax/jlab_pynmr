@@ -20,3 +20,4 @@ app/*session.yaml
 app/history.json
 app/history.json
 log/log
+log/log

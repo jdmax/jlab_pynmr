@@ -1,27 +1,37 @@
-2023-01-16 21:03:14 Started new instance.
-2023-01-16 21:03:14 Loaded config file {self.config_filename}.
-2023-01-16 21:03:14 Error closing eventfile.
-2023-01-16 21:05:42 Started new instance.
-2023-01-16 21:05:42 Loaded config file {self.config_filename}.
-2023-01-16 21:05:42 Error closing eventfile.
-2023-01-16 21:05:42 Opened new evenfile data\current_2023-01-17_02-05-42.txt
-2023-01-16 21:05:47 Changed channel to Proton5T.
-2023-01-16 21:10:20 Started new instance.
-2023-01-16 21:10:20 Loaded config file {self.config_filename}.
-2023-01-16 21:10:20 Error closing eventfile.
-2023-01-16 21:10:20 Opened new evenfile data\current_2023-01-17_02-10-20.txt
-2023-01-16 21:10:24 Changed channel to Proton5T.
-2023-01-16 21:10:24 Saved TE data and set new calibration constant -5.246731.
-2023-01-16 21:10:24 DAQ Test mode.
-2023-01-16 21:10:31 Closed eventfile and moved to 2023-01-17_02-10-20__2023-01-17_02-10-31.txt.
-2023-01-16 21:10:31 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
-2023-01-16 21:11:31 Started new instance.
-2023-01-16 21:11:31 Loaded config file {self.config_filename}.
-2023-01-16 21:11:31 Error closing eventfile.
-2023-01-16 21:11:31 Opened new evenfile data\current_2023-01-17_02-11-31.txt
-2023-01-16 21:11:36 Changed channel to Proton5T.
-2023-01-16 21:11:36 Saved TE data and set new calibration constant -5.246731.
-2023-01-16 21:11:36 DAQ Test mode.
-2023-01-16 21:11:47 Finished event at 02:11:47 UTC, after 3s. Analysis returned at 02:11:47 UTC, after 0.0s.
-2023-01-16 21:12:13 Closed eventfile and moved to 2023-01-17_02-11-31__2023-01-17_02-12-13.txt.
-2023-01-16 21:12:13 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
+2023-01-17 10:15:01 Started new instance.
+2023-01-17 10:15:01 Loaded config file {self.config_filename}.
+2023-01-17 10:15:33 Started new instance.
+2023-01-17 10:15:33 Loaded config file {self.config_filename}.
+2023-01-17 10:15:33 Error closing eventfile.
+2023-01-17 10:15:33 Opened new evenfile data\current_2023-01-17_15-15-33.txt
+2023-01-17 10:15:38 Changed channel to Proton5T.
+2023-01-17 10:15:38 Saved TE data and set new calibration constant -5.246731.
+2023-01-17 10:15:38 DAQ Test mode.
+2023-01-17 10:16:51 Finished event at 15:16:51 UTC, after 3s. Analysis returned at 15:16:51 UTC, after 0.1s.
+2023-01-17 10:22:30 Finished event at 15:21:52 UTC, after 10s. Analysis returned at 15:22:30 UTC, after 38.0s.
+2023-01-17 10:22:45 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:45 UTC, after 0.0s.
+2023-01-17 10:22:52 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:52 UTC, after 6.3s.
+2023-01-17 10:22:52 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:52 UTC, after 6.7s.
+2023-01-17 10:22:52 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:52 UTC, after 6.9s.
+2023-01-17 10:22:53 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:53 UTC, after 8.2s.
+2023-01-17 10:22:54 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:54 UTC, after 8.6s.
+2023-01-17 10:22:54 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:54 UTC, after 8.8s.
+2023-01-17 10:22:54 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:54 UTC, after 8.9s.
+2023-01-17 10:22:54 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:54 UTC, after 9.1s.
+2023-01-17 10:22:57 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:57 UTC, after 11.3s.
+2023-01-17 10:22:57 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:57 UTC, after 11.5s.
+2023-01-17 10:22:57 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:57 UTC, after 11.9s.
+2023-01-17 10:22:57 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:57 UTC, after 12.2s.
+2023-01-17 10:22:58 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:58 UTC, after 12.5s.
+2023-01-17 10:22:59 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:59 UTC, after 14.0s.
+2023-01-17 10:22:59 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:22:59 UTC, after 14.2s.
+2023-01-17 10:23:00 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:23:00 UTC, after 14.4s.
+2023-01-17 10:23:00 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:23:00 UTC, after 14.6s.
+2023-01-17 10:23:00 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:23:00 UTC, after 14.7s.
+2023-01-17 10:23:00 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:23:00 UTC, after 14.9s.
+2023-01-17 10:23:00 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:23:00 UTC, after 15.1s.
+2023-01-17 10:23:01 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:23:01 UTC, after 15.3s.
+2023-01-17 10:23:01 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:23:01 UTC, after 15.5s.
+2023-01-17 10:23:01 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:23:01 UTC, after 15.7s.
+2023-01-17 10:23:01 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:23:01 UTC, after 15.9s.
+2023-01-17 10:23:02 Finished event at 15:22:45 UTC, after 10s. Analysis returned at 15:23:02 UTC, after 16.3s.
