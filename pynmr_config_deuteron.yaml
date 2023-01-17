@@ -149,6 +149,12 @@ settings:
         line_resistance: 0.3     # Ohms
     explorer:
         enable: false
+    compare_tab:
+        enable: false
+        rf_switch:
+            ip: 129.57.160.4      
+            port: 5025 
+            timeout: 2  
     fm_settings:
         enable: true
         ip: 129.57.160.12       # R&S supply IP
