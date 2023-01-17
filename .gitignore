@@ -1,5 +1,5 @@
 data/*
-!data/
+!data/current.txt
 data-p/*
 !data-p/
 data-d/*
