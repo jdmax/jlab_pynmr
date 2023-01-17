@@ -25,6 +25,7 @@ from app.gui_anal_tab import AnalTab
 from app.gui_expl_tab import ExplTab
 from app.gui_shim_tab import ShimTab
 from app.gui_fm_tab import FMTab
+from app.gui_compare_tab import CompareTab
 from app.gui_temp_tab import TempTab
 from app.gui_mag_tab import MagTab
 from app.daq import DAQConnection, UDP, TCP, RS_Connection, NI_Connection
@@ -112,6 +113,9 @@ class MainWindow(QMainWindow):
         if self.config.settings['fm_settings']['enable']:
             self.fm_tab = FMTab(self)
             self.tab_widget.addTab(self.fm_tab, "FM")
+        if self.config.settings['compare_tab']['enable']:
+            self.compare_tab = CompareTab(self)
+            self.tab_widget.addTab(self.compare_tab, "Compare")
         if self.config.settings['temp_settings']['enable']:
             self.temp_tab = TempTab(self)
             self.tab_widget.addTab(self.temp_tab, "Chassis Temp")
