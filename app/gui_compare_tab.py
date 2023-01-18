@@ -52,11 +52,11 @@ class CompareTab(QWidget):
         self.fpga_value = QLineEdit('4')
         self.fpga_value.setValidator(QIntValidator(1,100))
         self.controls_box.layout().addWidget(self.fpga_value, 1, 1)    
-        self.nidaq_label = QLabel("FPGA Events:")
-        self.controls_box.layout().addWidget(self.nidaq_label, 1, 0)
+        self.nidaq_label = QLabel("NIDAQ Events:")
+        self.controls_box.layout().addWidget(self.nidaq_label, 2, 0)
         self.nidaq__value = QLineEdit('4')
-        self.nidaq__value.setValidator(QIntValidator(1,10000))
-        self.controls_box.layout().addWidget(self.nidaq__value, 1, 1)     
+        self.nidaq__value.setValidator(QIntValidator(1,100))
+        self.controls_box.layout().addWidget(self.nidaq__value, 2, 1)
                 
         self.main.addLayout(self.left)
         
