@@ -358,8 +358,12 @@ class RunTab(QWidget):
             self.run_button.setChecked(False)
             self.update_run_plot()
             self.parent.run_toggle()
+            if self.config.settings['compare_tab']['enable']:  # if doing compare_tab   
+                self.parent.compare_tab.mode_done()
         else:                                    # done, continue running
             self.parent.status_bar.showMessage(f'Finished event at  at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s. Running sweeps...')
+            if self.config.settings['compare_tab']['enable']:  # if doing compare_tab   
+                self.parent.compare_tab.mode_switch()
             self.start_thread()
         
     

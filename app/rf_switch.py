@@ -19,6 +19,9 @@ class RFSwitch():
         except Exception as e:
             print(f"RF Switch connection failed on {self.host}: {e}")
             
+        self.set_switch('A', 0)  
+        self.set_switch('B', 0)    
+            
     def set_switch(self, switch, status):
         '''Set switch.
         Arguments:
@@ -31,5 +34,5 @@ class RFSwitch():
             return data
             
         except Exception as e:
-            print(f"RF Switch read failed on {self.host}: {e}")
+            print(f"RF Switch set failed on {self.host}: {e}")
         
