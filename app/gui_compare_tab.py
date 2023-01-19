@@ -10,6 +10,7 @@ import pyqtgraph as pg
 from scipy import optimize
  
 from app.te_calc import TE
+from app.rf_switch import RFSwitch
 
 class CompareTab(QWidget): 
     '''Creates settings tab'''   
@@ -18,6 +19,7 @@ class CompareTab(QWidget):
         self.__dict__.update(parent.__dict__)  
         
         self.parent = parent
+        self.settings = parent.settings
         
         self.raw_pen = pg.mkPen(color=(250, 0, 0), width=1.5)
         self.sub_pen = pg.mkPen(color=(0, 0, 204), width=1.5)
@@ -37,26 +39,21 @@ class CompareTab(QWidget):
                         
                    
         # Populate Controls box
-        self.controls_box = QGroupBox('NMR Controls')
+        self.controls_box = QGroupBox('Q-Meter Switching Controls')
         self.controls_box.setLayout(QGridLayout())
         self.left.addWidget(self.controls_box)
-        self.run_button = QPushButton("Run",checkable=True)       # Run button
+        self.run_button = QPushButton("Run Compare",checkable=True)       # Run button
         self.controls_box.layout().addWidget(self.run_button, 0, 0)
-        self.run_button.setEnabled(False)
+        self.run_button.setEnabled(True)
         self.run_button.clicked.connect(self.run_pushed)
         self.progress_bar = QProgressBar()                                  # Progress bar
         self.progress_bar.setTextVisible(False)
         self.controls_box.layout().addWidget(self.progress_bar, 0, 1)
-        self.fpga_label = QLabel("FPGA Events:")
-        self.controls_box.layout().addWidget(self.fpga_label, 1, 0)
-        self.fpga_value = QLineEdit('4')
-        self.fpga_value.setValidator(QIntValidator(1,100))
-        self.controls_box.layout().addWidget(self.fpga_value, 1, 1)    
-        self.nidaq_label = QLabel("NIDAQ Events:")
-        self.controls_box.layout().addWidget(self.nidaq_label, 2, 0)
-        self.nidaq__value = QLineEdit('4')
-        self.nidaq__value.setValidator(QIntValidator(1,100))
-        self.controls_box.layout().addWidget(self.nidaq__value, 2, 1)
+        self.iter_label = QLabel("Number of Events before Switch:")
+        self.controls_box.layout().addWidget(self.iter_label, 1, 0)
+        self.iter_value = QLineEdit('2')
+        self.iter_value.setValidator(QIntValidator(1,100))
+        self.controls_box.layout().addWidget(self.iter_value, 1, 1)
                 
         self.main.addLayout(self.left)
         
@@ -87,23 +84,61 @@ class CompareTab(QWidget):
         self.main.addLayout(self.right)
         self.setLayout(self.main)   
         
+        self.iteration = 0
+        self.switch = True   # True is FPGA, False is NIDAQ
+        self.compare_on = False
+        self.default_mode = self.parent.config.settings['daq_type']
         
-        
-        
+        self.rf = RFSwitch(self.settings['rf_switch']['ip'], self.settings['rf_switch']['port'], self.settings['rf_switch']['timeout'])
         
     def run_pushed(self):
-        '''Start main loop if conditions met'''
+        '''Emulate pushing button on Run Tab'''
                
-        if self.run_button.isChecked():        
-            self.parent.status_bar.showMessage('Running sweeps...')
-            #self.abort_button.setEnabled(True)
-            self.lock_button.setEnabled(False)
+        if self.run_button.isChecked():   
+            self.compare_on = True
             self.run_button.setText('Finish')
-            self.start_thread()
+            self.parent.run_tab.run_button.toggle()  # hit the button to run
+            self.parent.run_tab.run_pushed()  # hit the button to run            
             self.parent.run_toggle()
                    
         else:
-            if self.run_thread.isRunning:
-                self.run_button.setText('Finishing...')
-                self.run_button.setEnabled(False)
+            self.compare_on = False
+            self.run_button.setText('Finishing...')
+            self.run_button.setEnabled(False)
+            self.parent.run_tab.run_button.toggle()  # hit the button to run
+            self.parent.run_tab.run_pushed()  # hit the button to run   
+            self.parent.run_toggle()
+        
+    def mode_switch(self):
+        '''Decide which mode we should be in, flip switch and change config 
+        '''       
+        if self.compare_on:      # If we are running compare mode
+            self.iteration += 1
+            if self.iteration > int(self.iter_value.text()):   # we have exceed iterations, switch
+                self.iteration = 0
+                if self.switch:  # Switch to NIDAQ
+                    self.switch = False
+                    self.rf.set_switch('A',1)
+                    self.rf.set_switch('B',1)
+                    self.parent.config.settings['daq_type'] = 'NIDAQ'                
+                    
+                if self.switch:  # switch to FPGA
+                    self.switch = True
+                    self.rf.set_switch('A',0)
+                    self.rf.set_switch('B',0)
+                    self.parent.config.settings['daq_type'] = self.default_mode        
+        
+    def mode_done(self):
+        '''Done, set it all back to defaults
+        '''       
+        self.iteration = 0
+        self.compare_on = False
+        self.switch = True        
+        self.rf.set_switch('A',0)
+        self.rf.set_switch('B',0)
+        self.parent.config.settings['daq_type'] = 'FPGA'   
+        self.run_button.setText('Run Compare')
+
+        
+        
         

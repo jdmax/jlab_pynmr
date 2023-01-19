@@ -37,6 +37,7 @@ class TuneTab(QWidget):
         self.tune_box.layout().addWidget(self.run_button)
         self.run_button.clicked.connect(self.run_pushed)
         self.run_button.setEnabled(False)
+        self.progress_bar = QProgressBar()                                 # Progress bar
         self.progress_bar = QProgressBar()                                  # Progress bar
         self.progress_bar.setTextVisible(False)
         self.tune_box.layout().addWidget(self.progress_bar)
