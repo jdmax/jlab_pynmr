@@ -308,6 +308,9 @@ class MainWindow(QMainWindow):
             self.tune_tab.phase_slider.setEnabled(False)
             self.tune_tab.diode_spin.setEnabled(False)
             self.tune_tab.diode_slider.setEnabled(False)
+            if self.config.settings['compare_tab']['enable']:
+                if not self.compare_tab.compare_on:
+                    self.compare_tab.run_button.setEnabled(False)
         else:
             self.tune_tab.run_button.setEnabled(True)
             self.tune_tab.phase_spin.setEnabled(True)
