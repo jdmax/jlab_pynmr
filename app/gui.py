@@ -218,7 +218,9 @@ class MainWindow(QMainWindow):
 
         self.run_tab.update_event_plots()
         self.te_tab.update_event_plots()
-        self.anal_tab.update_event_plots()      
+        self.anal_tab.update_event_plots() 
+        if self.config.settings['compare_tab']['enable']:
+            self.compare_tab.update_event_plots()      
         
         now = datetime.datetime.now(tz=datetime.timezone.utc)
         elapsed = now.timestamp() - self.start_end.timestamp() 

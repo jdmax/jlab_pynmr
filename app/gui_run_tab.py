@@ -366,8 +366,7 @@ class RunTab(QWidget):
             self.parent.status_bar.showMessage(f'Finished event at  at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s. Running sweeps...')
             if self.config.settings['compare_tab']['enable']:  # if doing compare_tab   
                 self.parent.compare_tab.mode_switch()
-            self.start_thread()
-        
+            self.start_thread()        
     
     def update_event_plots(self):
         '''Update all plots and indicators for this event using instance data'''
@@ -387,7 +386,7 @@ class RunTab(QWidget):
   
         self.update_time_plots()  
             
-        self.progress_bar.setValue(0)          
+        self.progress_bar.setValue(0)                 
             
     def update_time_plots(self):
         '''Update pol v time plot'''
@@ -406,7 +405,7 @@ class RunTab(QWidget):
         if self.parent.config.settings['epics_settings']['enable']:   # turn on beam on plot if we are geting epics     
             #asym_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].uwave_freq for k in hist_data.keys()]))
             #self.asym_time_plot.setData(asym_data) 
-            self.beam_current_regions(hist_data)     
+            self.beam_current_regions(hist_data)           
         
     def beam_current_regions(self, hist_data):
         '''Draw regions in the time plot to show when beam is on. Pass list of history points to include.'''
