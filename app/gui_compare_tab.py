@@ -21,16 +21,10 @@ class CompareTab(QWidget):
         self.parent = parent
         self.settings = parent.settings
         
-        self.raw_pen = pg.mkPen(color=(250, 0, 0), width=1.5)
-        self.sub_pen = pg.mkPen(color=(0, 0, 204), width=1.5)
-        self.fit_pen = pg.mkPen(color=(255, 255, 0), width=3)
-        self.fin_pen = pg.mkPen(color=(0, 160, 0), width=1.5)
-        self.res_pen = pg.mkPen(color=(190, 0, 190), width=2)
-        self.pol_pen = pg.mkPen(color=(250, 0, 0), width=1.5)
-        self.asym_pen = pg.mkPen(color=(250, 175, 0), width=1)
-        self.wave_pen = pg.mkPen(color=(153, 204, 255), width=1.5)
-        self.beam_brush = pg.mkBrush(color=(0,0,160, 10))
-        self.beam_pen = pg.mkPen(color=(255,255,255, 0))
+        self.time_pen = pg.mkPen(color=(0, 0, 204), width=1.5)
+        self.fit1_pen = pg.mkPen(color=(0, 0, 150), width=1.5)
+        self.zoom_pen = pg.mkPen(color=(0, 180, 0), width=1.5)
+        self.fit2_pen = pg.mkPen(color=(0, 130, 0), width=1.5)
         
         self.main = QHBoxLayout()            # main layout
         
@@ -55,33 +49,31 @@ class CompareTab(QWidget):
         self.iter_value.setValidator(QIntValidator(1,100))
         self.controls_box.layout().addWidget(self.iter_value, 1, 1)
         self.label = QLabel("Switches between FPGA and NIDAQ.")
-        self.controls_box.layout().addWidget(self.label, 2, 1)
+        self.controls_box.layout().addWidget(self.label, 3, 1)
                 
+        self.range_label = QLabel('History to Show (min):')
+        self.controls_box.layout().addWidget(self.range_label, 2, 0) 
+        self.range_value = QLineEdit('60')
+        self.range_value.setValidator(QIntValidator(1,10000))
+        self.controls_box.layout().addWidget(self.range_value, 2, 1)     
+        
         self.main.addLayout(self.left)
         
         # Right Side
         self.right = QVBoxLayout()    
         # Populate pol v time plot
-        self.time_axis = pg.DateAxisItem(orientation='bottom')
-        self.pol_time_wid = pg.PlotWidget(
-            title='', axisItems={'bottom': self.time_axis}
-        )
-        self.legend = self.pol_time_wid.addLegend()
-        self.pol_time_wid.showGrid(True,True, alpha = 0.2)
-        self.pol_time_plot = self.pol_time_wid.plot([], [], pen=self.pol_pen) 
-        #self.pol_time_wid.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding)
-        self.right.addWidget(self.pol_time_wid)
+        self.time_axis = pg.DateAxisItem(orientation='bottom')    
+        self.time_wid = pg.PlotWidget(title='Area vs. Time', axisItems={'bottom': self.time_axis})
+        self.time_wid.showGrid(True,True)
+        self.time_plot = self.time_wid.plot([], [], pen=self.time_pen) 
+        self.right.addWidget(self.time_wid)
         
         # Populate pol v time plot
-        self.time_axis2 = pg.DateAxisItem(orientation='bottom')
-        self.pol_time_wid2 = pg.PlotWidget(
-            title='', axisItems={'bottom': self.time_axis2}
-        )
-        self.legend2 = self.pol_time_wid2.addLegend()
-        self.pol_time_wid2.showGrid(True,True, alpha = 0.2)
-        self.pol_time_plot2 = self.pol_time_wid2.plot([], [], pen=self.pol_pen) 
-        #self.pol_time_wid.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding)
-        self.right.addWidget(self.pol_time_wid2)
+        self.time_axis2 = pg.DateAxisItem(orientation='bottom')    
+        self.time_wid2 = pg.PlotWidget(title='Area vs. Time', axisItems={'bottom': self.time_axis2})
+        self.time_wid2.showGrid(True,True)
+        self.time_plot2 = self.time_wid2.plot([], [], pen=self.time_pen) 
+        self.right.addWidget(self.time_wid2)
         
         self.main.addLayout(self.right)
         self.setLayout(self.main)   
@@ -145,7 +137,15 @@ class CompareTab(QWidget):
         self.run_button.setText('Run Compare')
         str = 'FPGA' if self.switch else 'NIDAQ'
         self.label.setText(f"Running {str} events. {int(self.iter_value.text()) - self.iteration} remaining.") 
-
         
-        
-        
+                   
+    def update_event_plots(self): 
+        '''Update time plot as running'''
+        hist_data = {}
+        new_hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())  # dict of Hist objects keyed on stamps
+        for k,v in new_hist_data.items():
+            #if 'TE' in v.label or 'None' in v.label:  
+            hist_data[k] = v
+            # exclude unless labelled as TE, or not labeled
+        self.time_data = np.column_stack((list(hist_data.keys()),[hist_data[k].area for k in hist_data.keys()])) # 2-d nparray to plot 
+        self.time_plot.setData(self.time_data)   #plot
