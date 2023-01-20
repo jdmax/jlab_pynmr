@@ -54,6 +54,8 @@ class CompareTab(QWidget):
         self.iter_value = QLineEdit('2')
         self.iter_value.setValidator(QIntValidator(1,100))
         self.controls_box.layout().addWidget(self.iter_value, 1, 1)
+        self.label = QLabel("Switches between FPGA and NIDAQ.")
+        self.controls_box.layout().addWidget(self.label, 2, 1)
                 
         self.main.addLayout(self.left)
         
@@ -98,16 +100,16 @@ class CompareTab(QWidget):
             self.compare_on = True
             self.run_button.setText('Finish')
             self.parent.run_tab.run_button.toggle()  # hit the button to run
-            self.parent.run_tab.run_pushed()  # hit the button to run            
+            self.parent.run_tab.run_pushed()          
             self.parent.run_toggle()
                    
         else:
             self.compare_on = False
             self.run_button.setText('Finishing...')
-            self.run_button.setEnabled(False)
-            self.parent.run_tab.run_button.toggle()  # hit the button to run
-            self.parent.run_tab.run_pushed()  # hit the button to run   
             self.parent.run_toggle()
+            self.run_button.setEnabled(False)
+            self.parent.run_tab.run_button.toggle() 
+            self.parent.run_tab.run_pushed()   
         
     def mode_switch(self):
         '''Decide which mode we should be in, flip switch and change config 
@@ -120,14 +122,17 @@ class CompareTab(QWidget):
                     self.switch = False
                     self.rf.set_switch('A',1)
                     self.rf.set_switch('B',1)
-                    self.parent.config.settings['daq_type'] = 'NIDAQ'                
+                    self.parent.config.settings['daq_type'] = 'NIDAQ'       
+                                 
                     
-                if self.switch:  # switch to FPGA
+                if self.switch:  # switch back to FPGA
                     self.switch = True
                     self.rf.set_switch('A',0)
                     self.rf.set_switch('B',0)
-                    self.parent.config.settings['daq_type'] = self.default_mode        
-        
+                    self.parent.config.settings['daq_type'] = self.default_mode   
+            
+            str = 'FPGA' if self.switch else 'NIDAQ'
+            self.label.setText(f"Running {str} events. {int(self.iter_value.text()) - self.iteration} remaining.") 
     def mode_done(self):
         '''Done, set it all back to defaults
         '''       
@@ -136,8 +141,10 @@ class CompareTab(QWidget):
         self.switch = True        
         self.rf.set_switch('A',0)
         self.rf.set_switch('B',0)
-        self.parent.config.settings['daq_type'] = 'FPGA'   
+        self.parent.config.settings['daq_type'] = self.default_mode    
         self.run_button.setText('Run Compare')
+        str = 'FPGA' if self.switch else 'NIDAQ'
+        self.label.setText(f"Running {str} events. {int(self.iter_value.text()) - self.iteration} remaining.") 
 
         
         

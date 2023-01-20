@@ -329,6 +329,8 @@ class RunTab(QWidget):
         progress = 100*self.parent.event.scan.num/self.parent.event.config.controls['sweeps'].value
         progress = 100*self.parent.event.scan.num/self.parent.event.config.controls['sweeps'].value
         self.progress_bar.setValue(progress)
+        if self.parent.config.settings['compare_tab']['enable']:
+            self.parent.compare_tab.progress_bar.setValue(progress)
     
     # def abort_run(self):
         # '''Quit now'''
