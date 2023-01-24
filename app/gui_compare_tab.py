@@ -114,14 +114,16 @@ class CompareTab(QWidget):
                     self.switch = False
                     self.rf.set_switch('A',1)
                     self.rf.set_switch('B',1)
-                    self.parent.config.settings['daq_type'] = 'NIDAQ'       
+                    self.parent.config.settings['daq_type'] = 'NIDAQ'     
+                    time.sleep(0.1)                    
                                  
                     
                 if self.switch:  # switch back to FPGA
                     self.switch = True
                     self.rf.set_switch('A',0)
                     self.rf.set_switch('B',0)
-                    self.parent.config.settings['daq_type'] = self.default_mode   
+                    self.parent.config.settings['daq_type'] = self.default_mode      
+                    time.sleep(0.1)
             
             str = 'FPGA' if self.switch else 'NIDAQ'
             self.label.setText(f"Running {str} events. {int(self.iter_value.text()) - self.iteration} remaining.") 

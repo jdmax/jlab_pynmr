@@ -123,8 +123,8 @@ settings:
     compare_tab:
         enable: true
     rf_switch:
-        ip: 129.57.160.4      
-        port: 5025 
+        ip: 129.57.161.17      
+        port: 23
         timeout: 2  
     fm_settings:
         enable: false
