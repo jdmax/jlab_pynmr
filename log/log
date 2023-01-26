@@ -119,3 +119,73 @@
 2023-01-26 11:24:33 Finished event at 16:24:32 UTC, after 12s. Analysis returned at 16:24:33 UTC, after 0.4s.
 2023-01-26 11:24:43 Closed eventfile and moved to 2023-01-26_16-23-10__2023-01-26_16-24-43.txt.
 2023-01-26 11:24:43 Printed settings on exit to <_io.TextIOWrapper name='app/proton_session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 11:27:23 Started new instance.
+2023-01-26 11:27:23 Loaded config file {self.config_filename}.
+2023-01-26 11:27:23 Error closing eventfile.
+2023-01-26 11:27:23 Opened new evenfile data-p\current_2023-01-26_16-27-23.txt
+2023-01-26 11:27:24 Changed channel to Proton5T.
+2023-01-26 11:27:26 Saved TE data and set new calibration constant -1.731662.
+2023-01-26 11:27:26 Connected to NI-DAQ.
+2023-01-26 14:02:15 Closed eventfile and moved to 2023-01-26_16-27-23__2023-01-26_19-02-15.txt.
+2023-01-26 14:02:15 Printed settings on exit to <_io.TextIOWrapper name='app/proton_session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 14:02:23 Started new instance.
+2023-01-26 14:02:23 Loaded config file {self.config_filename}.
+2023-01-26 14:02:23 Error closing eventfile.
+2023-01-26 14:02:23 Opened new evenfile data-p\current_2023-01-26_19-02-23.txt
+2023-01-26 14:02:24 Changed channel to Proton5T.
+2023-01-26 14:02:26 Saved TE data and set new calibration constant -1.731662.
+2023-01-26 14:02:27 Connected to NI-DAQ.
+2023-01-26 14:03:09 Finished event at 19:02:44 UTC, after 11s. Analysis returned at 19:03:09 UTC, after 25.3s.
+2023-01-26 14:03:13 Closed eventfile and moved to 2023-01-26_19-02-23__2023-01-26_19-03-13.txt.
+2023-01-26 14:03:13 Printed settings on exit to <_io.TextIOWrapper name='app/proton_session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 14:03:26 Started new instance.
+2023-01-26 14:03:26 Loaded config file {self.config_filename}.
+2023-01-26 14:03:26 Error closing eventfile.
+2023-01-26 14:03:26 Opened new evenfile data-p\current_2023-01-26_19-03-26.txt
+2023-01-26 14:03:27 Changed channel to Proton5T.
+2023-01-26 14:03:29 Saved TE data and set new calibration constant -1.731662.
+2023-01-26 14:03:29 Connected to: 129.57.160.2, port 1028, and set registers and frequency table.
+2023-01-26 14:05:07 Closed eventfile and moved to 2023-01-26_19-03-26__2023-01-26_19-05-07.txt.
+2023-01-26 14:05:07 Printed settings on exit to <_io.TextIOWrapper name='app/proton_session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 14:15:44 Started new instance.
+2023-01-26 14:15:44 Loaded config file {self.config_filename}.
+2023-01-26 14:15:44 Error closing eventfile.
+2023-01-26 14:15:44 Opened new evenfile data-p\current_2023-01-26_19-15-44.txt
+2023-01-26 14:15:45 Changed channel to Proton5T.
+2023-01-26 14:15:47 Saved TE data and set new calibration constant -1.731662.
+2023-01-26 14:15:47 Connected to: 129.57.160.2, port 1028, and set registers and frequency table.
+2023-01-26 14:15:57 Changed channel to Proton5T-800mV.
+2023-01-26 14:17:49 Finished event at 00:00:00 UTC, after 19s. Analysis returned at 19:17:49 UTC, after 3.1s.
+2023-01-26 14:18:11 Finished event at 00:00:00 UTC, after 19s. Analysis returned at 19:18:11 UTC, after 5.3s.
+2023-01-26 14:18:31 Finished event at 19:18:26 UTC, after 19s. Analysis returned at 19:18:31 UTC, after 5.3s.
+2023-01-26 14:18:51 Finished event at 19:18:26 UTC, after 19s. Analysis returned at 19:18:51 UTC, after 25.1s.
+2023-01-26 14:20:09 Closed eventfile and moved to 2023-01-26_19-15-44__2023-01-26_19-20-09.txt.
+2023-01-26 14:20:09 Printed settings on exit to <_io.TextIOWrapper name='app/proton_session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 14:20:18 Started new instance.
+2023-01-26 14:20:18 Loaded config file {self.config_filename}.
+2023-01-26 14:20:18 Error closing eventfile.
+2023-01-26 14:20:18 Opened new evenfile data-p\current_2023-01-26_19-20-18.txt
+2023-01-26 14:20:18 Changed channel to Proton5T-800mV.
+2023-01-26 14:20:21 Saved TE data and set new calibration constant -1.731662.
+2023-01-26 14:20:21 Connected to: 129.57.160.2, port 1028, and set registers and frequency table.
+2023-01-26 14:26:06 Closed eventfile and moved to 2023-01-26_19-20-18__2023-01-26_19-26-06.txt.
+2023-01-26 14:26:06 Printed settings on exit to <_io.TextIOWrapper name='app/proton_session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 14:26:13 Started new instance.
+2023-01-26 14:26:13 Loaded config file {self.config_filename}.
+2023-01-26 14:26:13 Error closing eventfile.
+2023-01-26 14:26:13 Opened new evenfile data-p\current_2023-01-26_19-26-13.txt
+2023-01-26 14:26:14 Changed channel to Proton5T-800mV.
+2023-01-26 14:26:16 Saved TE data and set new calibration constant -1.731662.
+2023-01-26 14:26:16 Connected to: 129.57.160.2, port 1028, and set registers and frequency table.
+2023-01-26 14:26:27 Closed eventfile and moved to 2023-01-26_19-26-13__2023-01-26_19-26-27.txt.
+2023-01-26 14:26:27 Printed settings on exit to <_io.TextIOWrapper name='app/proton_session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 14:26:58 Started new instance.
+2023-01-26 14:26:58 Loaded config file {self.config_filename}.
+2023-01-26 14:26:58 Error closing eventfile.
+2023-01-26 14:26:58 Opened new evenfile data-p\current_2023-01-26_19-26-58.txt
+2023-01-26 14:26:59 Changed channel to Proton5T-800mV.
+2023-01-26 14:27:01 Saved TE data and set new calibration constant -1.731662.
+2023-01-26 14:27:01 Connected to NI-DAQ.
+2023-01-26 14:27:32 Changed channel to Proton5T-200mV.
+2023-01-26 14:28:01 Changed channel to Proton5T-350mV.
+2023-01-26 14:28:18 Changed channel to Proton5T-200mV.

@@ -15,7 +15,6 @@ channels:
         mod_freq: 800.0             # Frequency modulation in kHz   (float)
         power: 450.0                # RF power in mV  (float), typically 200
         sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
-
     Proton5T-350mV:
         name: Proton5T-350mV
         species: proton 
@@ -37,16 +36,16 @@ channels:
         mod_freq: 400.0             # Frequency modulation in kHz   (float)
         power: 500.0                # RF power in mV  (float), typically 200
         sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary) 
-    Proton5T-550mV:
-        name: Proton5T-550mV
+    Proton5T-800mV:
+        name: Proton5T-800mV
         species: proton 
         cent_freq: 212.882            # Center frequency in MHz   (float)
         mod_freq: 400.0             # Frequency modulation in kHz   (float)
-        power: 550.0                # RF power in mV  (float), typically 200
+        power: 800.0                # RF power in mV  (float), typically 200
         sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)   
 settings:
     default_channel: Proton5T     # Default from channels listed above
-    daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ or Test)
+    daq_type: NIDAQ              # Select DAQ mode (FPGA, NIDAQ or Test)
     test_signal: app/d_signal_event.txt  # signal to use for test mode
     event_dir: data-p            # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
@@ -58,7 +57,7 @@ settings:
     num_per_chunk: 64           # Number of sweeps per chunk (IntSweepCycle from FPGA manual)
     tune_per_chunk:  32         # Number of sweeps per chunk to take in tune mode
     epics_settings:
-        enable: true         # If false, doesn't attempt to contact EPICS server
+        enable: false         # If false, doesn't attempt to contact EPICS server
         monitor_time: 5            # Time between calls to get EPICS data
         timeout: 5
         epics_temp: TGT:PT12:VaporPressure_T     # EPICS channel of temp to use as default 
