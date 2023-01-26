@@ -119,7 +119,7 @@ settings:
         enable: true         # Turn on uWave controls
         monitor_time: .4         # How long to wait between reading frequency when on monitor in s
         counter:
-            ip: 129.57.160.5       # GPIB IP
+            ip: 129.57.161.19       # GPIB IP
             port: 1234
             timeout: 4              # Telnet timeout in secs
             addr: 19        # EIP 588C frequency counter GPIB address

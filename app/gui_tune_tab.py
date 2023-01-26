@@ -2,6 +2,7 @@
 '''
 import datetime
 import time
+import copy
 from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout, QHBoxLayout, QPushButton, QGroupBox, QGridLayout, QLabel, QLineEdit, QSizePolicy, QComboBox, QSpacerItem, QSlider, QDoubleSpinBox, QProgressBar
 from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator
 from PyQt5.QtCore import QThread, pyqtSignal,Qt
@@ -142,15 +143,27 @@ class TuneTab(QWidget):
         self.dac_v = value
         self.dac_c = dac_c
         
-        if not self.running:
-            time.sleep(0.0001)
-            self.daq = DAQConnection(self.config, 4, True)
-            if self.daq.set_dac(self.dac_v, self.dac_c):
+        if 'NIDAQ' in self.parent.config.settings['daq_type']:   # if we are tuning with the NIDAQ but want to tune with the FPGA
+            time.sleep(0.0001)   
+            self.config.settings['daq_type'] = 'FPGA'   
+            self.fpga_daq = DAQConnection(self.config, 4, True)
+            self.config.settings['daq_type'] = 'NIDAQ'
+            if self.fpga_daq.set_dac(self.dac_v, self.dac_c):
                 pass
-                #print("Set DAC:", self.dac_c,  self.dac_v)
+                print("Set DAC:", self.dac_c,  self.dac_v)
             else:
                 print("Error setting DAC.")
-            del self.daq
+            del self.fpga_daq
+        else:                       
+            if not self.running:
+                time.sleep(0.0001)
+                self.daq = DAQConnection(self.config, 4, True)
+                if self.daq.set_dac(self.dac_v, self.dac_c):
+                    pass
+                    print("Set DAC:", self.dac_c,  self.dac_v)
+                else:
+                    print("Error setting DAC.")
+                del self.daq
  
     def run_pushed(self):
         '''Start tune loop if conditions met'''

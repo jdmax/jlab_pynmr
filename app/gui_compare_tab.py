@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout
 from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator, QStandardItemModel, QStandardItem
 import pyqtgraph as pg
 from scipy import optimize
+from app.daq import RS_Connection
  
 from app.te_calc import TE
 from app.rf_switch import RFSwitch
@@ -49,13 +50,19 @@ class CompareTab(QWidget):
         self.iter_value.setValidator(QIntValidator(1,100))
         self.controls_box.layout().addWidget(self.iter_value, 1, 1)
         self.label = QLabel("Switches between FPGA and NIDAQ.")
-        self.controls_box.layout().addWidget(self.label, 3, 1)
+        self.controls_box.layout().addWidget(self.label, 4, 1)
                 
         self.range_label = QLabel('History to Show (min):')
         self.controls_box.layout().addWidget(self.range_label, 2, 0) 
         self.range_value = QLineEdit('60')
         self.range_value.setValidator(QIntValidator(1,10000))
-        self.controls_box.layout().addWidget(self.range_value, 2, 1)     
+        self.controls_box.layout().addWidget(self.range_value, 2, 1)  
+        
+        self.tune_label = QLabel('NIDAQ Diode Tune:')
+        self.controls_box.layout().addWidget(self.tune_label, 3, 0) 
+        self.tune_value = QLineEdit('0.0')
+        self.tune_value.setValidator(QDoubleValidator(0,100,6))
+        self.controls_box.layout().addWidget(self.tune_value, 3, 1)  
         
         self.main.addLayout(self.left)
         
@@ -81,7 +88,6 @@ class CompareTab(QWidget):
         self.iteration = 0
         self.switch = True   # True is FPGA, False is NIDAQ
         self.compare_on = False
-        self.default_mode = self.parent.config.settings['daq_type']
         
         self.rf = RFSwitch(self.settings['rf_switch']['ip'], self.settings['rf_switch']['port'], self.settings['rf_switch']['timeout'])
         
@@ -108,34 +114,37 @@ class CompareTab(QWidget):
         '''       
         if self.compare_on:      # If we are running compare mode
             self.iteration += 1
-            if self.iteration > int(self.iter_value.text()):   # we have exceed iterations, switch
+            if self.iteration > int(self.iter_value.text())-1:   # we have exceed iterations, switch
                 self.iteration = 0
                 if self.switch:  # Switch to NIDAQ
                     self.switch = False
                     self.rf.set_switch('A',1)
                     self.rf.set_switch('B',1)
-                    self.parent.config.settings['daq_type'] = 'NIDAQ'     
-                    time.sleep(0.1)                    
-                                 
-                    
-                if self.switch:  # switch back to FPGA
+                    self.parent.config =  self.parent.config_compare_NIDAQ
+                    self.parent.tune_tab.send_to_dac(float(self.tune_value.text()), 2)
+                    rs = RS_Connection(self.parent.config) 
+                    time.sleep(0.1)                       
+                else:  # switch back to FPGA
                     self.switch = True
                     self.rf.set_switch('A',0)
                     self.rf.set_switch('B',0)
-                    self.parent.config.settings['daq_type'] = self.default_mode      
+                    self.parent.config = self.parent.config_compare_FPGA 
+                    self.parent.tune_tab.send_to_dac(self.parent.config.diode_vout, 2)
+                    rs = RS_Connection(self.parent.config) 
                     time.sleep(0.1)
-            
+                   
             str = 'FPGA' if self.switch else 'NIDAQ'
             self.label.setText(f"Running {str} events. {int(self.iter_value.text()) - self.iteration} remaining.") 
+            
     def mode_done(self):
-        '''Done, set it all back to defaults
+        '''Done, set it all back to FPGA defaults
         '''       
         self.iteration = 0
         self.compare_on = False
         self.switch = True        
         self.rf.set_switch('A',0)
         self.rf.set_switch('B',0)
-        self.parent.config.settings['daq_type'] = self.default_mode    
+        self.parent.config = self.parent.config_compare_FPGA   
         self.run_button.setText('Run Compare')
         str = 'FPGA' if self.switch else 'NIDAQ'
         self.label.setText(f"Running {str} events. {int(self.iter_value.text()) - self.iteration} remaining.") 
