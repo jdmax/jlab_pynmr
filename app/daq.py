@@ -130,10 +130,12 @@ class DAQConnection():
         if self.daq_type=='FPGA':
             self.udp.dac_v = dac_v 
             self.udp.dac_c = dac_c    
-            return self.udp.set_register()        
-        if self.daq_type=='Test':
+            return self.udp.set_register()            
+        elif self.daq_type=='Test':
             #print("DAC", dac_v, dac_c)
-            return True
+            return True 
+        else:
+            print("Not FPGA or Test set DAC call")
       
     def read_stat(self):
         '''Read back DAQ status
@@ -572,6 +574,6 @@ class NI_Connection():
         dchunk = np.average(dchunks, axis=0)
         
         time.sleep(1)
-        return 0, num_in_chunk, pchunk, dchunk
+        return 0, num_in_chunk, np.negative(pchunk), np.negative(dchunk)    # inverting when not using Yale Card!
 
      

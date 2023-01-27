@@ -12,6 +12,7 @@ from app.daq import RS_Connection
  
 from app.te_calc import TE
 from app.rf_switch import RFSwitch
+from app.classes import Baseline
 
 class CompareTab(QWidget): 
     '''Creates settings tab'''   
@@ -122,6 +123,8 @@ class CompareTab(QWidget):
         self.iteration = 0
         self.switch = True   # True is FPGA, False is NIDAQ
         self.compare_on = False
+        self.base1 = self.parent.baseline
+        self.base2 = self.parent.baseline
         
         self.rf = RFSwitch(self.settings['rf_switch']['ip'], self.settings['rf_switch']['port'], self.settings['rf_switch']['timeout'])
         
@@ -146,11 +149,14 @@ class CompareTab(QWidget):
     def base1_pushed(self, i):
         '''Selected current baseline for this channel
         '''
-        self.base1 = self.parent.baseline.copy()
+        self.base1 = Baseline(self.parent.config, self.parent.baseline.__dict__)  # make new baseline from current
+        self.base1_button.setText(self.base1.stop_time.strftime("%m/%d, %H:%M:%S"))
+        
     def base2_pushed(self, i):
         '''Selected current baseline for this channel
         '''
-        self.base2 = self.parent.baseline.copy()
+        self.base2 = Baseline(self.parent.config, self.parent.baseline.__dict__)
+        self.base2_button.setText(self.base2.stop_time.strftime("%m/%d, %H:%M:%S"))
         
     def mode_switch(self):
         '''Decide which mode we should be in, flip switch and change config 
@@ -165,19 +171,19 @@ class CompareTab(QWidget):
                     self.rf.set_switch('B',1)
                     self.parent.channel_change(self.channel2_combo.currentIndex())
                     self.parent.baseline = self.base2
-                    self.set_cc(float(self.cc2_value.text()))
-                    self.parent.tune_tab.send_to_dac(float(self.tune2_value.text()), 2)
-                    self.label.setText(f"Running {self.channel2_combo.text()} events. {int(self.iter_value.text()) - self.iteration} remaining.")
+                    self.parent.set_cc(float(self.cc2_value.text()))
+                    self.parent.tune_tab.send_to_dac(float(self.tune2_value.text())/100, 2)
+                    self.label.setText(f"Running {self.channel2_combo.currentText()} events. {int(self.iter_value.text()) - self.iteration} remaining.")
 
                 else:  # switch to channel 1
                     self.switch = True
                     self.rf.set_switch('A',0)
                     self.rf.set_switch('B',0)
                     self.parent.baseline = self.base1
-                    self.set_cc(float(self.cc1_value.text()))
+                    self.parent.set_cc(float(self.cc1_value.text()))
                     self.parent.channel_change(self.channel1_combo.currentIndex())
-                    self.parent.tune_tab.send_to_dac(float(self.tune1_value.text()), 2)
-                    self.label.setText(f"Running {self.channel1_combo.text()} events. {int(self.iter_value.text()) - self.iteration} remaining.")
+                    self.parent.tune_tab.send_to_dac(float(self.tune1_value.text())/100, 2)
+                    self.label.setText(f"Running {self.channel1_combo.currentText()} events. {int(self.iter_value.text()) - self.iteration} remaining.")
 
     def mode_done(self):
         '''Done, set it all back to channel 1
@@ -188,9 +194,9 @@ class CompareTab(QWidget):
         self.rf.set_switch('A',0)
         self.rf.set_switch('B',0)
         self.parent.baseline = self.base1
-        self.set_cc(float(self.cc1_value.text()))
+        self.parent.set_cc(float(self.cc1_value.text()))
         self.parent.channel_change(self.channel1_combo.currentIndex())
-        self.parent.tune_tab.send_to_dac(float(self.tune1_value.text()), 2)
+        self.parent.tune_tab.send_to_dac(float(self.tune1_value.text())/100, 2)
         self.run_button.setText('Run Compare')
                    
     def update_event_plots(self): 

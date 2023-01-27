@@ -393,7 +393,6 @@ class Baseline():
         self.__dict__.update(dict)	# update with attributes from passed event
         self.phase = np.array(self.phase)
         
-  
  
 #class Status():
     '''Data object for external EPICS status variables, handles calls to get new values

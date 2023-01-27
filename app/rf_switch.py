@@ -31,6 +31,7 @@ class RFSwitch():
         try: 
             self.tn.write(bytes(f"SET{switch}={status}\n",'ascii'))     
             data = self.tn.read_until(b'\n', timeout = 2).decode('ascii')   # read until carriage return
+            print("RF Switched to",status)
             return data
             
         except Exception as e:
