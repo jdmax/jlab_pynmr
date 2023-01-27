@@ -69,13 +69,8 @@ class MainWindow(QMainWindow):
         self.shimD = 0
         
         self.label_changed('None')
-        
         self.config = Config(channel_dict, self.settings)           # current configuration
-        if self.config.settings['compare_tab']['enable']:
-            self.config_compare_FPGA = Config(channel_dict, self.settings.copy())     # configs for compare to NIDAQ
-            self.config_compare_NIDAQ = Config(channel_dict, self.settings.copy())   
-            self.config_compare_NIDAQ.settings['daq_type'] = 'NIDAQ'  
-        
+
         self.event = Event(self)      # open empty event
         self.previous_event = self.event      # there is no previous event
         self.baseline = Baseline(self.config, {})     # open empty baseline

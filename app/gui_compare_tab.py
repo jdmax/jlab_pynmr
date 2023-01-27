@@ -44,26 +44,60 @@ class CompareTab(QWidget):
         self.progress_bar = QProgressBar()                                  # Progress bar
         self.progress_bar.setTextVisible(False)
         self.controls_box.layout().addWidget(self.progress_bar, 0, 1)
-        self.iter_label = QLabel("Number of Events before Switch:")
-        self.controls_box.layout().addWidget(self.iter_label, 1, 0)
-        self.iter_value = QLineEdit('2')
-        self.iter_value.setValidator(QIntValidator(1,100))
-        self.controls_box.layout().addWidget(self.iter_value, 1, 1)
-        self.label = QLabel("Switches between FPGA and NIDAQ.")
-        self.controls_box.layout().addWidget(self.label, 4, 1)
-                
+
         self.range_label = QLabel('History to Show (min):')
-        self.controls_box.layout().addWidget(self.range_label, 2, 0) 
+        self.controls_box.layout().addWidget(self.range_label, 1, 0)
         self.range_value = QLineEdit('60')
         self.range_value.setValidator(QIntValidator(1,10000))
-        self.controls_box.layout().addWidget(self.range_value, 2, 1)  
+        self.controls_box.layout().addWidget(self.range_value, 1, 1)
+        self.iter_label = QLabel("Number of Events before Switch:")
+        self.controls_box.layout().addWidget(self.iter_label, 2, 0)
+        self.iter_value = QLineEdit('2')
+        self.iter_value.setValidator(QIntValidator(1,100))
+        self.controls_box.layout().addWidget(self.iter_value, 2, 1)
+
+        self.channels_label = QLabel('Choose channels:')
+        self.controls_box.layout().addWidget(self.channels_label, 3, 0)
+        self.channel1_combo = QComboBox()
+        self.channel1_combo.addItems(self.parent.channels)
+        self.controls_box.layout().addWidget(self.channel1_combo, 4, 0)
+        self.channel2_combo = QComboBox()
+        self.channel2_combo.addItems(self.parent.channels)
+        self.controls_box.layout().addWidget(self.channel2_combo, 4, 1)
+
+
         
-        self.tune_label = QLabel('NIDAQ Diode Tune:')
-        self.controls_box.layout().addWidget(self.tune_label, 3, 0) 
-        self.tune_value = QLineEdit('0.0')
-        self.tune_value.setValidator(QDoubleValidator(0,100,6))
-        self.controls_box.layout().addWidget(self.tune_value, 3, 1)  
-        
+        self.tune_label = QLabel('Channel Diode Tunes:')
+        self.controls_box.layout().addWidget(self.tune_label, 7, 0)
+        self.tune1_value = QLineEdit('0.0')
+        self.tune1_value.setValidator(QDoubleValidator(0,100,6))
+        self.controls_box.layout().addWidget(self.tune1_value, 8, 0)
+        self.tune2_value = QLineEdit('0.0')
+        self.tune2_value.setValidator(QDoubleValidator(0,100,6))
+        self.controls_box.layout().addWidget(self.tune2_value, 8, 1)
+
+        self.base_label = QLabel('Channel Baselines:')
+        self.controls_box.layout().addWidget(self.base_label, 5, 0)
+        self.base1_button = QPushButton('Select Base 1')
+        self.base1_button.clicked.connect(self.base1_pushed)
+        self.controls_box.layout().addWidget(self.base1_button, 6, 0)
+        self.base2_button = QPushButton('Select Base 2')
+        self.base2_button.clicked.connect(self.base2_pushed)
+        self.controls_box.layout().addWidget(self.base2_button, 6, 1)
+
+        self.cc_label = QLabel('Channel CCs:')
+        self.controls_box.layout().addWidget(self.cc_label, 9, 0)
+        self.cc1_value = QLineEdit('0.0')
+        self.cc1_value.setValidator(QDoubleValidator(0,100,6))
+        self.controls_box.layout().addWidget(self.cc1_value, 10, 0)
+        self.cc2_value = QLineEdit('0.0')
+        self.cc2_value.setValidator(QDoubleValidator(0,100,6))
+        self.controls_box.layout().addWidget(self.cc2_value, 10, 1)
+
+        self.left.addWidget(self.parent.divider())
+        self.label = QLabel("Switches between two given channels.")
+        self.left.layout().addWidget(self.label)
+
         self.main.addLayout(self.left)
         
         # Right Side
@@ -107,7 +141,16 @@ class CompareTab(QWidget):
             self.parent.run_toggle()
             self.run_button.setEnabled(False)
             self.parent.run_tab.run_button.toggle() 
-            self.parent.run_tab.run_pushed()   
+            self.parent.run_tab.run_pushed()
+
+    def base1_pushed(self, i):
+        '''Selected current baseline for this channel
+        '''
+        self.base1 = self.parent.baseline.copy()
+    def base2_pushed(self, i):
+        '''Selected current baseline for this channel
+        '''
+        self.base2 = self.parent.baseline.copy()
         
     def mode_switch(self):
         '''Decide which mode we should be in, flip switch and change config 
@@ -116,39 +159,39 @@ class CompareTab(QWidget):
             self.iteration += 1
             if self.iteration > int(self.iter_value.text())-1:   # we have exceed iterations, switch
                 self.iteration = 0
-                if self.switch:  # Switch to NIDAQ
+                if self.switch:  # Switch to Channel 2
                     self.switch = False
                     self.rf.set_switch('A',1)
                     self.rf.set_switch('B',1)
-                    self.parent.config =  self.parent.config_compare_NIDAQ
-                    self.parent.tune_tab.send_to_dac(float(self.tune_value.text()), 2)
-                    rs = RS_Connection(self.parent.config) 
-                    time.sleep(0.1)                       
-                else:  # switch back to FPGA
+                    self.parent.channel_change(self.channel2_combo.currentIndex())
+                    self.parent.baseline = self.base2
+                    self.set_cc(float(self.cc2_value.text()))
+                    self.parent.tune_tab.send_to_dac(float(self.tune2_value.text()), 2)
+                    self.label.setText(f"Running {self.channel2_combo.text()} events. {int(self.iter_value.text()) - self.iteration} remaining.")
+
+                else:  # switch to channel 1
                     self.switch = True
                     self.rf.set_switch('A',0)
                     self.rf.set_switch('B',0)
-                    self.parent.config = self.parent.config_compare_FPGA 
-                    self.parent.tune_tab.send_to_dac(self.parent.config.diode_vout, 2)
-                    rs = RS_Connection(self.parent.config) 
-                    time.sleep(0.1)
-                   
-            str = 'FPGA' if self.switch else 'NIDAQ'
-            self.label.setText(f"Running {str} events. {int(self.iter_value.text()) - self.iteration} remaining.") 
-            
+                    self.parent.baseline = self.base1
+                    self.set_cc(float(self.cc1_value.text()))
+                    self.parent.channel_change(self.channel1_combo.currentIndex())
+                    self.parent.tune_tab.send_to_dac(float(self.tune1_value.text()), 2)
+                    self.label.setText(f"Running {self.channel1_combo.text()} events. {int(self.iter_value.text()) - self.iteration} remaining.")
+
     def mode_done(self):
-        '''Done, set it all back to FPGA defaults
+        '''Done, set it all back to channel 1
         '''       
         self.iteration = 0
         self.compare_on = False
         self.switch = True        
         self.rf.set_switch('A',0)
         self.rf.set_switch('B',0)
-        self.parent.config = self.parent.config_compare_FPGA   
+        self.parent.baseline = self.base1
+        self.set_cc(float(self.cc1_value.text()))
+        self.parent.channel_change(self.channel1_combo.currentIndex())
+        self.parent.tune_tab.send_to_dac(float(self.tune1_value.text()), 2)
         self.run_button.setText('Run Compare')
-        str = 'FPGA' if self.switch else 'NIDAQ'
-        self.label.setText(f"Running {str} events. {int(self.iter_value.text()) - self.iteration} remaining.") 
-        
                    
     def update_event_plots(self): 
         '''Update time plot as running'''

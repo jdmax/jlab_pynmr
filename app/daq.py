@@ -21,8 +21,12 @@ class DAQConnection():
     '''
     
     def __init__(self, config, timeout, tune_mode=False):
-        
+
         self.daq_type = config.settings['daq_type']
+        if 'daq_type' in config.channel:
+            if not config.settings['daq_type'] in config.channel['daq_type']: # override default daq type
+                self.daq_type = config.channel['daq_type']
+
         self.tune_mode = tune_mode
         self.config = config
         
@@ -396,7 +400,11 @@ class RS_Connection():
         '''
         self.host = config.settings['RS_settings']['ip']
         self.port = config.settings['RS_settings']['port']
-        
+        self.daq_type = config.settings['daq_type']
+        if 'daq_type' in config.channel:
+            if not config.settings['daq_type'] in config.channel['daq_type']: # override default daq type
+                self.daq_type = config.channel['daq_type']
+
         try:
             tn = telnetlib.Telnet(self.host, port=self.port, timeout=config.settings['RS_settings']['timeout'])
             
@@ -404,9 +412,9 @@ class RS_Connection():
             
             tn.write(bytes(f"FREQ {config.channel['cent_freq']*1000000}\n", 'ascii'))
             tn.write(bytes(f"POWer {config.channel['power']} mV\n", 'ascii'))
-            if 'FPGA' in config.settings['daq_type']:
+            if 'FPGA' in self.daq_type:
                 tn.write(b"FM:SOUR EDIG\n")
-            elif 'NIDAQ' in config.settings['daq_type']:
+            elif 'NIDAQ' in self.daq_type:
                 tn.write(b"FM:SOUR EXT\n")
             else:
                 tn.write(b"FM:SOUR EXT\n")  

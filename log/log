@@ -189,3 +189,121 @@
 2023-01-26 14:27:32 Changed channel to Proton5T-200mV.
 2023-01-26 14:28:01 Changed channel to Proton5T-350mV.
 2023-01-26 14:28:18 Changed channel to Proton5T-200mV.
+2023-01-26 21:11:52 Started new instance.
+2023-01-26 21:11:52 Loaded config file {self.config_filename}.
+2023-01-26 21:11:52 Error closing eventfile.
+2023-01-26 21:11:52 Opened new evenfile data\current_2023-01-27_02-11-52.txt
+2023-01-26 21:15:43 Started new instance.
+2023-01-26 21:15:43 Loaded config file {self.config_filename}.
+2023-01-26 21:15:43 Error closing eventfile.
+2023-01-26 21:15:43 Opened new evenfile data\current_2023-01-27_02-15-43.txt
+2023-01-26 21:15:48 Changed channel to Proton5T.
+2023-01-26 21:15:50 Saved TE data and set new calibration constant -5.246731.
+2023-01-26 21:15:50 DAQ Test mode.
+2023-01-26 21:16:15 Closed eventfile and moved to 2023-01-27_02-15-43__2023-01-27_02-16-15.txt.
+2023-01-26 21:16:15 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 21:18:09 Started new instance.
+2023-01-26 21:18:09 Loaded config file {self.config_filename}.
+2023-01-26 21:18:09 Error closing eventfile.
+2023-01-26 21:18:09 Opened new evenfile data\current_2023-01-27_02-18-09.txt
+2023-01-26 21:18:14 Changed channel to Proton5T.
+2023-01-26 21:18:16 Saved TE data and set new calibration constant -5.246731.
+2023-01-26 21:18:16 DAQ Test mode.
+2023-01-26 21:19:45 Closed eventfile and moved to 2023-01-27_02-18-09__2023-01-27_02-19-45.txt.
+2023-01-26 21:19:45 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 21:19:49 Started new instance.
+2023-01-26 21:19:49 Loaded config file {self.config_filename}.
+2023-01-26 21:19:49 Error closing eventfile.
+2023-01-26 21:19:49 Opened new evenfile data\current_2023-01-27_02-19-49.txt
+2023-01-26 21:19:54 Changed channel to Proton5T.
+2023-01-26 21:19:56 Saved TE data and set new calibration constant -5.246731.
+2023-01-26 21:19:56 DAQ Test mode.
+2023-01-26 21:20:08 Closed eventfile and moved to 2023-01-27_02-19-49__2023-01-27_02-20-08.txt.
+2023-01-26 21:20:08 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 21:20:28 Started new instance.
+2023-01-26 21:20:28 Loaded config file {self.config_filename}.
+2023-01-26 21:20:28 Error closing eventfile.
+2023-01-26 21:20:28 Opened new evenfile data\current_2023-01-27_02-20-28.txt
+2023-01-26 21:20:32 Changed channel to Proton5T.
+2023-01-26 21:20:34 Saved TE data and set new calibration constant -5.246731.
+2023-01-26 21:20:34 DAQ Test mode.
+2023-01-26 21:21:01 Closed eventfile and moved to 2023-01-27_02-20-28__2023-01-27_02-21-01.txt.
+2023-01-26 21:21:01 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 21:21:56 Started new instance.
+2023-01-26 21:21:56 Loaded config file {self.config_filename}.
+2023-01-26 21:21:56 Error closing eventfile.
+2023-01-26 21:21:56 Opened new evenfile data\current_2023-01-27_02-21-56.txt
+2023-01-26 21:22:00 Changed channel to Proton5T.
+2023-01-26 21:22:02 Saved TE data and set new calibration constant -5.246731.
+2023-01-26 21:22:02 DAQ Test mode.
+2023-01-26 21:22:06 Closed eventfile and moved to 2023-01-27_02-21-56__2023-01-27_02-22-06.txt.
+2023-01-26 21:22:06 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 21:22:22 Started new instance.
+2023-01-26 21:22:22 Loaded config file {self.config_filename}.
+2023-01-26 21:22:22 Error closing eventfile.
+2023-01-26 21:22:22 Opened new evenfile data\current_2023-01-27_02-22-22.txt
+2023-01-26 21:22:26 Changed channel to Proton5T.
+2023-01-26 21:22:28 Saved TE data and set new calibration constant -5.246731.
+2023-01-26 21:22:28 DAQ Test mode.
+2023-01-26 21:22:33 Closed eventfile and moved to 2023-01-27_02-22-22__2023-01-27_02-22-33.txt.
+2023-01-26 21:22:33 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 21:23:08 Started new instance.
+2023-01-26 21:23:08 Loaded config file {self.config_filename}.
+2023-01-26 21:23:08 Error closing eventfile.
+2023-01-26 21:23:08 Opened new evenfile data\current_2023-01-27_02-23-08.txt
+2023-01-26 21:23:12 Changed channel to Proton5T.
+2023-01-26 21:23:15 Saved TE data and set new calibration constant -5.246731.
+2023-01-26 21:23:15 DAQ Test mode.
+2023-01-26 21:23:25 Closed eventfile and moved to 2023-01-27_02-23-08__2023-01-27_02-23-25.txt.
+2023-01-26 21:23:25 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 21:27:12 Started new instance.
+2023-01-26 21:27:12 Loaded config file {self.config_filename}.
+2023-01-26 21:27:12 Error closing eventfile.
+2023-01-26 21:27:12 Opened new evenfile data\current_2023-01-27_02-27-12.txt
+2023-01-26 21:27:16 Changed channel to Proton5T.
+2023-01-26 21:27:19 Saved TE data and set new calibration constant -5.246731.
+2023-01-26 21:27:19 DAQ Test mode.
+2023-01-26 21:27:51 Set baseline 1673921507.134247 from C:/Users/James/PycharmProjects/jlab_pynmr/data/2023-01-17_02-11-31__2023-01-17_02-12-13.txt.
+2023-01-26 21:30:06 Closed eventfile and moved to 2023-01-27_02-27-12__2023-01-27_02-30-06.txt.
+2023-01-26 21:30:06 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 22:22:45 Started new instance.
+2023-01-26 22:22:45 Loaded config file {self.config_filename}.
+2023-01-26 22:22:45 Error closing eventfile.
+2023-01-26 22:22:45 Opened new evenfile data\current_2023-01-27_03-22-45.txt
+2023-01-26 22:22:50 Changed channel to Proton5T.
+2023-01-26 22:23:09 Started new instance.
+2023-01-26 22:23:09 Loaded config file {self.config_filename}.
+2023-01-26 22:23:09 Error closing eventfile.
+2023-01-26 22:23:09 Opened new evenfile data\current_2023-01-27_03-23-09.txt
+2023-01-26 22:23:14 Changed channel to Proton5T.
+2023-01-26 22:23:16 Saved TE data and set new calibration constant -5.246731.
+2023-01-26 22:23:16 DAQ Test mode.
+2023-01-26 22:30:46 Closed eventfile and moved to 2023-01-27_03-23-09__2023-01-27_03-30-46.txt.
+2023-01-26 22:30:46 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 22:30:56 Started new instance.
+2023-01-26 22:30:56 Loaded config file {self.config_filename}.
+2023-01-26 22:30:56 Error closing eventfile.
+2023-01-26 22:30:56 Opened new evenfile data\current_2023-01-27_03-30-56.txt
+2023-01-26 22:31:00 Changed channel to Proton5T.
+2023-01-26 22:31:02 Saved TE data and set new calibration constant -5.246731.
+2023-01-26 22:31:02 DAQ Test mode.
+2023-01-26 22:31:15 Closed eventfile and moved to 2023-01-27_03-30-56__2023-01-27_03-31-15.txt.
+2023-01-26 22:31:15 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 22:31:36 Started new instance.
+2023-01-26 22:31:36 Loaded config file {self.config_filename}.
+2023-01-26 22:31:36 Error closing eventfile.
+2023-01-26 22:31:36 Opened new evenfile data\current_2023-01-27_03-31-36.txt
+2023-01-26 22:31:41 Changed channel to Proton5T.
+2023-01-26 22:31:43 Saved TE data and set new calibration constant -5.246731.
+2023-01-26 22:31:43 DAQ Test mode.
+2023-01-26 22:31:49 Closed eventfile and moved to 2023-01-27_03-31-36__2023-01-27_03-31-49.txt.
+2023-01-26 22:31:49 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
+2023-01-26 22:36:36 Started new instance.
+2023-01-26 22:36:36 Loaded config file {self.config_filename}.
+2023-01-26 22:36:36 Error closing eventfile.
+2023-01-26 22:36:36 Opened new evenfile data\current_2023-01-27_03-36-36.txt
+2023-01-26 22:36:40 Changed channel to Proton5T.
+2023-01-26 22:36:43 Saved TE data and set new calibration constant -5.246731.
+2023-01-26 22:36:43 DAQ Test mode.
+2023-01-26 22:37:00 Closed eventfile and moved to 2023-01-27_03-36-36__2023-01-27_03-37-00.txt.
+2023-01-26 22:37:00 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
