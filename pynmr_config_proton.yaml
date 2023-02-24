@@ -92,14 +92,14 @@ settings:
         time_per_pt: 29         # Dwell time at frequency, usecs
         settling_ratio: 0.5     # Where in the dwell time the read occurs (0 to 1)     
     RS_settings:
-        ip: 129.57.160.3              # R&S RF generator IP
+        ip: 129.57.160.8              # R&S RF generator IP
         port: 5025 
         timeout: 2              # Telnet timeout in secs
     uWave_settings:
         enable: true         # Turn on uWave controls
         monitor_time: .4         # How long to wait between reading frequency when on monitor in s
         counter:
-            ip: 129.57.160.5       # GPIB IP
+            ip: 129.57.161.19      # GPIB IP
             port: 1234
             timeout: 4              # Telnet timeout in secs
             addr: 19        # EIP 588C frequency counter GPIB address
