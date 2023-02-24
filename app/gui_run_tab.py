@@ -32,7 +32,7 @@ class RunTab(QWidget):
         self.res_pen = pg.mkPen(color=(190, 0, 190), width=2)
         self.pol_pen = pg.mkPen(color=(250, 0, 0), width=1.5)
         self.asym_pen = pg.mkPen(color=(250, 175, 0), width=1)
-        self.wave_pen = pg.mkPen(color=(153, 204, 255), width=1.5)
+        self.wave_pen = pg.mkPen(color=(120, 150, 255), width=1.5)
         self.beam_brush = pg.mkBrush(color=(0,0,160, 10))
         self.beam_pen = pg.mkPen(color=(255,255,255, 0))
         pg.setConfigOption('background', 'w')
@@ -191,10 +191,12 @@ class RunTab(QWidget):
             self.pol_time_plot = self.time_plot.plot([], [], pen=self.pol_pen, name='Polarization') 
             #self.asym_time_plot = self.time_plot.plot([], [], pen=self.asym_pen, name='Trigger Asym') 
             self.wave_time_view = pg.ViewBox()
+            self.time_plot.getAxis('left').setTextPen(self.pol_pen)
             self.time_plot.showAxis('right')
             self.time_plot.setLabels(left = 'Polarization')
             self.time_plot.scene().addItem(self.wave_time_view)
             self.time_plot.getAxis('right').linkToView(self.wave_time_view)
+            self.time_plot.getAxis('right').setTextPen(self.wave_pen)
             self.wave_time_view.setXLink(self.time_plot)
             self.time_plot.getAxis('right').setLabel('uWave Frequency (GHz)')
             self.time_plot.showGrid(True,True, alpha = 0.2)
@@ -391,8 +393,8 @@ class RunTab(QWidget):
     def update_time_plots(self):
         '''Update pol v time plot'''
         hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())   
-        #time_fix = 0
-        time_fix = 3600
+        time_fix = 0
+        #time_fix = 3600   # this is still not right. Bug in pyqtgraph requiring an offset for DST.
         pol_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
         # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.       
         if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot        
@@ -411,7 +413,7 @@ class RunTab(QWidget):
         '''Draw regions in the time plot to show when beam is on. Pass list of history points to include.'''
         threshold = self.parent.config.settings['epics_settings']['current_threshold']
         beam_var = 'scaler_calc1'  # Beam current epics variable
-        time_fix = 3600
+        time_fix = 0
         # Clear previous regions
         for r in self.beam_regions: 
             self.pol_time_wid.removeItem(r)   
