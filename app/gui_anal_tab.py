@@ -1027,9 +1027,13 @@ class FitDeuteron(QWidget):
         pol = (r*r-1)/(r*r + r +1)
         area = fit.sum()
         cc = pol/area
-        text = 'Parameter    Value       Stderr\n'
+        text = '\n'
+        i=0
         for name, param in res.result.params.items():
-            text = text + f'{name:7s} {param.value:11.5f} {param.stderr:11.5f}'
+            i+=1
+            text = text + f'{name} {param.value:.3e}+-{param.stderr:.3e} '
+            if i == 4:  
+                text = text + "\n"
         self.message.setText(f"Polarization: {pol*100:.2f}%, Area:  {area:.2f}, CC:  {cc:.2f}\n {text}")
         return fit, r, pol 
     

@@ -393,8 +393,8 @@ class RunTab(QWidget):
     def update_time_plots(self):
         '''Update pol v time plot'''
         hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())   
-        time_fix = 0
-        #time_fix = 3600   # this is still not right. Bug in pyqtgraph requiring an offset for DST.
+        #time_fix = 0
+        time_fix = 3600   # this is still not right. Bug in pyqtgraph requiring an offset for DST.
         pol_data = np.column_stack((list([k + time_fix for k in hist_data.keys()]),[hist_data[k].pol for k in hist_data.keys()]))
         # This time fix is not permanent! Graphs always seem to be one hour off, no matter the timezone. Problem is in pyqtgraph.       
         if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot        
@@ -413,7 +413,7 @@ class RunTab(QWidget):
         '''Draw regions in the time plot to show when beam is on. Pass list of history points to include.'''
         threshold = self.parent.config.settings['epics_settings']['current_threshold']
         beam_var = 'scaler_calc1'  # Beam current epics variable
-        time_fix = 0
+        time_fix = 3600
         # Clear previous regions
         for r in self.beam_regions: 
             self.pol_time_wid.removeItem(r)   
@@ -549,7 +549,7 @@ class RunTab(QWidget):
         
         for key in self.parent.epics.read_list:
             try:
-                if abs(float(self.parent.epics.read_pvs[key]))<1000000:
+                if abs(float(self.parent.epics.read_pvs[key]))<1000000 and abs(float(self.parent.epics.read_pvs[key]))>0.1:
                     self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:6g}')
                 else:                    
                     self.stat_values[key].setText(f'{self.parent.epics.read_pvs[key]:.3e}')
