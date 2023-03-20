@@ -177,6 +177,7 @@ class TETab(QWidget):
     def update_event_plots(self): 
         '''Update time plot as running'''
         hist_data = {}
+        #time_fix = 3600  
         new_hist_data = self.parent.history.to_plot(datetime.datetime.now(tz=datetime.timezone.utc).timestamp() - 60*int(self.range_value.text()), datetime.datetime.now(tz=datetime.timezone.utc).timestamp())  # dict of Hist objects keyed on stamps
         for k,v in new_hist_data.items():
             if 'TE' in v.label or 'None' in v.label:  
