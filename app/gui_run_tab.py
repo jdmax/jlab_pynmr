@@ -330,9 +330,9 @@ class RunTab(QWidget):
         self.raw_plot.setData(self.parent.event.scan.freq_list, self.parent.event.scan.phase)
         progress = 100*self.parent.event.scan.num/self.parent.event.config.controls['sweeps'].value
         progress = 100*self.parent.event.scan.num/self.parent.event.config.controls['sweeps'].value
-        self.progress_bar.setValue(progress)
+        self.progress_bar.setValue(int(progress))
         if self.parent.config.settings['compare_tab']['enable']:
-            self.parent.compare_tab.progress_bar.setValue(progress)
+            self.parent.compare_tab.progress_bar.setValue(int(progress))
     
     # def abort_run(self):
         # '''Quit now'''

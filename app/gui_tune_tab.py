@@ -104,9 +104,9 @@ class TuneTab(QWidget):
     def restore(self):
         '''Restore previous session settings'''
         if self.parent.restore_dict:
-            self.phase_slider.setValue(self.parent.restore_dict['phase_tune']*1000)
+            self.phase_slider.setValue(int(self.parent.restore_dict['phase_tune']*1000))
             self.phase_spin.setValue(self.parent.restore_dict['phase_tune']*100)
-            self.diode_slider.setValue(self.parent.restore_dict['diode_tune']*1000)
+            self.diode_slider.setValue(int(self.parent.restore_dict['diode_tune']*1000))
             self.diode_spin.setValue(self.parent.restore_dict['diode_tune']*100)
         
     def phase_slider_changed(self):
