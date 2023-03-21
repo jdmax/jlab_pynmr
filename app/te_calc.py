@@ -34,17 +34,16 @@ class TE():
         boltz_const = 1.380658e-23   #J/K
         self.areas = areas
         self.temps = temps
-        
-        if 'P' or 'p' in species:
+
+        if 'P' in species or 'p' in species:
             self.species = 'Proton'
             magneton =  2.79268    # mu_0
-        elif 'D' or 'd' in species:
+        elif 'D' in species or 'd' in species:
             self.species = 'Deuteron'
             magneton =  0.857387  # mu_0
         else:
             print('Incorrect species')
             sys.exit()
-        
         temps[temps<1E-5] = 1E-9     # replace zero values to avoid divide by zero
         
         self.field = field    

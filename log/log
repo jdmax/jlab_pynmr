@@ -32,3 +32,85 @@
 2023-03-20 10:57:45 Finished event at 00:00:00 UTC, after 79s. Analysis returned at 14:57:45 UTC, after 0.1s.
 2023-03-20 10:59:05 Finished event at 00:00:00 UTC, after 79s. Analysis returned at 14:59:05 UTC, after 0.1s.
 2023-03-20 11:00:24 Finished event at 00:00:00 UTC, after 79s. Analysis returned at 15:00:24 UTC, after 0.1s.
+2023-03-21 12:45:35 Started new instance.
+2023-03-21 12:45:35 Loaded config file {self.config_filename}.
+2023-03-21 12:45:36 Error closing eventfile.
+2023-03-21 12:45:36 Opened new evenfile data/current_2023-03-21_16-45-36.txt
+2023-03-21 12:45:40 Changed channel to Proton5T.
+2023-03-21 12:59:15 Started new instance.
+2023-03-21 12:59:15 Loaded config file {self.config_filename}.
+2023-03-21 12:59:15 Error closing eventfile.
+2023-03-21 12:59:15 Opened new evenfile data/current_2023-03-21_16-59-15.txt
+2023-03-21 12:59:19 Changed channel to Proton5T.
+2023-03-21 13:02:19 Started new instance.
+2023-03-21 13:02:19 Loaded config file {self.config_filename}.
+2023-03-21 13:02:19 Error closing eventfile.
+2023-03-21 13:02:19 Opened new evenfile data/current_2023-03-21_17-02-19.txt
+2023-03-21 13:02:23 Changed channel to Proton5T.
+2023-03-21 13:02:25 Saved TE data and set new calibration constant -5.246731.
+2023-03-21 13:02:25 DAQ Test mode.
+2023-03-21 13:02:30 Closed eventfile and moved to 2023-03-21_17-02-19__2023-03-21_17-02-30.txt.
+2023-03-21 13:02:30 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='UTF-8'>.
+2023-03-21 13:02:48 Started new instance.
+2023-03-21 13:02:48 Loaded config file {self.config_filename}.
+2023-03-21 13:02:48 Error closing eventfile.
+2023-03-21 13:02:48 Opened new evenfile data/current_2023-03-21_17-02-48.txt
+2023-03-21 13:02:52 Changed channel to Proton5T.
+2023-03-21 13:02:54 Saved TE data and set new calibration constant -5.246731.
+2023-03-21 13:02:54 DAQ Test mode.
+2023-03-21 13:03:25 Finished event at 00:00:00 UTC, after 3s. Analysis returned at 17:03:25 UTC, after 0.0s.
+2023-03-21 13:03:29 Finished event at 17:03:29 UTC, after 3s. Analysis returned at 17:03:29 UTC, after 0.0s.
+2023-03-21 13:04:03 Closed eventfile and moved to 2023-03-21_17-02-48__2023-03-21_17-04-03.txt.
+2023-03-21 13:04:03 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='UTF-8'>.
+2023-03-21 13:04:06 Started new instance.
+2023-03-21 13:04:06 Loaded config file {self.config_filename}.
+2023-03-21 13:04:06 Error closing eventfile.
+2023-03-21 13:04:06 Opened new evenfile data/current_2023-03-21_17-04-06.txt
+2023-03-21 13:04:10 Changed channel to Proton5T.
+2023-03-21 13:04:13 Saved TE data and set new calibration constant -5.246731.
+2023-03-21 13:04:13 DAQ Test mode.
+2023-03-21 13:04:18 Finished event at 17:04:18 UTC, after 3s. Analysis returned at 17:04:18 UTC, after 0.0s.
+2023-03-21 13:04:39 Closed eventfile and moved to 2023-03-21_17-04-06__2023-03-21_17-04-39.txt.
+2023-03-21 13:04:39 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='UTF-8'>.
+2023-03-21 13:04:42 Started new instance.
+2023-03-21 13:04:42 Loaded config file {self.config_filename}.
+2023-03-21 13:04:42 Error closing eventfile.
+2023-03-21 13:04:42 Opened new evenfile data/current_2023-03-21_17-04-42.txt
+2023-03-21 13:04:46 Changed channel to Proton5T.
+2023-03-21 13:04:48 Saved TE data and set new calibration constant -5.246731.
+2023-03-21 13:04:48 DAQ Test mode.
+2023-03-21 13:05:06 Finished event at 17:05:06 UTC, after 3s. Analysis returned at 17:05:06 UTC, after 0.0s.
+2023-03-21 13:05:19 Finished event at 17:05:06 UTC, after 3s. Analysis returned at 17:05:19 UTC, after 13.2s.
+2023-03-21 13:05:20 Finished event at 17:05:06 UTC, after 3s. Analysis returned at 17:05:20 UTC, after 14.5s.
+2023-03-21 13:05:21 Finished event at 17:05:06 UTC, after 3s. Analysis returned at 17:05:21 UTC, after 14.7s.
+2023-03-21 13:05:21 Finished event at 17:05:06 UTC, after 3s. Analysis returned at 17:05:21 UTC, after 14.9s.
+2023-03-21 13:05:21 Finished event at 17:05:06 UTC, after 3s. Analysis returned at 17:05:21 UTC, after 15.0s.
+2023-03-21 13:05:21 Finished event at 17:05:06 UTC, after 3s. Analysis returned at 17:05:21 UTC, after 15.2s.
+2023-03-21 13:05:22 Finished event at 17:05:06 UTC, after 3s. Analysis returned at 17:05:22 UTC, after 16.0s.
+2023-03-21 13:05:22 Finished event at 17:05:06 UTC, after 3s. Analysis returned at 17:05:22 UTC, after 16.2s.
+2023-03-21 13:05:23 Finished event at 17:05:06 UTC, after 3s. Analysis returned at 17:05:23 UTC, after 17.6s.
+2023-03-21 13:05:29 Finished event at 00:00:00 UTC, after 3s. Analysis returned at 17:05:29 UTC, after 0.0s.
+2023-03-21 13:05:32 Finished event at 00:00:00 UTC, after 3s. Analysis returned at 17:05:32 UTC, after 0.0s.
+2023-03-21 13:05:35 Finished event at 17:05:35 UTC, after 3s. Analysis returned at 17:05:35 UTC, after 0.0s.
+2023-03-21 13:10:08 Closed eventfile and moved to 2023-03-21_17-04-42__2023-03-21_17-10-08.txt.
+2023-03-21 13:10:08 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='UTF-8'>.
+2023-03-21 13:10:12 Started new instance.
+2023-03-21 13:10:12 Loaded config file {self.config_filename}.
+2023-03-21 13:10:12 Error closing eventfile.
+2023-03-21 13:10:12 Opened new evenfile data/current_2023-03-21_17-10-12.txt
+2023-03-21 13:10:16 Changed channel to Proton5T.
+2023-03-21 13:10:18 Saved TE data and set new calibration constant -5.246731.
+2023-03-21 13:10:18 DAQ Test mode.
+2023-03-21 13:10:29 Finished event at 17:10:29 UTC, after 3s. Analysis returned at 17:10:29 UTC, after 0.0s.
+2023-03-21 13:11:39 Closed eventfile and moved to 2023-03-21_17-10-12__2023-03-21_17-11-39.txt.
+2023-03-21 13:11:39 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='UTF-8'>.
+2023-03-21 13:11:43 Started new instance.
+2023-03-21 13:11:43 Loaded config file {self.config_filename}.
+2023-03-21 13:11:43 Error closing eventfile.
+2023-03-21 13:11:43 Opened new evenfile data/current_2023-03-21_17-11-43.txt
+2023-03-21 13:11:47 Changed channel to Proton5T.
+2023-03-21 13:11:50 Saved TE data and set new calibration constant -5.246731.
+2023-03-21 13:11:50 DAQ Test mode.
+2023-03-21 13:12:10 Finished event at 17:12:10 UTC, after 3s. Analysis returned at 17:12:10 UTC, after 0.0s.
+2023-03-21 13:12:28 Closed eventfile and moved to 2023-03-21_17-11-43__2023-03-21_17-12-28.txt.
+2023-03-21 13:12:28 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='UTF-8'>.
