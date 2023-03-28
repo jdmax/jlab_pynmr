@@ -619,15 +619,16 @@ class RunThread(QThread):
                     print("On abort:", e)
                 self.parent.abort_now = False
                 break
-            #start_time = time.time()    
+            start_time = time.time()    
             new_sigs = self.daq.get_chunk()
             #print(new_sigs)
             chunk_num, num_in_chunk, pchunk, dchunk = new_sigs
+            #print(num_in_chunk, self.rec_sweeps, self.sweep_num)
             #print(f"get_chunk took {time.time() - start_time }s")
             if num_in_chunk > 0:
                 self.reply.emit(new_sigs)
                 rec_chunks += 1
-                if 'NIDAQ' in self.config.settings['daq_type']:
+                if 'NIDAQ' in self.config.channel['daq_type']:
                     self.rec_sweeps = num_in_chunk
                 else:
                     self.rec_sweeps += num_in_chunk

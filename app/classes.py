@@ -62,7 +62,7 @@ class Config():
         self.phase_vout = 0
 
         self.controls = {}          # NMR settings requiring control on run tab     
-        self.controls['sweeps'] = ConfigItem(640, 'Sweeps per Event', QIntValidator(10, 1000000))
+        self.controls['sweeps'] = ConfigItem(1000, 'Sweeps per Event', QIntValidator(10, 1000000))
         self.controls['cc'] = ConfigItem(-.08, 'Calibration Constant', QDoubleValidator(-1000, 1000, 7))
         
         # Make list of frequencies and list of bytes to send to R&S
@@ -250,7 +250,7 @@ class Event():
         Args:
             new_sigs: tuple of number of sweeps in the chunk, new phase data list and new diode data list
         '''
-        if 'NIDAQ' in self.config.settings['daq_type']:
+        if 'NIDAQ' in self.config.channel['daq_type']:
             self.scan.change_set(new_sigs)
         else:
             self.scan.avg_chunks(new_sigs)

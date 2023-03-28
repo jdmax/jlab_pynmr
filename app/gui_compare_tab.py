@@ -89,10 +89,10 @@ class CompareTab(QWidget):
         self.cc_label = QLabel('Channel CCs:')
         self.controls_box.layout().addWidget(self.cc_label, 9, 0)
         self.cc1_value = QLineEdit('0.0')
-        self.cc1_value.setValidator(QDoubleValidator(0,100,6))
+        self.cc1_value.setValidator(QDoubleValidator(-100,100,6))
         self.controls_box.layout().addWidget(self.cc1_value, 10, 0)
         self.cc2_value = QLineEdit('0.0')
-        self.cc2_value.setValidator(QDoubleValidator(0,100,6))
+        self.cc2_value.setValidator(QDoubleValidator(-100,100,6))
         self.controls_box.layout().addWidget(self.cc2_value, 10, 1)
 
         self.left.addWidget(self.parent.divider())

@@ -22,10 +22,10 @@ class DAQConnection():
     
     def __init__(self, config, timeout, tune_mode=False):
 
-        self.daq_type = config.settings['daq_type']
-        if 'daq_type' in config.channel:
-            if not config.settings['daq_type'] in config.channel['daq_type']: # override default daq type
-                self.daq_type = config.channel['daq_type']
+        self.daq_type = config.channel['daq_type']
+        #if 'daq_type' in config.channel and tune_mode==False:
+        #    if not config.settings['daq_type'] in config.channel['daq_type']: # override default daq type
+        #        self.daq_type = config.channel['daq_type']
 
         self.tune_mode = tune_mode
         self.config = config
@@ -134,6 +134,10 @@ class DAQConnection():
         elif self.daq_type=='Test':
             #print("DAC", dac_v, dac_c)
             return True 
+        # elif self.daq_type=='NIDAQ':
+            # self.udp.dac_v = dac_v 
+            # self.udp.dac_c = dac_c    
+            # return self.udp.set_register()            
         else:
             print("Not FPGA or Test set DAC call")
       
@@ -402,10 +406,10 @@ class RS_Connection():
         '''
         self.host = config.settings['RS_settings']['ip']
         self.port = config.settings['RS_settings']['port']
-        self.daq_type = config.settings['daq_type']
-        if 'daq_type' in config.channel:
-            if not config.settings['daq_type'] in config.channel['daq_type']: # override default daq type
-                self.daq_type = config.channel['daq_type']
+        self.daq_type = config.channel['daq_type']
+        #if 'daq_type' in config.channel:
+        #    if not config.settings['daq_type'] in config.channel['daq_type']: # override default daq type
+        #        self.daq_type = config.channel['daq_type']
 
         try:
             tn = telnetlib.Telnet(self.host, port=self.port, timeout=config.settings['RS_settings']['timeout'])
@@ -482,7 +486,8 @@ class NI_Connection():
         ramp_min_V,ramp_max_V = -1 * unyt.V, 1 * unyt.V
         self.pts_per_ramp = config.settings['steps']
         self.pretris = config.settings['nidaq_settings']['pretris']
-        self.tris_per_scan = config.controls['sweeps'].value//2
+        self.tris_per_scan = config.controls['sweeps'].value   #//2
+        print(self.tris_per_scan)
         time_per_pt_us = config.settings['nidaq_settings']['time_per_pt'] * unyt.us
         settling_delay_ratio = config.settings['nidaq_settings']['settling_ratio']
         ai_min_V,ai_max_V = -1 * unyt.V, 1 * unyt.V
@@ -558,7 +563,7 @@ class NI_Connection():
         '''
         samples = self.ai.read(READ_ALL_AVAILABLE, timeout=self.pretri_delay_s)  # list of lists
         pchunks, dchunks = samples              # split into phase and diode        
-        num_in_chunk = len(pchunks)//(self.pts_per_ramp)
+        num_in_chunk = len(pchunks)//(2*self.pts_per_ramp)
         if  num_in_chunk < 1:      
             pchunk = np.zeros(self.pts_per_ramp)
             dchunk = np.zeros(self.pts_per_ramp)
@@ -572,8 +577,8 @@ class NI_Connection():
         
         pchunk = np.average(pchunks, axis=0)
         dchunk = np.average(dchunks, axis=0)
-        
         time.sleep(1)
-        return 0, num_in_chunk, np.negative(pchunk), np.negative(dchunk)    # inverting when not using Yale Card!
+        return 0, num_in_chunk, pchunk, np.negative(dchunk) 
+        #return 0, num_in_chunk, np.negative(pchunk), np.negative(dchunk)    # inverting when not using Yale Card!
 
      
