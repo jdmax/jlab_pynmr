@@ -34,7 +34,7 @@ class TE():
         boltz_const = 1.380658e-23   #J/K
         self.areas = areas
         self.temps = temps
-
+        
         if 'P' in species or 'p' in species:
             self.species = 'Proton'
             magneton =  2.79268    # mu_0

@@ -114,3 +114,4 @@
 2023-03-21 13:12:10 Finished event at 17:12:10 UTC, after 3s. Analysis returned at 17:12:10 UTC, after 0.0s.
 2023-03-21 13:12:28 Closed eventfile and moved to 2023-03-21_17-11-43__2023-03-21_17-12-28.txt.
 2023-03-21 13:12:28 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='UTF-8'>.
+
