@@ -15,6 +15,27 @@ channels:
         mod_freq: 800.0             # Frequency modulation in kHz   (float)
         power: 450.0                # RF power in mV  (float), typically 200
         sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
+    Proton5T-800kHzVAR:
+        name: Proton5T-800kHzVAR
+        species: proton 
+        cent_freq: 212.882            # Center frequency in MHz   (float)
+        mod_freq: 800.0             # Frequency modulation in kHz   (float)
+        power: 450.0                # RF power in mV  (float), typically 200
+        sweep_file: app/800_10p_400_90p.txt           # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
+    Proton5T-400kHzVAR:
+        name: Proton5T-400kHzVAR
+        species: proton 
+        cent_freq: 212.882            # Center frequency in MHz   (float)
+        mod_freq: 400.0             # Frequency modulation in kHz   (float)
+        power: 450.0                # RF power in mV  (float), typically 200
+        sweep_file: app/800_10p_400_90p.txt           # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
+    Proton5T-400mV:
+        name: Proton5T-400mV
+        species: proton 
+        cent_freq: 212.882            # Center frequency in MHz   (float)
+        mod_freq: 400.0             # Frequency modulation in kHz   (float)
+        power: 400.0                # RF power in mV  (float), typically 200
+        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
 
     Proton5T-350mV:
         name: Proton5T-350mV
