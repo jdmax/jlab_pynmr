@@ -135,9 +135,9 @@ class DAQConnection():
             #print("DAC", dac_v, dac_c)
             return True 
         # elif self.daq_type=='NIDAQ':
-            # self.udp.dac_v = dac_v 
-            # self.udp.dac_c = dac_c    
-            # return self.udp.set_register()            
+            # self.udp.dac_v = dac_v
+            # self.udp.dac_c = dac_c
+            # return self.udp.set_register()
         else:
             print("Not FPGA or Test set DAC call")
       
@@ -486,8 +486,7 @@ class NI_Connection():
         ramp_min_V,ramp_max_V = -1 * unyt.V, 1 * unyt.V
         self.pts_per_ramp = config.settings['steps']
         self.pretris = config.settings['nidaq_settings']['pretris']
-        self.tris_per_scan = config.controls['sweeps'].value   #//2
-        print(self.tris_per_scan)
+        self.tris_per_scan = config.controls['sweeps'].value#//2
         time_per_pt_us = config.settings['nidaq_settings']['time_per_pt'] * unyt.us
         settling_delay_ratio = config.settings['nidaq_settings']['settling_ratio']
         ai_min_V,ai_max_V = -1 * unyt.V, 1 * unyt.V
@@ -577,8 +576,9 @@ class NI_Connection():
         
         pchunk = np.average(pchunks, axis=0)
         dchunk = np.average(dchunks, axis=0)
+        
         time.sleep(1)
-        return 0, num_in_chunk, pchunk, np.negative(dchunk) 
+        return 0, num_in_chunk, pchunk, np.negative(dchunk)
         #return 0, num_in_chunk, np.negative(pchunk), np.negative(dchunk)    # inverting when not using Yale Card!
 
      

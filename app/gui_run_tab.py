@@ -1,6 +1,5 @@
 '''PyNMR, J.Maxwell 2020
 '''
-import datetime
 import time
 import math
 import pytz
@@ -8,7 +7,6 @@ from PyQt5.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout
 from PyQt5.QtGui import QIntValidator, QDoubleValidator, QValidator
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 import pyqtgraph as pg
-import numpy as np
  
 from app.classes import *
 from app.daq import *
@@ -68,7 +66,7 @@ class RunTab(QWidget):
         self.controls_box = QGroupBox('NMR Controls')
         self.controls_box.setLayout(QGridLayout())
         self.midlayout.addWidget(self.controls_box)
-        self.run_button = QPushButton("Run",checkable=True)       # Run button
+        self.run_button = QPushButton("Run", checkable=True)       # Run button
         self.controls_box.layout().addWidget(self.run_button, 0, 0)
         self.run_button.setEnabled(False)
         self.run_button.clicked.connect(self.run_pushed)
@@ -366,6 +364,7 @@ class RunTab(QWidget):
             self.parent.status_bar.showMessage(f'Finished event at  at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s. Running sweeps...')
             if self.config.settings['compare_tab']['enable']:  # if doing compare_tab   
                 self.parent.compare_tab.mode_switch()
+                time.sleep(0.5)
             self.start_thread()        
     
     def update_event_plots(self):
