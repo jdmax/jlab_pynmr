@@ -123,7 +123,7 @@ class MainWindow(QMainWindow):
             self.expl_tab = ExplTab(self)
             self.tab_widget.addTab(self.expl_tab, "Event Explorer")         
         
-        self.set_cc(self.restore_dict['cc'])   
+        self.set_cc(self.restore_dict['cc'], self.event)   
         self.connect_daq()
         
     def load_settings(self):
@@ -254,19 +254,23 @@ class MainWindow(QMainWindow):
         self.event.baseline = self.baseline.phase
         #self.event.basesweep = self.baseline.phase
 
-    def set_cc(self, cc):
+    def set_cc(self, cc, event):
         '''Set new Calibration Constant
         '''
         self.run_tab.controls_lines['cc'].setText(f"{cc:.6f}")
         self.config.controls['cc'].set_config(f"{cc:.6f}")
+        self.event.cc = cc
         logging.info(f"Saved TE data and set new calibration constant {cc}.")
         self.status_bar.showMessage(f"Saved TE data and set new calibration constant {cc}.")
 
     def channel_change(self, i):
         '''Channel setting changed. Make new config.'''
         name = self.channels[i]
+        #print(self.config_dict['channels'][name]['name'], self.config_dict['channels'][name]['daq_type'])
+        #print(name,"\n",self.config_dict['channels'][name])
         self.config = Config(self.config_dict['channels'][name], self.settings)           # new configuration
         self.event = Event(self)      # open empty event
+        #print("Changing channel", self.event.config.channel['name'], self.event.config.channel['daq_type'])
         self.rs = RS_Connection(self.config)   # send new settings to R&S
         logging.info(f"Changed channel to {self.config.channel['name']}.")
 

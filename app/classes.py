@@ -56,8 +56,8 @@ class Config():
     '''
     def __init__(self, channel, settings):
     
-        self.channel = channel
-        self.settings = settings  
+        self.channel = dict(channel)
+        self.settings = dict(settings)  
         self.diode_vout = 0   
         self.phase_vout = 0
 

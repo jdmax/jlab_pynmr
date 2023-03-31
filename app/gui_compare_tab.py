@@ -88,10 +88,10 @@ class CompareTab(QWidget):
 
         self.cc_label = QLabel('Channel CCs:')
         self.controls_box.layout().addWidget(self.cc_label, 9, 0)
-        self.cc1_value = QLineEdit('0.0')
+        self.cc1_value = QLineEdit('1.0')
         self.cc1_value.setValidator(QDoubleValidator(-100,100,6))
         self.controls_box.layout().addWidget(self.cc1_value, 10, 0)
-        self.cc2_value = QLineEdit('0.0')
+        self.cc2_value = QLineEdit('1.0')
         self.cc2_value.setValidator(QDoubleValidator(-100,100,6))
         self.controls_box.layout().addWidget(self.cc2_value, 10, 1)
 
@@ -173,20 +173,22 @@ class CompareTab(QWidget):
                     self.rf.set_switch('B',1)
                     #self.parent.channel_change(self.channel2_combo.currentIndex())
                     self.parent.run_tab.channel_combo.setCurrentIndex(self.channel2_combo.currentIndex())
+                    self.parent.set_cc(float(self.cc2_value.text()), self.parent.event)
                     self.parent.baseline = self.base2
-                    self.parent.set_cc(float(self.cc2_value.text()))
-                    self.parent.tune_tab.send_to_dac(float(self.tune2_value.text())/100, 2)
+                    #self.parent.tune_tab.send_to_dac(float(self.tune2_value.text())/100, 2)
+                    self.parent.tune_tab.diode_spin.setValue(float(self.tune2_value.text()))
                     self.label.setText(f"Running {self.channel2_combo.currentText()} events. {int(self.iter_value.text()) - self.iteration} remaining.")
 
                 else:  # switch to channel 1
                     self.switch = True
                     self.rf.set_switch('A',0)
                     self.rf.set_switch('B',0)
-                    self.parent.baseline = self.base1
-                    self.parent.set_cc(float(self.cc1_value.text()))
                     #self.parent.channel_change(self.channel1_combo.currentIndex())
                     self.parent.run_tab.channel_combo.setCurrentIndex(self.channel1_combo.currentIndex())
-                    self.parent.tune_tab.send_to_dac(float(self.tune1_value.text())/100, 2)
+                    self.parent.set_cc(float(self.cc1_value.text()), self.parent.event)
+                    self.parent.baseline = self.base1
+                    #self.parent.tune_tab.send_to_dac(float(self.tune1_value.text())/100, 2)
+                    self.parent.tune_tab.diode_spin.setValue(float(self.tune1_value.text()))
                     self.label.setText(f"Running {self.channel1_combo.currentText()} events. {int(self.iter_value.text()) - self.iteration} remaining.")
 
     def mode_done(self):
@@ -198,10 +200,11 @@ class CompareTab(QWidget):
         self.rf.set_switch('A',0)
         self.rf.set_switch('B',0)
         self.parent.baseline = self.base1
-        self.parent.set_cc(float(self.cc1_value.text()))
         #self.parent.channel_change(self.channel1_combo.currentIndex())
         self.parent.run_tab.channel_combo.setCurrentIndex(self.channel1_combo.currentIndex())
-        self.parent.tune_tab.send_to_dac(float(self.tune1_value.text())/100, 2)
+        self.parent.set_cc(float(self.cc1_value.text()), self.parent.event)
+        #self.parent.tune_tab.send_to_dac(float(self.tune1_value.text())/100, 2)
+        self.parent.tune_tab.diode_spin.setValue(float(self.tune1_value.text()))
         self.run_button.setText('Run Compare')
                    
     def update_event_plots(self): 

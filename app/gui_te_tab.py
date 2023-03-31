@@ -203,7 +203,7 @@ class TETab(QWidget):
     def use_te(self):
         '''Print TE out to json file named after time taken, set CC'''
         self.te.print_te()
-        self.parent.set_cc(self.te.cc)
+        self.parent.set_cc(self.te.cc, self.parent.event)
         
     def fit_exp(self,data):
         '''Exponential fit to area of time data with scipy

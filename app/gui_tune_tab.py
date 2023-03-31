@@ -143,7 +143,7 @@ class TuneTab(QWidget):
         self.dac_v = value
         self.dac_c = dac_c
         if 'NIDAQ' in self.parent.config.channel['daq_type']:   # if we are tuning with the NIDAQ but want to tune with the FPGA
-            time.sleep(0.0001)   
+            time.sleep(0.001)   
             self.config.channel['daq_type'] = 'FPGA'   
             self.fpga_daq = DAQConnection(self.config, 4, True)
             self.config.channel['daq_type'] = 'NIDAQ'
@@ -151,17 +151,20 @@ class TuneTab(QWidget):
                 pass
                 print("Set DAC:", self.dac_c,  self.dac_v)
             else:
-                print("Error setting DAC.")
+                print("Error setting DAC as NIDAQ.")
             del self.fpga_daq
         else:                       
             if not self.running:
-                time.sleep(0.0001)
+                time.sleep(0.001)
+                self.config.channel['daq_type'] = 'FPGA'   
                 self.daq = DAQConnection(self.config, 4, True)
+                #self.config.channel['daq_type'] = 'NIDAQ'
+                print(self.daq.set_dac(self.dac_v, self.dac_c))
                 if self.daq.set_dac(self.dac_v, self.dac_c):
                     pass
                     print("Set DAC:", self.dac_c,  self.dac_v)
                 else:
-                    print("Error setting DAC.")
+                    print("Error setting DAC as FPGA.")
                 del self.daq
  
     def run_pushed(self):

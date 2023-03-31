@@ -8,6 +8,7 @@ channels:
         mod_freq: 400.0        
         power: 400.0      
         sweep_file: tri 
+        daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ, Test)
     Deuteron5T-800kHz:
         name: Deuteron5T-800kHz
         species: deuteron
@@ -15,6 +16,7 @@ channels:
         mod_freq: 800.0        
         power: 400.0      
         sweep_file: tri 
+        daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ, Test)
     Deuteron5T-200mV:
         name: Deuteron5T-200mV
         species: deuteron
@@ -22,6 +24,7 @@ channels:
         mod_freq: 400.0        
         power: 200.0      
         sweep_file: tri   
+        daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ, Test)
     Deuteron5T-150mV:
         name: Deuteron5T-150mV
         species: deuteron
@@ -29,6 +32,7 @@ channels:
         mod_freq: 400.0        
         power: 150.0      
         sweep_file: tri 
+        daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ, Test)
     Deuteron5T-300mV:
         name: Deuteron5T-300mV
         species: deuteron
@@ -36,6 +40,7 @@ channels:
         mod_freq: 400.0        
         power: 300.0      
         sweep_file: tri 
+        daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ, Test)
     Deuteron5T-350mV:
         name: Deuteron5T-350mV
         species: deuteron
@@ -43,6 +48,7 @@ channels:
         mod_freq: 400.0        
         power: 350.0      
         sweep_file: tri  
+        daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ, Test)
     Deuteron35MHz:
         name: Deuteron35MHz
         species: deuteron
@@ -50,6 +56,7 @@ channels:
         mod_freq: 400.0        
         power: 200.0      
         sweep_file: tri 
+        daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ, Test)
     Deuteron38MHz:
         name: Deuteron38MHz
         species: deuteron
@@ -57,6 +64,7 @@ channels:
         mod_freq: 400.0        
         power: 200.0      
         sweep_file: tri    
+        daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ, Test)
     Deuteron37MHz:
         name: Deuteron37MHz
         species: deuteron
@@ -64,10 +72,11 @@ channels:
         mod_freq: 400.0        
         power: 200.0      
         sweep_file: tri 
+        daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ, Test)
    
 settings:
     default_channel: Deuteron5T     # Default from channels listed above
-    daq_type: FPGA             # Select DAQ mode (FPGA, NIDAQ or Test)
+   # daq_type: FPGA             # Select DAQ mode (FPGA, NIDAQ or Test)
     test_signal: app/d_signal_event.txt  # signal to use for test mode
     event_dir: data-d             # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute

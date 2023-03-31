@@ -134,10 +134,10 @@ class DAQConnection():
         elif self.daq_type=='Test':
             #print("DAC", dac_v, dac_c)
             return True 
-        # elif self.daq_type=='NIDAQ':
-            # self.udp.dac_v = dac_v
-            # self.udp.dac_c = dac_c
-            # return self.udp.set_register()
+        #elif self.daq_type=='NIDAQ':
+        #    self.udp.dac_v = dac_v
+        #    self.udp.dac_c = dac_c
+        #    return self.udp.set_register()
         else:
             print("Not FPGA or Test set DAC call")
       
@@ -251,12 +251,12 @@ class UDP():
         RegSetString = b''.join(RegSets)
         self.s.send(RegSetString)
         data, addr = self.s.recvfrom(1024)    # buffer size is 1024
-        #print("Set string:",RegSetString.hex())
-        #print("Read string:",self.read_stat())
+        print("Set string:",RegSetString.hex())
+        print("Read string:",self.read_stat())
         if data == self.ok:
             return True
         else:
-            #print(data)
+            print('data',data)
             return False
     
     def set_freq(self, freq_bytes):
@@ -489,7 +489,7 @@ class NI_Connection():
         self.tris_per_scan = config.controls['sweeps'].value#//2
         time_per_pt_us = config.settings['nidaq_settings']['time_per_pt'] * unyt.us
         settling_delay_ratio = config.settings['nidaq_settings']['settling_ratio']
-        ai_min_V,ai_max_V = -1 * unyt.V, 1 * unyt.V
+        ai_min_V,ai_max_V = -5 * unyt.V, 5 * unyt.V
 
         phase_chan = config.settings['nidaq_settings']['phase_chan']
         diode_chan = config.settings['nidaq_settings']['diode_chan']
@@ -503,6 +503,7 @@ class NI_Connection():
         
         self.triangle = list(np.linspace(ramp_min_V, ramp_max_V, self.pts_per_ramp))
         self.triangle += self.triangle[::-1] # Concat the list reversed
+        #print(self.triangle[0:10], self.triangle[-11:-1])
         
         self.ao.control(TaskMode.TASK_UNRESERVE)
         self.ao.ao_channels.add_ao_voltage_chan(ao_chan,
@@ -560,7 +561,7 @@ class NI_Connection():
             Results stream from the NI board and we ask for them after a second. What comes back is a number of sweeps, probably not ending in a whole numnber of sweeps. Have to save the last set of numbers to tack on to the front of the next chunk. Or we could discard the extra on the end...? 
         
         '''
-        samples = self.ai.read(READ_ALL_AVAILABLE, timeout=self.pretri_delay_s)  # list of lists
+        samples = self.ai.read(READ_ALL_AVAILABLE, timeout=self.pretri_delay_s)  # list of 2 lists
         pchunks, dchunks = samples              # split into phase and diode        
         num_in_chunk = len(pchunks)//(2*self.pts_per_ramp)
         if  num_in_chunk < 1:      
@@ -571,8 +572,10 @@ class NI_Connection():
         dchunks = dchunks[:2*(num_in_chunk*self.pts_per_ramp//2)]
         pchunks = np.array(pchunks).reshape(num_in_chunk, self.pts_per_ramp)  # 2D array with steps number of rows
         pchunks[1::2,:] = np.flip(pchunks[1::2,:])  # flip every other row
+        #pchunks = np.delete(pchunks, list(range(1, pchunks.shape[0], 2)), axis = 0)  # Delete every other row
         dchunks = np.array(dchunks).reshape(num_in_chunk, self.pts_per_ramp)  # 2D array with steps number of rows
         dchunks[1::2,:] = np.flip(dchunks[1::2,:])  # flip every other row
+        #pchunks = np.delete(pchunks, list(range(1, pchunks.shape[0], 2)), axis = 0)  # Delete every other row
         
         pchunk = np.average(pchunks, axis=0)
         dchunk = np.average(dchunks, axis=0)
