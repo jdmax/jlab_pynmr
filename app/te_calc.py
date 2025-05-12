@@ -47,7 +47,7 @@ class TE():
             magneton =  0.857387  # mu_0
 
             tanh_part = np.tanh(magneton * nuc_magtn * field / boltz_const / temps)
-            te_pols = 4*tanh_part/(3+tanh_part*tanh_part)
+            te_pols = 4 * tanh_part/(3 + tanh_part**2)
             ccs = te_pols / areas
         else:
             print('Incorrect species')
