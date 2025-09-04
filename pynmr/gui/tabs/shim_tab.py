@@ -18,9 +18,7 @@ import telnetlib
 class ShimTab(QWidget): 
     '''Creates shim control tab'''   
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
-        self.__dict__.update(parent.__dict__)  
-        
+        super().__init__(parent)
         self.parent = parent
         self.shim_pen = pg.mkPen(color=(0, 0, 204), width=1.5)
         self.goal_pen = pg.mkPen(color=(0, 200, 0), width=1.5)

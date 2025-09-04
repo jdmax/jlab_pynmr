@@ -14,15 +14,14 @@ from pynmr.hardware import DAQConnection
 class TuneTab(QWidget):
     '''Creates tune tab'''
     def __init__(self, parent):
-        super(QWidget,self).__init__(parent)
-        self.__dict__.update(parent.__dict__)
+        super().__init__(parent)
         self.parent = parent
         
         self.running = False   # False will stop the running thread
         self.dac_v = 0     # Starting DAC channel value   
         self.dac_c = 3      # Starting DAC channel (3 is both)
         
-        self.running_scan = RunningScan(self.config, 1000)
+        self.running_scan = RunningScan(self.parent.config, 1000)
         
         self.dio_pen = pg.mkPen(color=(250, 0, 0), width=1.5)
         self.pha_pen = pg.mkPen(color=(0, 0, 204), width=1.5)
@@ -144,7 +143,7 @@ class TuneTab(QWidget):
         
         if not self.running:
             time.sleep(0.0001)
-            self.daq = DAQConnection(self.config, 4, True)
+            self.daq = DAQConnection(self.parent.config, 4, True)
             if self.daq.set_dac(self.dac_v, self.dac_c):
                 pass
                 #print("Set DAC:", self.dac_c,  self.dac_v)
@@ -157,7 +156,7 @@ class TuneTab(QWidget):
         
         if self.run_button.isChecked():
         
-            self.status_bar.showMessage('Running sweeps to tune...')
+            self.parent.status_bar.showMessage('Running sweeps to tune...')
             self.run_button.setText('Stop')
             self.start_thread()
             self.parent.run_toggle()
@@ -191,7 +190,7 @@ class TuneTab(QWidget):
         '''Run when thread done'''
         self.progress = 0
         self.progress_bar.setValue(self.progress)  
-        self.status_bar.showMessage('Ready.')
+        self.parent.status_bar.showMessage('Ready.')
         self.update_run_plot()
         
     def abort_run(self):

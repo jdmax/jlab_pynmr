@@ -18,9 +18,7 @@ import telnetlib
 class FMTab(QWidget): 
     '''Creates FM control tab'''   
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
-        self.__dict__.update(parent.__dict__)  
-        
+        super().__init__(parent)
         self.parent = parent
         
         # Populate  Tab 

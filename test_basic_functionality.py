@@ -27,7 +27,7 @@ def test_core_functionality():
         print("✓ Configuration creation works")
         
         # Test data models
-        from pynmr.core import Scan, Event, Baseline, History, HistPoint
+        from pynmr.core import Scan, EventData, Baseline, History, HistPoint
         
         scan = Scan(config)
         print("✓ Scan creation works")

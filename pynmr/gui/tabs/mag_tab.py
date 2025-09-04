@@ -3,6 +3,7 @@
 import datetime
 import re
 import json
+import time
 from dateutil.parser import parse
 from PySide6.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QTableView, QAbstractItemView, QAbstractScrollArea, QFileDialog
 from PySide6.QtCore import QThread, Signal,Qt
@@ -14,9 +15,7 @@ from pynmr.hardware.magnet import MagnetControl
 class MagTab(QWidget): 
     '''Creates manget control tab'''   
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
-        self.__dict__.update(parent.__dict__)  
-        
+        super().__init__(parent)
         self.parent = parent
         self.mc = MagnetControl()
                 
@@ -38,8 +37,8 @@ class MagTab(QWidget):
 class MagnetBox(QGroupBox):
     '''Magnet control gui'''
     def __init__(self, parent):
-        super(QWidget,self).__init__(parent)   
-        self.__dict__.update(parent.__dict__)   
+        super().__init__(parent)
+        self.parent = parent
         self.divider = parent.divider    
         self.mc = parent.mc
                 
@@ -134,7 +133,7 @@ class MagnetBox(QGroupBox):
             time.sleep(0.05)
             self.mc.read_all() 
             self.update_status()
-            self.status_bar.showMessage('Set magnet:'+self.mc.commands[channel]+str(value))
+            self.parent.parent.status_bar.showMessage('Set magnet:'+self.mc.commands[channel]+str(value))
         if 'pause' not in self.mc.status['sweep']['value']:
             #if not self.mag_thread.isRunning() 
             print('start thread')
@@ -150,10 +149,10 @@ class MagnetBox(QGroupBox):
                 self.mc.open_port()
                 self.update_status()
             except:
-                self.status_bar.showMessage('Error connecting to serial port: '+str(self.port_comb.currentText()))
+                self.parent.parent.status_bar.showMessage('Error connecting to serial port: '+str(self.port_comb.currentText()))
                 raise
             if self.mc.s.is_open:#  and 'CS4' in self.mc.status['id']:
-                self.status_bar.showMessage("Opened connection to "+str(self.port_comb.currentText())+".")
+                self.parent.parent.status_bar.showMessage("Opened connection to "+str(self.port_comb.currentText())+".")
                 self.sw_but.setEnabled(True)
                 self.swup_but.setEnabled(True)
                 self.swdown_but.setEnabled(True)

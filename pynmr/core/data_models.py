@@ -81,7 +81,7 @@ class RunningScan:
         self.diode = (new_diode*num_in_chunk + self.diode*(self.points_in - num_in_chunk))/self.points_in
 
 
-class Event:
+class EventData:
     """Data and method object for single event point. Takes config instance on init.
     
     Arguments:
@@ -307,7 +307,7 @@ class HistPoint:
     """
     
     def __init__(self, event):
-        if isinstance(event, Event):
+        if isinstance(event, EventData):
             self.new_point(event)
         else:
             self.restore_point(event)
