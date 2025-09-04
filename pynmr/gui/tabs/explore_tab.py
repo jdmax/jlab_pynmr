@@ -15,9 +15,7 @@ class ExplTab(QWidget):
     '''Creates analysis tab. '''
 
     def __init__(self, parent):
-        super(QWidget,self).__init__(parent)
-        self.__dict__.update(parent.__dict__)
-        
+        super().__init__(parent)
         self.parent = parent
         
         self.event_vars_included = ['pol', 'cc', 'area']   # variables from the event to include in graph
@@ -83,12 +81,12 @@ class ExplTab(QWidget):
         '''
         self.start = self.start_dedit.dateTime().toPyDateTime()
         self.end = self.end_dedit.dateTime().toPyDateTime()
-        self.all_files = glob.glob(f"{self.config_dict['settings']['event_dir']}/*.txt")
+        self.all_files = glob.glob(f"{self.parent.config.settings['event_dir']}/*.txt")
         self.current_name = ''
         self.current_time = datetime.datetime.strptime('Jan 1 2000  12:00AM', '%b %d %Y %I:%M%p')
         self.included = []
         for file in self.all_files:      
-            name = file.replace(self.config_dict['settings']['event_dir']+'\\','')
+            name = file.replace(self.parent.config.settings['event_dir']+'\\','')
             if 'current' in name:
                 name = name.replace('current_', '').replace('.txt','')
                 thistime = datetime.datetime.strptime(name,"%Y-%m-%d_%H-%M-%S")

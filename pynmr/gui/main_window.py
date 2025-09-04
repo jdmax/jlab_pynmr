@@ -11,12 +11,12 @@ import logging
 import json
 from PySide6.QtWidgets import (QMainWindow, QErrorMessage, QTabWidget, QLabel, 
                               QWidget, QDialog, QDialogButtonBox, QVBoxLayout)
-from PySide6.QtGui import QIntValidator, QDoubleValidator
+from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator
 from PySide6.QtCore import QThread, Signal, Qt
 from logging.handlers import TimedRotatingFileHandler
 
 from ..config import Config
-from ..core import Scan, RunningScan, Event, Baseline, HistPoint, History
+from ..core import Scan, RunningScan, EventData, Baseline, HistPoint, History
 from ..hardware import EPICS, DAQConnection, UDP, TCP, RS_Connection, NI_Connection
 # Import tab modules individually to avoid circular dependencies
 from .tabs.run_tab import RunTab
@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
 
     Attributes:
         config: Current Config configuration instance
-        event: Current Event instance
+        event: Current EventData instance
         baseline: Current Baseline instance
         epics: Open EPICS connection
         history: History instance containing set of HistPoints
@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):
         channels: List of channels from config file
         settings: Dict of settings from config file
         epics_reads: Dict keyed on epics channels with name strings
-        epics_writes: Dict keyed on epics channels with Event attributes to send
+        epics_writes: Dict keyed on epics channels with EventData attributes to send
     """
     
     def __init__(self, config_file, parent=None):
@@ -72,7 +72,7 @@ class MainWindow(QMainWindow):
         self.label_changed('None')
         
         self.config = Config(channel_dict, self.settings)
-        self.event = Event(self)
+        self.event = EventData(self)
         self.previous_event = self.event
         self.baseline = Baseline(self.config, {})
         self.restore_history()
@@ -137,7 +137,7 @@ class MainWindow(QMainWindow):
                 
     def new_event(self):
         """Create new event instance"""
-        self.event = Event(self)
+        self.event = EventData(self)
         self.set_event_base()
 
     def new_eventfile(self):
@@ -249,9 +249,38 @@ class MainWindow(QMainWindow):
         """Update event label"""
         self.label = new_label
 
+    def channel_change(self, i):
+        """Channel setting changed. Make new config."""
+        name = self.channels[i]
+        self.config = Config(self.config_dict['channels'][name], self.settings)
+        self.event = EventData(self)
+        self.rs = RS_Connection(self.config)
+        logging.info(f"Changed channel to {self.config.channel['name']}.")
+
+    def divider(self):
+        """Create a visual divider line"""
+        div = QLabel('')
+        div.setStyleSheet("QLabel {background-color: #eeeeee; padding: 0; margin: 0; border-bottom: 0 solid #eeeeee; border-top: 1 solid #eeeeee;}")
+        div.setMaximumHeight(2)
+        return div
+
+    def check_state(self, *args, **kwargs):
+        """Enable colors for LineEdit validators"""
+        sender = self.sender()
+        validator = sender.validator()
+        state = validator.validate(sender.text(), 0)[0]
+        if sender.isEnabled():
+            if state == QValidator.Acceptable:
+                color = '#c4df9b'  # green
+            elif state == QValidator.Intermediate:
+                color = '#fff79a'  # yellow
+            else:
+                color = '#f6989d'  # red
+            sender.setStyleSheet('QLineEdit { background-color: %s }' % color)
+
     def init_connects(self):
         """Initialize EPICS connections"""
-        self.epics = EPICS(self.epics_reads, self.epics_writes)
+        self.epics = EPICS(self)
 
     def connect_daq(self):
         """Connect to DAQ system"""
@@ -262,7 +291,7 @@ class MainWindow(QMainWindow):
         elif self.config.settings['daq_type'] == 'NIDAQ':
             self.daq = NI_Connection(self.config)
         else:
-            self.daq = DAQConnection(self.config)
+            self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_run'], False)
 
     def start_logger(self):
         """Initialize logging system"""
@@ -278,18 +307,18 @@ class MainWindow(QMainWindow):
             ]
         )
 
-    def closeEvent(self, event):
+    def closeEventData(self, close_event):
         """Handle application close event"""
         if hasattr(self, 'run_tab') and self.run_tab.running:
             reply = ExitDialog().exec()
             if reply == QDialog.Rejected:
-                event.ignore()  
+                close_event.ignore()  
         else:
             if hasattr(self, 'epics'):
                 self.epics.monitor_running = False
             self.close_eventfile()
             self.save_session()
-            event.accept()
+            close_event.accept()
 
 
 class ExitDialog(QDialog):

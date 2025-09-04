@@ -14,9 +14,7 @@ from pynmr.core.calculations import TE
 class TETab(QWidget): 
     '''Creates settings tab'''   
     def __init__(self, parent):
-        super(QWidget,self).__init__(parent)
-        self.__dict__.update(parent.__dict__)  
-        
+        super().__init__(parent)
         self.parent = parent
         
         self.time_pen = pg.mkPen(color=(0, 0, 204), width=1.5)

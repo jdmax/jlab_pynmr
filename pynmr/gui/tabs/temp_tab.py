@@ -10,9 +10,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayo
 class TempTab(QWidget): 
     '''Creates Temperature monitor tab'''   
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
-        self.__dict__.update(parent.__dict__)  
-        
+        super().__init__(parent)
         self.parent = parent
         
         # Populate  Tab 
@@ -65,7 +63,8 @@ class TempTab(QWidget):
         temp = self.temp_lj.read()
         del self.temp_lj
         
-        self.temp_edit.setText(str(freq_out))
+        self.temp_edit.setText(str(temp))
+        now = datetime.datetime.now()
         self.time_edit.setText(now.strftime("%Y-%m-%d_%H-%M-%S"))
 
     

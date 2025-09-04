@@ -10,16 +10,14 @@ from PySide6.QtCore import QThread, Signal, Qt
 import pyqtgraph as pg
 import numpy as np
  
-from pynmr.core import *
-from pynmr.hardware import *
-from pynmr.hardware.instruments import *
+from pynmr.core import RunningScan
+from pynmr.hardware import DAQConnection
+from pynmr.hardware.instruments import NetRelay, LabJack, MicrowaveThread
    
 class RunTab(QWidget):
     '''Creates run tab. Starts threads for run and to update plots'''
     def __init__(self, parent):
-        super(QWidget,self).__init__(parent)
-        self.__dict__.update(parent.__dict__)
-        
+        super().__init__(parent)
         self.parent = parent
         self.abort_now = False
                
@@ -170,7 +168,7 @@ class RunTab(QWidget):
             self.controls_layout.addWidget(self.controls_lines[key], i, 1)            # make entries for config items
         self.lock_button = QPushButton("Unlock",checkable=True)
         self.lock_button.clicked.connect(self.lock_pushed)
-        self.controls_layout.layout().addWidget(self.lock_button, len(self.parent.config.controls), 1)
+        self.controls_layout.addWidget(self.lock_button, len(self.parent.config.controls), 1)
         # self.reload_button = QPushButton("Reload Settings",checkable=False)
         # self.reload_button.clicked.connect(self.reload_pushed)
         # self.controls_layout.layout().addWidget(self.reload_button, len(self.parent.config.controls), 0)
@@ -362,11 +360,11 @@ class RunTab(QWidget):
             self.run_button.setChecked(False)
             self.update_run_plot()
             self.parent.run_toggle()
-            if self.config.settings['compare_tab']['enable']:  # if doing compare_tab   
+            if self.parent.config.settings['compare_tab']['enable']:  # if doing compare_tab   
                 self.parent.compare_tab.mode_done()
         else:                                    # done, continue running
             self.parent.status_bar.showMessage(f'Finished event at  at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s. Running sweeps...')
-            if self.config.settings['compare_tab']['enable']:  # if doing compare_tab   
+            if self.parent.config.settings['compare_tab']['enable']:  # if doing compare_tab   
                 self.parent.compare_tab.mode_switch()
             self.start_thread()        
     

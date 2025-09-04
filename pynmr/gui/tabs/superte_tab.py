@@ -15,9 +15,7 @@ import numpy as np
 class SuperTab(QWidget): 
     '''Creates super te tab'''   
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
-        self.__dict__.update(parent.__dict__)  
-        
+        super().__init__(parent)
         self.parent = parent
         
         
@@ -120,12 +118,12 @@ class SuperTab(QWidget):
                         'phase':jd['phase'], 'cent_freq':jd['channel']['cent_freq'], 
                         'mod_freq':jd['channel']['mod_freq'], 'stop_time':dt, 
                         'read_time':time, 'stop_stamp':jd['stop_stamp'],'date':date,'label':jd['label'],
-                        'base_file':self.basefile_path},'polysub':jd['polysub']})
+                        'base_file':self.eventfile_path, 'polysub':jd.get('polysub', [])}})
             #self.event_model.clear()
-            self.event_model.removeRows(0, self.event_model.rowCount())
+            self.candidate_model.removeRows(0, self.candidate_model.rowCount())
             for i,stamp in enumerate(self.events.keys()):
-                self.event_model.setItem(i,0,QStandardItem(self.events[stamp]['read_time']))
-                self.event_model.setItem(i,1,QStandardItem(str(self.events[stamp]['sweeps'])))
+                self.candidate_model.setItem(i,0,QStandardItem(self.events[stamp]['read_time']))
+                self.candidate_model.setItem(i,1,QStandardItem(str(self.events[stamp]['sweeps'])))
  
     def candidate_select(self):    #,item):      
         '''Choose events selected from table, average to set as baseline and plot'''
@@ -135,10 +133,10 @@ class SuperTab(QWidget):
         sweeps = 0
         self.base_stamps = []
         self.base_dict = {}
-        for index in sorted(self.event_table.selectionModel().selectedRows()):   # average multiple events together, take timestamp of last event
+        for index in sorted(self.candidate_table.selectionModel().selectedRows()):   # average multiple events together, take timestamp of last event
             #print(index.row(), self.event_model.data(self.event_model.index(index.row(),0)))
             #print(self.event_model.data(self.event_model.index(item.row(),0)))
-            stamp = self.event_model.data(self.event_model.index(index.row(),0))
+            stamp = self.candidate_model.data(self.candidate_model.index(index.row(),0))
             freqs = self.events[stamp]['freq_list']
             new_phase = np.array(self.events[stamp]['phase'])
             self.base_phase_avg = (self.base_phase_avg*sweeps + new_phase*self.events[stamp]['sweeps'])/(sweeps + self.events[stamp]['sweeps'])

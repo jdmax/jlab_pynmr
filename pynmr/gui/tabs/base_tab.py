@@ -15,9 +15,7 @@ import numpy as np
 class BaseTab(QWidget): 
     '''Creates baseline tab'''   
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
-        self.__dict__.update(parent.__dict__)  
-        
+        super().__init__(parent)
         self.parent = parent
         
         
@@ -34,7 +32,7 @@ class BaseTab(QWidget):
         #self.basefile_path = self.eventfile.name
         self.basefile_path = ''
         self.basetime = 0        
-        self.basefile_name = os.path.join(self.config.settings["event_dir"], f'recent_baselines.txt')
+        self.basefile_name = os.path.join(self.parent.config.settings["event_dir"], f'recent_baselines.txt')
         with open(self.basefile_name, "r") as file:
             count = 0     
             for line in file: 
@@ -43,7 +41,7 @@ class BaseTab(QWidget):
                 now = datetime.datetime.now(tz=datetime.timezone.utc)
                 new = f'baselines_{now.strftime("%Y-%m-%d_%H-%M-%S")}.txt'
                 file.close()
-                os.rename(self.basefile_name, os.path.join(self.config.settings["event_dir"], new))
+                os.rename(self.basefile_name, os.path.join(self.parent.config.settings["event_dir"], new))
                 newfile = open(self.basefile_name, "x")
                
         self.base_box = QGroupBox('Baseline Controls')
@@ -140,7 +138,7 @@ class BaseTab(QWidget):
                             'read_time':time, 'stop_stamp':jd['stop_stamp'],'date':date,'label':jd['label'],
                             'base_file':self.basefile_path}})
                       
-            self.status_bar.showMessage('Opened event file '+self.basefile_path)
+            self.parent.status_bar.showMessage('Opened event file '+self.basefile_path)
             #self.event_model.clear()
             self.event_model.removeRows(0, self.event_model.rowCount())
             for i,stamp in enumerate(self.events.keys()):
@@ -185,7 +183,7 @@ class BaseTab(QWidget):
         try:
             self.parent.new_base(self.base_dict)
         except Exception as e:
-            self.status_bar.showMessage(f"Error setting baseline: {self.events[self.last_stamp]['read_time']} {e}")
+            self.parent.status_bar.showMessage(f"Error setting baseline: {self.events[self.last_stamp]['read_time']} {e}")
         #filename = re.findall('data.*\.txt', self.parent.event.base_file)
         #self.curr_base_line.setText(filename[0]+', '+ str(self.parent.event.base_time))
         self.curr_base_line.setText(str(self.parent.event.base_time))

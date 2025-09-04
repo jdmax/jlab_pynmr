@@ -12,9 +12,7 @@ class AnalTab(QWidget):
     '''Creates analysis tab. '''
 
     def __init__(self, parent):
-        super(QWidget,self).__init__(parent)
-        self.__dict__.update(parent.__dict__)
-        
+        super().__init__(parent)
         self.parent = parent
 
         self.base_pen = pg.mkPen(color=(180, 0, 0), width=1.5)
@@ -144,14 +142,14 @@ class AnalTab(QWidget):
         
         # Setup default methods
         self.base_combo.currentIndexChanged.connect(self.change_base)
-        self.base_combo.setCurrentIndex(self.event.config.settings['analysis']['base_def'])
-        self.change_base(self.event.config.settings['analysis']['base_def'])
+        self.base_combo.setCurrentIndex(self.parent.event.config.settings['analysis']['base_def'])
+        self.change_base(self.parent.event.config.settings['analysis']['base_def'])
         self.sub_combo.currentIndexChanged.connect(self.change_sub)
-        self.sub_combo.setCurrentIndex(self.event.config.settings['analysis']['sub_def'])
-        self.change_sub(self.event.config.settings['analysis']['sub_def'])
+        self.sub_combo.setCurrentIndex(self.parent.event.config.settings['analysis']['sub_def'])
+        self.change_sub(self.parent.event.config.settings['analysis']['sub_def'])
         self.res_combo.currentIndexChanged.connect(self.change_res)
-        self.res_combo.setCurrentIndex(self.event.config.settings['analysis']['res_def'])
-        self.change_res(self.event.config.settings['analysis']['res_def'])
+        self.res_combo.setCurrentIndex(self.parent.event.config.settings['analysis']['res_def'])
+        self.change_res(self.parent.event.config.settings['analysis']['res_def'])
     
     def change_base(self, i):
         '''Set base_chosen to correct baseline class instance
@@ -179,33 +177,33 @@ class AnalTab(QWidget):
             
     def run_analysis(self):
         '''Run event signal analysis and call for new plots if base and sub methods are chosen'''
-        self.event = self.parent.previous_event
+        self.current_event = self.parent.previous_event
         if self.base_chosen and self.sub_chosen and self.res_chosen:
-            self.event.signal_analysis(self.base_chosen, self.sub_chosen, self.res_chosen)
+            self.current_event.signal_analysis(self.base_chosen, self.sub_chosen, self.res_chosen)
             self.update_event_plots()
 
     def update_event_plots(self):
         '''Update analysis tab plots. Right now doing a DC subtraction on unsubtracted signals.
         '''
-        self.event = self.parent.previous_event
-        self.raw_plot.setData(self.event.scan.freq_list, self.event.scan.phase - self.event.scan.phase.max())
-        self.base_plot.setData(self.event.scan.freq_list, self.event.basesweep - self.event.basesweep.max())
-        self.basesub_plot.setData(self.event.scan.freq_list, self.event.basesub - self.event.basesub.max())
+        self.current_event = self.parent.previous_event
+        self.raw_plot.setData(self.parent.event.scan.freq_list, self.parent.event.scan.phase - self.parent.event.scan.phase.max())
+        self.base_plot.setData(self.parent.event.scan.freq_list, self.current_event.basesweep - self.current_event.basesweep.max())
+        self.basesub_plot.setData(self.parent.event.scan.freq_list, self.current_event.basesub - self.current_event.basesub.max())
         
         #print(self.parent.event.basesub, self.parent.event.poly_curve, self.parent.event.polysub)
-        self.sub_plot.setData(self.event.scan.freq_list, self.event.basesub - self.event.basesub.max())
-        self.fit_plot.setData(self.event.scan.freq_list, self.event.fitcurve - self.event.basesub.max())
-        self.fitsub_plot.setData(self.event.scan.freq_list, self.event.fitsub)        
+        self.sub_plot.setData(self.parent.event.scan.freq_list, self.current_event.basesub - self.current_event.basesub.max())
+        self.fit_plot.setData(self.parent.event.scan.freq_list, self.current_event.fitcurve - self.current_event.basesub.max())
+        self.fitsub_plot.setData(self.parent.event.scan.freq_list, self.current_event.fitsub)        
         
-        self.unc_plot.setData(self.event.scan.freq_list, self.event.fitsub)
-        self.res_plot.setData(self.event.scan.freq_list, self.event.rescurve)
+        self.unc_plot.setData(self.parent.event.scan.freq_list, self.current_event.fitsub)
+        self.res_plot.setData(self.parent.event.scan.freq_list, self.current_event.rescurve)
         
 class StandardBase(QWidget):
     '''Layout and method for standard baseline subtract based on selected baseline from baseline tab.  Base type.
     '''
     
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
+        super().__init__(parent)
         self.parent = parent
         self.space = QVBoxLayout()
         self.setLayout(self.space)
@@ -219,28 +217,28 @@ class StandardBase(QWidget):
         self.parent.base_region1.setBrush(pg.mkBrush(0, 0, 180, 0))
         self.parent.base_region2.setBrush(pg.mkBrush(0, 0, 180, 0))
     
-    def result(self, event):
+    def result(self, event_data):
         '''Perform standard baseline subtraction, 
         
         Arguments:
-            event: Event instance with sweeps to subtract
+            event_data: EventData instance with sweeps to subtract
             
         Returns:
             baseline sweep, baseline subtracted sweep 
         '''              
-        basesweep = event.baseline
+        basesweep = event_data.baseline
         self.message.setText(f"Baseline from {event.base_time.strftime('%D %H:%M:%S')} UTC")        
-        return basesweep, event.scan.phase - basesweep
+        return basesweep, event_data.scan.phase - basesweep
     
 class PolyFitBase(QWidget):
     '''Layout for polynomial fit to the background wings, including methods to produce fits.  Base type.
     '''
     
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
+        super().__init__(parent)
         self.parent = parent
         self.name = "Polynomial Fit to Wings"
-        self.wings = self.parent.event.config.settings['analysis']['wings']
+        self.wings = self.parent.parent.event.config.settings['analysis']['wings']
                         
         self.space = QVBoxLayout()
         self.setLayout(self.space)        
@@ -306,17 +304,17 @@ class PolyFitBase(QWidget):
         self.parent.base_region2.setRegion(bounds[2:])
         self.parent.run_analysis()
         
-    def result(self, event):
+    def result(self, event_data):
         '''Perform standard polyfit baseline subtraction
         
         Arguments:
-            event: Event instance with sweeps to subtract
+            event_data: EventData instance with sweeps to subtract
             
         Returns:
             polyfit used, baseline subtracted sweep 
         '''
-        sweep = event.scan.phase
-        freqs = event.scan.freq_list
+        sweep = event_data.scan.phase
+        freqs = event_data.scan.freq_list
         bounds = [x*len(sweep) for x in self.wings]
         data = [z for x,z in enumerate(zip(freqs, sweep)) if (bounds[0]<x<bounds[1] or bounds[2]<x<bounds[3])]
         X = np.array([x for x,y in data])
@@ -351,10 +349,10 @@ class CircuitBase(QWidget):
     '''
     
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
+        super().__init__(parent)
         self.parent = parent
         self.name = "Circuit Model Fit"
-        self.wings = self.parent.event.config.settings['analysis']['wings']
+        self.wings = self.parent.parent.event.config.settings['analysis']['wings']
                         
         self.space = QVBoxLayout()
         self.setLayout(self.space)        
@@ -396,16 +394,16 @@ class CircuitBase(QWidget):
         self.parent.base_region2.setRegion(bounds[2:])
         self.parent.run_analysis()
         
-    def result(self, event):
+    def result(self, event_data):
         '''Perform circuit model fit baseline subtraction
         
         Arguments:
-            event: Event instance with sweeps to subtract
+            event_data: EventData instance with sweeps to subtract
             
         Returns:
             fit used, baseline subtracted sweep 
         '''
-        sweep = event.scan.phase
+        sweep = event_data.scan.phase
         bounds = [x*len(sweep) for x in self.wings]
         data = [(x,y) for x,y in enumerate(sweep) if (bounds[0]<x<bounds[1] or bounds[2]<x<bounds[3])]
         f = np.array([x for x,y in data])
@@ -421,7 +419,7 @@ class CircuitBase(QWidget):
                 
         result = mod.fit(Y, params, f=f)
         #print(result.best_values)      
-        fit = self.real_curve(range(len(event.scan.phase)), **result.best_values)
+        fit = self.real_curve(range(len(event_data.scan.phase)), **result.best_values)
         sub = sweep - fit
         #text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]
         #self.message.setText("Fit coefficients:\n"+"\n".join(text_list))
@@ -476,7 +474,7 @@ class NoBase(QWidget):
     '''
     
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
+        super().__init__(parent)
         self.parent = parent
         self.space = QVBoxLayout()
         self.setLayout(self.space)
@@ -491,10 +489,10 @@ class NoBase(QWidget):
         self.parent.base_region1.setBrush(pg.mkBrush(0, 0, 180, 0))
         self.parent.base_region2.setBrush(pg.mkBrush(0, 0, 180, 0))        
         
-    def result(self, event):        
+    def result(self, event_data):        
         '''Only performs sum
         '''
-        sweep = event.scan.phase
+        sweep = event_data.scan.phase
         fitcurve = np.zeros(len(sweep))
         sub = sweep - fitcurve
         area = sub.sum()
@@ -505,10 +503,10 @@ class PolyFitSub(QWidget):
     '''
     
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
+        super().__init__(parent)
         self.parent = parent
         self.name = "Polynomial Fit to Wings"
-        self.wings = self.parent.event.config.settings['analysis']['wings']
+        self.wings = self.parent.parent.event.config.settings['analysis']['wings']
         
         self.space = QVBoxLayout()
         self.setLayout(self.space)        
@@ -579,18 +577,18 @@ class PolyFitSub(QWidget):
         self.parent.sub_region2.setRegion(bounds[2:])
         self.parent.run_analysis()   
      
-    def result(self, event):
+    def result(self, event_data):
         '''Perform standard polyfit baseline subtraction
         
         Arguments:
-            event: Event instance with sweeps to subtract
+            event_data: EventData instance with sweeps to subtract
             
         Returns:
             polyfit used, baseline subtracted sweep 
         '''
         
         sweep = event.basesub
-        freqs = event.scan.freq_list
+        freqs = event_data.scan.freq_list
         bounds = [x*len(sweep) for x in self.wings]
         data = [z for x,z in enumerate(zip(freqs, sweep)) if (bounds[0]<x<bounds[1] or bounds[2]<x<bounds[3])]
         X = np.array([x for x,y in data])
@@ -631,7 +629,7 @@ class NoFitSub(QWidget):
     '''
     
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
+        super().__init__(parent)
         self.parent = parent
         self.space = QVBoxLayout()
         self.setLayout(self.space)
@@ -646,7 +644,7 @@ class NoFitSub(QWidget):
         self.parent.sub_region1.setBrush(pg.mkBrush(0, 0, 180, 20))
         self.parent.sub_region2.setBrush(pg.mkBrush(0, 0, 180, 20))        
         
-    def result(self, event):        
+    def result(self, event_data):        
         '''Only performs sum
         '''
         sweep = event.basesub
@@ -660,7 +658,7 @@ class SumAllRes(QWidget):
     '''
     
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
+        super().__init__(parent)
         self.parent = parent
         self.space = QVBoxLayout()
         self.setLayout(self.space)
@@ -674,7 +672,7 @@ class SumAllRes(QWidget):
         '''Things to do when this stack is chosen'''
         self.parent.res_region.setBrush(pg.mkBrush(0, 0, 180, 0))   
         
-    def result(self, event):        
+    def result(self, event_data):        
         '''Only performs sum
         '''
         sweep = event.fitsub
@@ -683,7 +681,7 @@ class SumAllRes(QWidget):
         area = sub.sum()
         pol = area*event.cc
         self.message.setText(f"Area: {area}")
-        data = [0 for x in event.config.freq_list]
+        data = [0 for x in event_data.scan.freq_list]
         return data, area, pol
         
 
@@ -692,10 +690,10 @@ class SumRangeRes(QWidget):
     '''
     
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
+        super().__init__(parent)
         self.parent = parent
         self.name = "Integrate within Range"
-        self.range = self.parent.event.config.settings['analysis']['sum_range']
+        self.range = self.parent.parent.event.config.settings['analysis']['sum_range']
         
         self.space = QVBoxLayout()
         self.setLayout(self.space)      
@@ -733,11 +731,11 @@ class SumRangeRes(QWidget):
         self.parent.res_region.setRegion(bounds)
         self.parent.run_analysis()   
      
-    def result(self, event):
+    def result(self, event_data):
         '''Perform standard polyfit baseline subtraction
         
         Arguments:
-            event: Event instance with sweeps to subtract
+            event_data: EventData instance with sweeps to subtract
             
         Returns:
             polyfit used, baseline subtracted sweep 
@@ -757,7 +755,7 @@ class PeakHeightRes(QWidget):
     '''
     
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
+        super().__init__(parent)
         self.parent = parent
         self.space = QVBoxLayout()
         self.setLayout(self.space)
@@ -771,14 +769,14 @@ class PeakHeightRes(QWidget):
         '''Things to do when this stack is chosen'''
         self.parent.res_region.setBrush(pg.mkBrush(0, 0, 180, 0))   
         
-    def result(self, event):        
+    def result(self, event_data):        
         '''Find peak height
         '''
         sweep = event.fitsub
         max = np.max(sweep)
         min = np.min(sweep)        
         area = max if abs(max)>abs(min) else min   # Using peak height represent area
-        data = [area for x in event.config.freq_list]
+        data = [area for x in event_data.scan.freq_list]
         
         pol = area*event.cc
         self.message.setText(f"Peak height: {area}")
@@ -790,12 +788,12 @@ class FitPeakRes(QWidget):
     '''
     
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
+        super().__init__(parent)
         self.parent = parent
         self.space = QVBoxLayout()
         self.setLayout(self.space)
         self.name = "Fit Gaussian and Integrate"
-        self.wings = self.parent.event.config.settings['analysis']['sum_range']
+        self.wings = self.parent.parent.event.config.settings['analysis']['sum_range']
         self.poly_label = QLabel("Fit Peak")
         self.space.addWidget(self.poly_label)
         self.message = QLabel()
@@ -831,7 +829,7 @@ class FitPeakRes(QWidget):
         self.parent.res_region.setRegion(bounds)
         self.parent.run_analysis()  
     
-    def result(self, event):        
+    def result(self, event_data):        
         '''Perform Gaussian fit and sum.
         
         Arguments:
@@ -841,10 +839,10 @@ class FitPeakRes(QWidget):
             area and polarization from sum under gaussian
         '''
         
-        self.pi = [-0.1, self.parent.config.channel['cent_freq'], self.parent.config.channel['mod_freq']*1E-3/10]        
+        self.pi = [-0.1, self.parent.parent.config.channel['cent_freq'], self.parent.parent.config.channel['mod_freq']*1E-3/10]        
         
         sweep = event.fitsub
-        freqs = event.scan.freq_list
+        freqs = event_data.scan.freq_list
         bounds = [x*len(sweep) for x in self.wings]
         data = [z for x,z in enumerate(zip(freqs, sweep)) if bounds[0]<x<bounds[1]]
         X = np.array([x for x,y in data])
@@ -874,12 +872,12 @@ class FitPeakRes2(QWidget):
     '''
     
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
+        super().__init__(parent)
         self.parent = parent
         self.space = QVBoxLayout()
         self.setLayout(self.space)
         self.name = "Fit 2 Gaussians and Integrate"
-        self.wings = self.parent.event.config.settings['analysis']['sum_range']
+        self.wings = self.parent.parent.event.config.settings['analysis']['sum_range']
         self.poly_label = QLabel("Fit Peak")
         self.space.addWidget(self.poly_label)
         self.message = QLabel()
@@ -915,7 +913,7 @@ class FitPeakRes2(QWidget):
         self.parent.res_region.setRegion(bounds)
         self.parent.run_analysis()  
     
-    def result(self, event):        
+    def result(self, event_data):        
         '''Perform fit to sum of two gaussians, intergrate
         
         Arguments:
@@ -925,10 +923,10 @@ class FitPeakRes2(QWidget):
             area and polarization from sum under gaussian
         '''
         
-        self.pi = [-0.1, self.parent.config.channel['cent_freq'], self.parent.config.channel['mod_freq']*1E-3/10, -0.01, self.parent.config.channel['cent_freq'], self.parent.config.channel['mod_freq']*1E-3/10]
+        self.pi = [-0.1, self.parent.parent.config.channel['cent_freq'], self.parent.parent.config.channel['mod_freq']*1E-3/10, -0.01, self.parent.parent.config.channel['cent_freq'], self.parent.parent.config.channel['mod_freq']*1E-3/10]
         
         sweep = event.fitsub
-        freqs = event.scan.freq_list
+        freqs = event_data.scan.freq_list
         bounds = [x*len(sweep) for x in self.wings]
         data = [z for x,z in enumerate(zip(freqs, sweep)) if bounds[0]<x<bounds[1]]
         X = np.array([x for x,y in data])
@@ -958,10 +956,10 @@ class FitDeuteron(QWidget):
     '''
     
     def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
+        super().__init__(parent)
         self.parent = parent
         
-        d_fit_params = self.parent.event.config.settings['analysis']['d_fit_params'] 
+        d_fit_params = self.parent.parent.event.config.settings['analysis']['d_fit_params'] 
         
         
         
@@ -991,14 +989,14 @@ class FitDeuteron(QWidget):
         try:
             self.params
         except AttributeError:    
-            self.params = self.parent.event.config.settings['analysis']['d_fit_params']
+            self.params = self.parent.parent.event.config.settings['analysis']['d_fit_params']
         
             
     def switch_here(self):
         '''Things to do when this stack is chosen'''
         self.parent.res_region.setBrush(pg.mkBrush(0, 0, 180, 0))   
     
-    def result(self, event):        
+    def result(self, event_data):        
         '''Perform Dueteron fit and calculate polarization
         
         Arguments:
@@ -1009,7 +1007,7 @@ class FitDeuteron(QWidget):
         '''
         
         sweep = event.fitsub
-        freqs = event.scan.freq_list
+        freqs = event_data.scan.freq_list
         
         labels = [e.text() for e in self.param_label]
         values = [float(e.text()) for e in self.param_edit]
