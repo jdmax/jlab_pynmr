@@ -1,9 +1,2 @@
-2025-06-30 16:16:43 Started new instance.
-2025-06-30 16:16:43 Loaded config file {self.config_filename}.
-2025-06-30 16:16:44 Error closing eventfile.
-2025-06-30 16:16:44 Opened new evenfile data\current_2025-06-30_20-16-44.txt
-2025-06-30 16:16:49 Changed channel to Proton5T.
-2025-06-30 16:16:51 Saved TE data and set new calibration constant -5.246731.
-2025-06-30 16:16:51 DAQ Test mode.
-2025-06-30 16:16:53 Closed eventfile and moved to 2025-06-30_20-16-44__2025-06-30_20-16-53.txt.
-2025-06-30 16:16:53 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='cp1252'>.
+2025-09-04 11:23:49 Closed eventfile and moved to 2025-09-02_18-12-32__2025-09-04_15-23-49.txt.
+2025-09-04 11:23:49 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='UTF-8'>.

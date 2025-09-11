@@ -221,7 +221,7 @@ class UDP():
         # Set up DAC value from desired percentage:
         # voltage =~ (16/65535) * DAC value 1/12/2021
         dac_value = int(self.dac_v * 65535)
-        #print(self.dac_v, dac_value, dac_value.to_bytes(2,'little').hex())
+        #print(self.dac_v, self.dac_c, dac_value, dac_value.to_bytes(2,'little').hex())
                     
         # Make Resiter byte string from other inputs
         # Number Bytes LSB, Nymber Bytes MSB, LSByte GenSetTime, MSByte GenSetTime, LSByte NumOfSamToAve, MByte NumOfSamToAve, LSByte TotSweepCycle, MSByte TotSweepCycle, LSByte IntSweepCycle, MSByte IntSweepCycle, LSByte AdcConfig, MSByte AdcConfig, LSByte Dac Value, MSByte Dac Value, LSByte Dac Config, MSByte Dac Config

@@ -239,6 +239,9 @@ class MainWindow(QMainWindow):
 
     def set_event_base(self):
         """Set baseline for current event"""
+        self.event.base_stamp = self.baseline.stop_stamp
+        self.event.base_time = self.baseline.stop_time
+        self.event.base_file = self.baseline.base_file
         self.event.baseline = self.baseline.phase
 
     def set_cc(self, new_cc):
@@ -257,27 +260,6 @@ class MainWindow(QMainWindow):
         self.rs = RS_Connection(self.config)
         logging.info(f"Changed channel to {self.config.channel['name']}.")
 
-    def divider(self):
-        """Create a visual divider line"""
-        div = QLabel('')
-        div.setStyleSheet("QLabel {background-color: #eeeeee; padding: 0; margin: 0; border-bottom: 0 solid #eeeeee; border-top: 1 solid #eeeeee;}")
-        div.setMaximumHeight(2)
-        return div
-
-    def check_state(self, *args, **kwargs):
-        """Enable colors for LineEdit validators"""
-        sender = self.sender()
-        validator = sender.validator()
-        state = validator.validate(sender.text(), 0)[0]
-        if sender.isEnabled():
-            if state == QValidator.Acceptable:
-                color = '#c4df9b'  # green
-            elif state == QValidator.Intermediate:
-                color = '#fff79a'  # yellow
-            else:
-                color = '#f6989d'  # red
-            sender.setStyleSheet('QLineEdit { background-color: %s }' % color)
-
     def init_connects(self):
         """Initialize EPICS connections"""
         self.epics = EPICS(self)
@@ -293,19 +275,6 @@ class MainWindow(QMainWindow):
         else:
             self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_run'], False)
 
-    def start_logger(self):
-        """Initialize logging system"""
-        os.makedirs(self.config_dict['settings']['log_dir'], exist_ok=True)
-        log_filename = os.path.join(self.config_dict['settings']['log_dir'], 'pynmr.log')
-        
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                TimedRotatingFileHandler(log_filename, when='midnight', interval=1, backupCount=30),
-                logging.StreamHandler()
-            ]
-        )
 
     def closeEventData(self, close_event):
         """Handle application close event"""
@@ -320,6 +289,40 @@ class MainWindow(QMainWindow):
             self.save_session()
             close_event.accept()
 
+    def check_state(self, *args, **kwargs):
+        """Enable colors for LineEdit validators"""
+        sender = self.sender()
+        validator = sender.validator()
+        state = validator.validate(sender.text(), 0)[0]
+        if sender.isEnabled():
+            if state == QValidator.Acceptable:
+                color = '#c4df9b'  # green
+            elif state == QValidator.Intermediate:
+                color = '#fff79a'  # yellow
+            else:
+                color = '#f6989d'  # red
+            sender.setStyleSheet('QLineEdit { background-color: %s }' % color)
+
+    def start_logger(self):
+        """Initialize logging system"""
+        os.makedirs(self.config_dict['settings']['log_dir'], exist_ok=True)
+        log_filename = os.path.join(self.config_dict['settings']['log_dir'], 'pynmr.log')
+
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            handlers=[
+                TimedRotatingFileHandler(log_filename, when='midnight', interval=1, backupCount=30),
+                logging.StreamHandler()
+            ]
+        )
+
+    def divider(self):
+        """Create a visual divider line"""
+        div = QLabel('')
+        div.setStyleSheet("QLabel {background-color: #eeeeee; padding: 0; margin: 0; border-bottom: 0 solid #eeeeee; border-top: 1 solid #eeeeee;}")
+        div.setMaximumHeight(2)
+        return div
 
 class ExitDialog(QDialog):
     """Dialog for confirming exit while DAQ is running"""
