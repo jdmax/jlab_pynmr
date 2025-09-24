@@ -306,6 +306,7 @@ class RunTab(QWidget):
         #self.parent.set_event_base()            # set current basline to this event
         try:
             self.run_thread = RunThread(self, self.parent.config)
+            print("Created run thread and returned")
             # Register thread with main window for lifecycle management
             self.parent.register_thread(self.run_thread)
             self.run_thread.finished.connect(self.done)
@@ -594,8 +595,8 @@ class RunThread(QThread):
         try:
             self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_run'], False)
         except Exception as e:
-            print('Exception starting run thread, lost connection: '+str(e))
-            
+            print('Exception starting DAQ connection, lost connection: '+str(e))
+        print("Created Daq connection")
                 
     def __del__(self):
         try:

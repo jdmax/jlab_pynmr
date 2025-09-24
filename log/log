@@ -1,2 +1,10 @@
 2025-09-04 11:23:49 Closed eventfile and moved to 2025-09-02_18-12-32__2025-09-04_15-23-49.txt.
 2025-09-04 11:23:49 Printed settings on exit to <_io.TextIOWrapper name='app/session.yaml' mode='w' encoding='UTF-8'>.
+2025-09-24 15:10:00 Started new instance.
+2025-09-24 15:10:00 Loaded config file {self.config_filename}.
+2025-09-24 15:10:00 Error closing eventfile.
+2025-09-24 15:10:00 Opened new evenfile data/current_2025-09-24_19-10-00.txt
+2025-09-24 15:10:00 Changed channel to Proton5T.
+2025-09-24 15:10:01 Saved TE data and set new calibration constant -0.08.
+2025-09-24 15:10:01 Connected to: 129.57.161.8, port 1028, and set registers and frequency table.
+2025-09-24 15:10:14 Finished event at 19:10:14 UTC, after 4s. Analysis returned at 19:10:14 UTC, after 0.0s.
