@@ -65,6 +65,9 @@ class MainWindow(QMainWindow):
         self.start_logger()
         self.chassis_temp = 0
         self.shimA = 0
+        self.analysis_in_progress = False
+        self.pending_next_run = False
+        self.active_threads = []  # Centralized thread registry
         self.shimB = 0
         self.shimC = 0
         self.shimD = 0
@@ -124,6 +127,9 @@ class MainWindow(QMainWindow):
         
         self.set_cc(self.restore_dict['cc'])   
         self.connect_daq()
+        
+        # Enable run button after initialization
+        self.run_toggle()
         
     def load_settings(self):
         """Load settings from YAML config file"""
@@ -189,6 +195,7 @@ class MainWindow(QMainWindow):
         
     def end_event(self):
         """Start ending the event"""
+        self.analysis_in_progress = True
         self.previous_event = self.event    
         self.previous_event.label = self.label        
         self.previous_event.close_event(self.anal_tab.base_chosen, self.anal_tab.sub_chosen, self.anal_tab.res_chosen)  
@@ -224,6 +231,34 @@ class MainWindow(QMainWindow):
             screenshot = self.run_tab.grab()
             now = datetime.datetime.now(tz=datetime.timezone.utc)
             screenshot.save(f'{self.config.settings["ss_dir"]}/{now.strftime("%Y-%m-%d_%H-%M-%S")}.png')
+            
+        # Analysis is complete, clear flag and start next run if needed
+        self.analysis_in_progress = False
+        if self.pending_next_run:
+            self.pending_next_run = False
+            if hasattr(self, 'run_tab') and self.run_tab.run_button.isChecked():
+                self.run_tab.start_thread()
+                
+    def register_thread(self, thread):
+        """Register a thread to prevent premature garbage collection"""
+        if thread not in self.active_threads:
+            self.active_threads.append(thread)
+            # Connect finished signal to cleanup
+            thread.finished.connect(lambda: self.cleanup_thread(thread))
+            
+    def cleanup_thread(self, thread):
+        """Remove thread from registry when finished"""
+        if thread in self.active_threads:
+            self.active_threads.remove(thread)
+            # Schedule for deletion after event loop processes
+            thread.deleteLater()
+            
+    def cleanup_all_threads(self):
+        """Stop and cleanup all active threads"""
+        for thread in self.active_threads[:]:  # Copy list since we'll modify it
+            if thread.isRunning():
+                thread.quit()
+        self.active_threads.clear()
 
     def new_base(self, basedict):
         """Choose eventfile and event to act as baseline for this and future events
@@ -276,15 +311,20 @@ class MainWindow(QMainWindow):
             self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_run'], False)
 
 
-    def closeEventData(self, close_event):
+    def closeEvent(self, close_event):
         """Handle application close event"""
-        if hasattr(self, 'run_tab') and self.run_tab.running:
+        if hasattr(self, 'run_tab') and self.run_tab.run_button.isChecked():
             reply = ExitDialog().exec()
             if reply == QDialog.Rejected:
                 close_event.ignore()  
         else:
-            if hasattr(self, 'epics'):
+            # Stop all threads before closing
+            if hasattr(self, 'epics') and self.epics:
                 self.epics.monitor_running = False
+                    
+            # Stop all threads using centralized management
+            self.cleanup_all_threads()
+                    
             self.close_eventfile()
             self.save_session()
             close_event.accept()
@@ -323,6 +363,35 @@ class MainWindow(QMainWindow):
         div.setStyleSheet("QLabel {background-color: #eeeeee; padding: 0; margin: 0; border-bottom: 0 solid #eeeeee; border-top: 1 solid #eeeeee;}")
         div.setMaximumHeight(2)
         return div
+
+    def run_toggle(self):
+        """Disable or enable buttons on other tabs when one tab is running"""
+        if hasattr(self, 'run_tab') and self.run_tab.run_button.isChecked():
+            if hasattr(self, 'tune_tab'):
+                self.tune_tab.run_button.setEnabled(False)
+                self.tune_tab.phase_spin.setEnabled(False)
+                self.tune_tab.phase_slider.setEnabled(False)
+                self.tune_tab.diode_spin.setEnabled(False)
+                self.tune_tab.diode_slider.setEnabled(False)
+            if self.config.settings['compare_tab']['enable'] and hasattr(self, 'compare_tab'):
+                if not self.compare_tab.compare_on:
+                    self.compare_tab.run_button.setEnabled(False)
+        else:
+            if hasattr(self, 'tune_tab'):
+                self.tune_tab.run_button.setEnabled(True)
+                self.tune_tab.phase_spin.setEnabled(True)
+                self.tune_tab.phase_slider.setEnabled(True)
+                self.tune_tab.diode_spin.setEnabled(True)
+                self.tune_tab.diode_slider.setEnabled(True)
+            if self.config.settings['compare_tab']['enable'] and hasattr(self, 'compare_tab'):
+                self.compare_tab.run_button.setEnabled(True)
+        if hasattr(self, 'tune_tab') and self.tune_tab.run_button.isChecked():
+            if hasattr(self, 'run_tab'):
+                self.run_tab.run_button.setEnabled(False)
+        else:
+            if hasattr(self, 'run_tab'):
+                self.run_tab.run_button.setEnabled(True)
+
 
 class ExitDialog(QDialog):
     """Dialog for confirming exit while DAQ is running"""

@@ -227,7 +227,7 @@ class StandardBase(QWidget):
             baseline sweep, baseline subtracted sweep 
         '''              
         basesweep = event_data.baseline
-        self.message.setText(f"Baseline from {event.base_time.strftime('%D %H:%M:%S')} UTC")        
+        self.message.setText(f"Baseline from {event_data.base_time.strftime('%D %H:%M:%S')} UTC")        
         return basesweep, event_data.scan.phase - basesweep
     
 class PolyFitBase(QWidget):
@@ -587,7 +587,7 @@ class PolyFitSub(QWidget):
             polyfit used, baseline subtracted sweep 
         '''
         
-        sweep = event.basesub
+        sweep = event_data.basesub
         freqs = event_data.scan.freq_list
         bounds = [x*len(sweep) for x in self.wings]
         data = [z for x,z in enumerate(zip(freqs, sweep)) if (bounds[0]<x<bounds[1] or bounds[2]<x<bounds[3])]
@@ -647,7 +647,7 @@ class NoFitSub(QWidget):
     def result(self, event_data):        
         '''Only performs sum
         '''
-        sweep = event.basesub
+        sweep = event_data.basesub
         fitcurve = np.zeros(len(sweep))
         sub = sweep - fitcurve
         area = sub.sum()
@@ -675,11 +675,11 @@ class SumAllRes(QWidget):
     def result(self, event_data):        
         '''Only performs sum
         '''
-        sweep = event.fitsub
+        sweep = event_data.fitsub
         fitcurve = np.zeros(len(sweep))
         sub = sweep - fitcurve
         area = sub.sum()
-        pol = area*event.cc
+        pol = area*event_data.cc
         self.message.setText(f"Area: {area}")
         data = [0 for x in event_data.scan.freq_list]
         return data, area, pol
@@ -741,12 +741,12 @@ class SumRangeRes(QWidget):
             polyfit used, baseline subtracted sweep 
         '''
     
-        sweep = event.fitsub
+        sweep = event_data.fitsub
         bounds = [x*len(sweep) for x in self.wings]
         data = [(x,y) if bounds[0]<x<bounds[1] else (x,0) for x,y in enumerate(sweep)]
         Y = np.array([y for x,y in data])
         area = Y.sum()
-        pol = area*event.cc
+        pol = area*event_data.cc
         self.message.setText(f"Area: {area}")
         return Y, area, pol
         
@@ -772,13 +772,13 @@ class PeakHeightRes(QWidget):
     def result(self, event_data):        
         '''Find peak height
         '''
-        sweep = event.fitsub
+        sweep = event_data.fitsub
         max = np.max(sweep)
         min = np.min(sweep)        
         area = max if abs(max)>abs(min) else min   # Using peak height represent area
         data = [area for x in event_data.scan.freq_list]
         
-        pol = area*event.cc
+        pol = area*event_data.cc
         self.message.setText(f"Peak height: {area}")
         return data, area, pol
                 
@@ -841,7 +841,7 @@ class FitPeakRes(QWidget):
         
         self.pi = [-0.1, self.parent.parent.config.channel['cent_freq'], self.parent.parent.config.channel['mod_freq']*1E-3/10]        
         
-        sweep = event.fitsub
+        sweep = event_data.fitsub
         freqs = event_data.scan.freq_list
         bounds = [x*len(sweep) for x in self.wings]
         data = [z for x,z in enumerate(zip(freqs, sweep)) if bounds[0]<x<bounds[1]]
@@ -857,7 +857,7 @@ class FitPeakRes(QWidget):
         r_squared = 1 - (ss_res / ss_tot)                  
                 
         area = fit.sum()
-        pol = area*event.cc
+        pol = area*event_data.cc
         text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]
         self.message.setText(f"Fit coefficients: \t \t \t R-squared: {r_squared:.2f}\n"+"\n".join(text_list)+"\n"+f"Area: {area}")
         return fit, area, pol 
@@ -925,7 +925,7 @@ class FitPeakRes2(QWidget):
         
         self.pi = [-0.1, self.parent.parent.config.channel['cent_freq'], self.parent.parent.config.channel['mod_freq']*1E-3/10, -0.01, self.parent.parent.config.channel['cent_freq'], self.parent.parent.config.channel['mod_freq']*1E-3/10]
         
-        sweep = event.fitsub
+        sweep = event_data.fitsub
         freqs = event_data.scan.freq_list
         bounds = [x*len(sweep) for x in self.wings]
         data = [z for x,z in enumerate(zip(freqs, sweep)) if bounds[0]<x<bounds[1]]
@@ -941,7 +941,7 @@ class FitPeakRes2(QWidget):
         r_squared = 1 - (ss_res / ss_tot)                  
                 
         area = fit.sum()
-        pol = area*event.cc
+        pol = area*event_data.cc
         text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]
         self.message.setText(f"Fit coefficients: \t \t \t R-squared: {r_squared:.2f}\n"+"\n".join(text_list)+"\n"+f"Area: {area}")
         return fit, area, pol 
@@ -1006,7 +1006,7 @@ class FitDeuteron(QWidget):
             fit, resulting r asymmetry (instead of area) and polarization 
         '''
         
-        sweep = event.fitsub
+        sweep = event_data.fitsub
         freqs = event_data.scan.freq_list
         
         labels = [e.text() for e in self.param_label]

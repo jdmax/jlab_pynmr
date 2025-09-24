@@ -220,6 +220,8 @@ class EventData:
             try:
                 from .analysis import AnalThread
                 self.anal_thread = AnalThread(self, base_method, sub_method, res_method)
+                # Register thread with main window for lifecycle management
+                self.parent.register_thread(self.anal_thread)
                 self.anal_thread.finished.connect(self.parent.end_finished)
                 self.anal_thread.start()
             except Exception as e: 
