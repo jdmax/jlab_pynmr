@@ -207,7 +207,9 @@ class UpdateMag(QThread):
         QThread.__init__(self)
         self.mc = mc
     def __del__(self):
-        self.wait()
+        if self.isRunning():
+            self.quit()
+            # Don't wait in destructor to avoid thread waiting on itself
     def run(self):
         while True:
             print('Ran mag update')

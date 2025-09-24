@@ -116,7 +116,9 @@ class TempThread(QThread):
             
                 
     def __del__(self):
-        self.wait()
+        if self.isRunning():
+            self.quit()
+            # Don't wait in destructor to avoid thread waiting on itself
         
     def run(self):
         '''Main temp read loop

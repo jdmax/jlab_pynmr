@@ -24,7 +24,13 @@ class AnalThread(QThread):
         self.res_method = res_method
                 
     def __del__(self):
-        self.wait()
+        try:
+            if self.isRunning():
+                self.quit()
+                # Don't wait in destructor to avoid thread waiting on itself
+        except RuntimeError:
+            # C++ object already deleted, ignore
+            pass
         
     def run(self):
         """Main analysis loop."""

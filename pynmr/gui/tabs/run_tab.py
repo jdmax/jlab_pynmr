@@ -306,6 +306,8 @@ class RunTab(QWidget):
         #self.parent.set_event_base()            # set current basline to this event
         try:
             self.run_thread = RunThread(self, self.parent.config)
+            # Register thread with main window for lifecycle management
+            self.parent.register_thread(self.run_thread)
             self.run_thread.finished.connect(self.done)
             self.run_thread.reply.connect(self.add_sweeps)
             self.run_thread.start()
@@ -366,7 +368,11 @@ class RunTab(QWidget):
             self.parent.status_bar.showMessage(f'Finished event at  at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s. Running sweeps...')
             if self.parent.config.settings['compare_tab']['enable']:  # if doing compare_tab   
                 self.parent.compare_tab.mode_switch()
-            self.start_thread()        
+            # Only start next thread if analysis is not in progress
+            if not self.parent.analysis_in_progress:
+                self.start_thread()
+            else:
+                self.parent.pending_next_run = True        
     
     def update_event_plots(self):
         '''Update all plots and indicators for this event using instance data'''
@@ -592,7 +598,13 @@ class RunThread(QThread):
             
                 
     def __del__(self):
-        self.wait()
+        try:
+            if self.isRunning():
+                self.quit()
+                # Don't wait in destructor to avoid thread waiting on itself
+        except RuntimeError:
+            # C++ object already deleted, ignore
+            pass
         
     def run(self):
         '''Main run loop. Request start of sweeps, receive sweeps, update event, report.

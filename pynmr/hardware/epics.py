@@ -38,6 +38,8 @@ class EPICS():
         else:               
             self.monitor_running = True            
             self.mon_thread = MonitorThread(self)
+            # Register thread with main window for lifecycle management
+            self.parent.register_thread(self.mon_thread)
             self.mon_thread.reply.connect(self.mon_reply)
             self.mon_thread.finished.connect(self.mon_finished)
             self.mon_thread.start()
@@ -96,7 +98,9 @@ class MonitorThread(QThread):
         self.parent = parent  
                 
     def __del__(self):
-        self.wait()
+        if self.isRunning():
+            self.quit()
+            # Don't wait in destructor to avoid thread waiting on itself
         
     def run(self):
         '''Main monitor loop
