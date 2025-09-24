@@ -3,7 +3,6 @@
 from PySide6.QtGui import QIntValidator, QDoubleValidator, QRegularExpressionValidator
 import os.path
 import numpy as np
-import yaml
 
 
 class ConfigItem:
