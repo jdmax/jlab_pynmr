@@ -39,7 +39,7 @@ channels:
      
 settings:
     default_channel: Proton5T     # Default from channels listed above
-    daq_type: Test              # Select DAQ mode (FPGA, NIDAQ or Test)
+    daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ or Test)
     test_signal: app/d_signal_event.txt  # signal to use for test mode
     event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
@@ -65,7 +65,7 @@ settings:
         tcp_buffer: 1460        # Default TCP buffer size  (int)
         dwell: 10               # Settle time in usec between frequency switch and ADC read (int) (was 10)
         per_point: 2            # Samples taken and averaged at each frequency point of a sweep (int)
-        timeout_run: 20         # TCP timeout for running sweeps
+        timeout_run: 10         # TCP timeout for running sweeps
         timeout_tune: 1         # TCP timeout for tune
         timeout_check: 1        # TCP timeout for check
         timeout_udp: 1          # Timeout for udp commands
