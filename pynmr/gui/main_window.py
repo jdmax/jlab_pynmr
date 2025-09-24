@@ -301,14 +301,8 @@ class MainWindow(QMainWindow):
 
     def connect_daq(self):
         """Connect to DAQ system"""
-        if self.config.settings['daq_type'] == 'UDP':
-            self.daq = UDP(self.config)
-        elif self.config.settings['daq_type'] == 'TCP':
-            self.daq = TCP(self.config)
-        elif self.config.settings['daq_type'] == 'NIDAQ':
-            self.daq = NI_Connection(self.config)
-        else:
-            self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_run'], False)
+        # DAQ connections are now created by individual threads when needed
+        # to avoid multiple simultaneous connections to the same device
 
 
     def closeEvent(self, close_event):
