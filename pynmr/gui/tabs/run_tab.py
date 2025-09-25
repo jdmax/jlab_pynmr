@@ -306,7 +306,6 @@ class RunTab(QWidget):
         #self.parent.set_event_base()            # set current basline to this event
         try:
             self.run_thread = RunThread(self, self.parent.config)
-            print("Created run thread and returned")
             # Register thread with main window for lifecycle management
             self.parent.register_thread(self.run_thread)
             self.run_thread.finished.connect(self.done)
@@ -574,9 +573,7 @@ class RunTab(QWidget):
             #    self.stat_values[key].setStyleSheet("color : black")
             #    self.epics_beat = True
 
-        
 
-        
    
 class RunThread(QThread):
     '''Thread class for main NMR run loop
