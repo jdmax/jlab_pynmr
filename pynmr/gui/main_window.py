@@ -209,7 +209,12 @@ class MainWindow(QMainWindow):
     
     def end_finished(self):
         """Analysis thread has returned. Finish up closing event."""
+        # Prevent duplicate writes of the same event
+        if hasattr(self.previous_event, 'written_to_file') and self.previous_event.written_to_file:
+            return
+        
         self.previous_event.print_event(self.eventfile)
+        self.previous_event.written_to_file = True
         self.eventfile_lines += 1
         if self.eventfile_lines > 500:
             self.new_eventfile()
@@ -243,8 +248,8 @@ class MainWindow(QMainWindow):
         """Register a thread to prevent premature garbage collection"""
         if thread not in self.active_threads:
             self.active_threads.append(thread)
-            # Connect finished signal to cleanup
-            thread.finished.connect(lambda: self.cleanup_thread(thread))
+            # DON'T connect finished signal here - let the thread handle its own connections
+            # thread.finished.connect(lambda: self.cleanup_thread(thread))
             
     def cleanup_thread(self, thread):
         """Remove thread from registry when finished"""

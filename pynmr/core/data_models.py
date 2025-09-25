@@ -224,7 +224,9 @@ class EventData:
                 self.anal_thread = AnalThread(self, base_method, sub_method, res_method)
                 # Register thread with main window for lifecycle management
                 self.parent.register_thread(self.anal_thread)
+                # Connect to end_finished ONCE and also handle cleanup
                 self.anal_thread.finished.connect(self.parent.end_finished)
+                self.anal_thread.finished.connect(lambda: self.parent.cleanup_thread(self.anal_thread))
                 self.anal_thread.start()
             except Exception as e: 
                 print('Exception starting analysis thread: '+str(e))  
