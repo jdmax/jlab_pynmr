@@ -596,8 +596,7 @@ class RunThread(QThread):
             self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_run'], False)
         except Exception as e:
             print('Exception starting DAQ connection, lost connection: '+str(e))
-        print("Created Daq connection")
-                
+
     def __del__(self):
         try:
             if self.isRunning():
