@@ -176,27 +176,37 @@ class AnalTab(QWidget):
         self.run_analysis()
             
     def run_analysis(self):
-        '''Run event signal analysis and call for new plots if base and sub methods are chosen'''
+        '''Run event signal analysis if needed and call for new plots if base and sub methods are chosen'''
         self.current_event = self.parent.previous_event
         if self.base_chosen and self.sub_chosen and self.res_chosen:
-            self.current_event.signal_analysis(self.base_chosen, self.sub_chosen, self.res_chosen)
+            # Only run analysis if it hasn't been done yet for this event
+            if (self.current_event and not hasattr(self.current_event, 'analysis_completed')):
+                self.current_event.signal_analysis(self.base_chosen, self.sub_chosen, self.res_chosen)
+                self.current_event.analysis_completed = True
             self.update_event_plots()
 
     def update_event_plots(self):
         '''Update analysis tab plots. Right now doing a DC subtraction on unsubtracted signals.
         '''
         self.current_event = self.parent.previous_event
-        self.raw_plot.setData(self.parent.event.scan.freq_list, self.parent.event.scan.phase - self.parent.event.scan.phase.max())
-        self.base_plot.setData(self.parent.event.scan.freq_list, self.current_event.basesweep - self.current_event.basesweep.max())
-        self.basesub_plot.setData(self.parent.event.scan.freq_list, self.current_event.basesub - self.current_event.basesub.max())
-        
-        #print(self.parent.event.basesub, self.parent.event.poly_curve, self.parent.event.polysub)
-        self.sub_plot.setData(self.parent.event.scan.freq_list, self.current_event.basesub - self.current_event.basesub.max())
-        self.fit_plot.setData(self.parent.event.scan.freq_list, self.current_event.fitcurve - self.current_event.basesub.max())
-        self.fitsub_plot.setData(self.parent.event.scan.freq_list, self.current_event.fitsub)        
-        
-        self.unc_plot.setData(self.parent.event.scan.freq_list, self.current_event.fitsub)
-        self.res_plot.setData(self.parent.event.scan.freq_list, self.current_event.rescurve)
+        # Only update plots if analysis has been completed and data exists
+        if (self.current_event and hasattr(self.current_event, 'basesweep') and 
+            hasattr(self.current_event, 'basesub') and hasattr(self.current_event, 'fitsub') and
+            hasattr(self.current_event, 'rescurve') and hasattr(self.current_event, 'fitcurve') and
+            isinstance(self.current_event.basesweep, np.ndarray) and
+            isinstance(self.current_event.basesub, np.ndarray)):
+            
+            self.raw_plot.setData(self.parent.event.scan.freq_list, self.parent.event.scan.phase - self.parent.event.scan.phase.max())
+            self.base_plot.setData(self.parent.event.scan.freq_list, self.current_event.basesweep - self.current_event.basesweep.max())
+            self.basesub_plot.setData(self.parent.event.scan.freq_list, self.current_event.basesub - self.current_event.basesub.max())
+            
+            #print(self.parent.event.basesub, self.parent.event.poly_curve, self.parent.event.polysub)
+            self.sub_plot.setData(self.parent.event.scan.freq_list, self.current_event.basesub - self.current_event.basesub.max())
+            self.fit_plot.setData(self.parent.event.scan.freq_list, self.current_event.fitcurve - self.current_event.basesub.max())
+            self.fitsub_plot.setData(self.parent.event.scan.freq_list, self.current_event.fitsub)        
+            
+            self.unc_plot.setData(self.parent.event.scan.freq_list, self.current_event.fitsub)
+            self.res_plot.setData(self.parent.event.scan.freq_list, self.current_event.rescurve)
         
 class StandardBase(QWidget):
     '''Layout and method for standard baseline subtract based on selected baseline from baseline tab.  Base type.

@@ -6,6 +6,7 @@ import pytz
 import numpy as np
 from scipy import optimize
 from dateutil.parser import parse
+from PySide6.QtCore import Qt
 
 
 class Scan:
@@ -212,7 +213,8 @@ class EventData:
         self.stop_stamp = self.stop_time.timestamp()
         self.elapsed = (self.stop_time - self.start_time).seconds
         
-        self.signal_analysis(base_method, sub_method, res_method)       
+        self.signal_analysis(base_method, sub_method, res_method)
+        self.analysis_completed = True       
     
     def signal_analysis(self, base_method, sub_method, res_method):
         """Perform analysis on signal"""
