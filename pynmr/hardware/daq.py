@@ -35,7 +35,6 @@ class DAQConnection():
             except Exception as e:
                 raise
                 
-                
             self.name = str(self.udp.ip)
             self.message = 'Connected to: '+str(self.udp.ip)+', port '+str(self.udp.port)+', and set registers and frequency table.'
             
