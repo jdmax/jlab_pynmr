@@ -9,7 +9,11 @@ from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator, QStandard
 import pyqtgraph as pg
 from scipy import optimize
  
+<<<<<<<< HEAD:gui/tabs/te_tab.py
 from core.calculations import TE
+========
+from pynmr.core.calculations import TE
+>>>>>>>> origin/reorg:pynmr/gui/tabs/te_tab.py
 
 class TETab(QWidget): 
     '''Creates settings tab'''   

@@ -7,8 +7,13 @@ from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator
 from PySide6.QtCore import QThread, Signal,Qt
 import pyqtgraph as pg
  
+<<<<<<<< HEAD:gui/tabs/tune_tab.py
 from core import RunningScan
 from hardware import DAQConnection
+========
+from pynmr.core import RunningScan
+from pynmr.hardware import DAQConnection
+>>>>>>>> origin/reorg:pynmr/gui/tabs/tune_tab.py
 
   
 class TuneTab(QWidget):

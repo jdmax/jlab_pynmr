@@ -10,9 +10,15 @@ from PySide6.QtCore import QThread, Signal, Qt
 import pyqtgraph as pg
 import numpy as np
  
+<<<<<<<< HEAD:gui/tabs/run_tab.py
 from core import RunningScan
 from hardware import DAQConnection
 from hardware.instruments import NetRelay, LabJack, MicrowaveThread
+========
+from pynmr.core import RunningScan
+from pynmr.hardware import DAQConnection
+from pynmr.hardware.instruments import NetRelay, LabJack, MicrowaveThread
+>>>>>>>> origin/reorg:pynmr/gui/tabs/run_tab.py
    
 class RunTab(QWidget):
     '''Creates run tab. Starts threads for run and to update plots'''
