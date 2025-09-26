@@ -125,7 +125,8 @@ class MainWindow(QMainWindow):
             self.expl_tab = ExplTab(self)
             self.tab_widget.addTab(self.expl_tab, "Event Explorer")         
         
-        self.set_cc(self.restore_dict['cc'])   
+        cc_value = self.restore_dict.get('cc', 1.0)  # Default cc value
+        self.set_cc(cc_value)   
         self.connect_daq()
         
         # Enable run button after initialization
@@ -175,14 +176,18 @@ class MainWindow(QMainWindow):
             'cc': float(self.run_tab.controls_lines['cc'].text()),
             'channel': self.run_tab.channel_combo.currentIndex()
         }
-        with open(f'app/{self.config.settings["session_file"]}.yaml', 'w') as file:
+        with open(f'{self.config.settings["session_file"]}.yaml', 'w') as file:
             yaml.dump(saved_dict, file)
             logging.info(f"Printed settings on exit to {file}.") 
             
     def restore_session(self):
         """Restore settings from previous session"""
-        with open(f'app/{self.config.settings["session_file"]}.yaml') as f:                     
-           self.restore_dict = yaml.load(f, Loader=yaml.FullLoader)
+        try:
+            with open(f'{self.config.settings["session_file"]}.yaml') as f:                     
+                self.restore_dict = yaml.load(f, Loader=yaml.FullLoader)
+        except FileNotFoundError:
+            # No session file exists, skip restoration
+            self.restore_dict = {}
            
     def restore_history(self):
         """Open history object and restore previous history into it"""       

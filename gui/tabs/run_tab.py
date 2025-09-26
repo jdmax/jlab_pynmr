@@ -144,9 +144,10 @@ class RunTab(QWidget):
         #i = self.channel_combo.findText(self.config.settings['default_channel'],Qt.MatchFixedString)
         #if i>=0: 
         #    self.channel_combo.setCurrentIndex(i) 
-        self.channel_combo.setCurrentIndex(self.parent.restore_dict['channel']) 
+        channel_index = self.parent.restore_dict.get('channel', 0)
+        self.channel_combo.setCurrentIndex(channel_index) 
         self.channel_combo.currentIndexChanged.connect(self.combo_changed)
-        self.combo_changed(self.parent.restore_dict['channel'])
+        self.combo_changed(channel_index)
         self.settings_box.layout().addWidget(self.channel_combo)
         self.settings_box.layout().addWidget(self.channel_label)
         self.settings_box.layout().addWidget(self.parent.divider())        
