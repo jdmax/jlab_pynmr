@@ -9,8 +9,8 @@ from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator, QStandard
 import pyqtgraph as pg
 from scipy import optimize
  
-from pynmr.core.calculations import TE
-from pynmr.hardware.rf_switch import RFSwitch
+from core.calculations import TE
+from hardware.rf_switch import RFSwitch
 
 class CompareTab(QWidget): 
     '''Creates settings tab'''   

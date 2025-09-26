@@ -10,7 +10,7 @@ from PySide6.QtCore import QThread, Signal,Qt
 from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator, QStandardItemModel, QStandardItem
 import pyqtgraph as pg
  
-from pynmr.hardware.magnet import MagnetControl
+from hardware.magnet import MagnetControl
 
 class MagTab(QWidget): 
     '''Creates manget control tab'''   

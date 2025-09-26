@@ -9,7 +9,7 @@ import getopt
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt
 
-from pynmr.gui import MainWindow
+from gui import MainWindow
 
 
 def main():

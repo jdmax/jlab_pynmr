@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayo
 import pyqtgraph as pg
 from lmfit import Model
 
-from pynmr.core.deuteron_fits import DFits
+from core.deuteron_fits import DFits
 
 class AnalTab(QWidget):
     '''Creates analysis tab. '''

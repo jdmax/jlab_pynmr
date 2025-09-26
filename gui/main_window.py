@@ -15,9 +15,9 @@ from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator
 from PySide6.QtCore import QThread, Signal, Qt
 from logging.handlers import TimedRotatingFileHandler
 
-from ..config import Config
-from ..core import Scan, RunningScan, EventData, Baseline, HistPoint, History
-from ..hardware import EPICS, DAQConnection, UDP, TCP, RS_Connection, NI_Connection
+from config import Config
+from core import Scan, RunningScan, EventData, Baseline, HistPoint, History
+from hardware import EPICS, DAQConnection, UDP, TCP, RS_Connection, NI_Connection
 # Import tab modules individually to avoid circular dependencies
 from .tabs.run_tab import RunTab
 from .tabs.base_tab import BaseTab
@@ -186,7 +186,7 @@ class MainWindow(QMainWindow):
            
     def restore_history(self):
         """Open history object and restore previous history into it"""       
-        self.hist_file = open(f"app/{self.config_dict['settings']['history_file']}.json", "a+") 
+        self.hist_file = open(f"{self.config_dict['settings']['history_file']}.json", "a+") 
         self.hist_file.seek(0)
         self.history = History()
         for line in self.hist_file:
