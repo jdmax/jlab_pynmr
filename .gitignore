@@ -22,3 +22,7 @@ app/history.json
 log/log
 log/log
 app/history.json
+
+# Secrets and tokens
+gittoken.txt
+*.token
