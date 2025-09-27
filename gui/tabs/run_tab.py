@@ -11,6 +11,7 @@ import pyqtgraph as pg
 import numpy as np
  
 from core import RunningScan
+from core.thread_manager import BaseThread
 from hardware import DAQConnection
 from hardware.instruments import NetRelay, LabJack, MicrowaveThread
    
@@ -306,14 +307,31 @@ class RunTab(QWidget):
         self.parent.new_event()                 # start new event in main window
         #self.parent.set_event_base()            # set current basline to this event
         try:
+            from core.thread_manager import get_thread_manager
+            
+            # Create run thread
             self.run_thread = RunThread(self, self.parent.config)
-            # Register thread with main window for lifecycle management
-            self.parent.register_thread(self.run_thread)
+            
+            # Get thread manager and register thread
+            thread_manager = get_thread_manager()
+            thread_manager.register_thread(self.run_thread)
+            
+            # Connect signals
             self.run_thread.finished.connect(self.done)
             self.run_thread.reply.connect(self.add_sweeps)
-            self.run_thread.start()
+            self.run_thread.error.connect(self.on_thread_error)
+            
+            # Start thread using thread manager
+            thread_manager.start_thread(self.run_thread.thread_name)
+            
         except Exception as e: 
-            print('Exception starting run thread, lost connection: '+str(e))   
+            print('Exception starting run thread, lost connection: '+str(e))
+            
+    def on_thread_error(self, error_msg):
+        '''Handle thread error'''
+        print(f"Run thread error: {error_msg}")
+        self.run_button.setText('Start Run')
+        self.run_button.setEnabled(True)   
 
     def combo_changed(self, i):
         '''Channel changed'''
@@ -576,20 +594,118 @@ class RunTab(QWidget):
 
 
    
-class RunThread(QThread):
+class RunThread(BaseThread):
     '''Thread class for main NMR run loop
     Args:
+        parent: Parent widget (RunTab)
         config: Config object of settings
     '''
+    def __init__(self, parent, config):
+        import time
+        timestamp = int(time.time() * 1000000)  # microsecond precision
+        super().__init__(name=f"run_{timestamp}", parent=parent, config=config)
+        self.tab_parent = parent  # RunTab instance
+        self.sweep_num = config.controls['sweeps'].value
+        self.num_per_chunk = config.settings['num_per_chunk']
+        self.rec_sweeps = 0     # number of total sweeps in set that we have received
+        self.daq = None
+        
+    def setup(self):
+        '''Initialize DAQ connection'''
+        try:
+            self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_run'], False)
+            self._logger.info(f"DAQ connection established for run thread")
+        except Exception as e:
+            error_msg = f'Exception starting DAQ connection: {e}'
+            self._logger.error(error_msg)
+            raise Exception(error_msg)
+        
+    def execute(self):
+        '''Main run loop. Request start of sweeps, receive sweeps, update event, report.
+        
+        Emits new_sigs with the number of sweeps in the chunk and the phase and diode chunk data as numpy arrays
+        '''
+        if not self.daq:
+            self._logger.error("DAQ not initialized")
+            return
+            
+        try: 
+            self.daq.start_sweeps()              # send command to start sweeps
+            self._logger.info(f"Started sweeps for {self.sweep_num} total sweeps")
+        except AttributeError as e:   
+            self._logger.error(f"Failed to start sweeps: {e}")
+            return            
+            
+        rec_chunks = 0                              #  count of chunks we have received
+        while (self.rec_sweeps < self.sweep_num):
+            # Check for graceful stop or abort request
+            if self.should_stop() or self.tab_parent.abort_now:
+                self._logger.info("Run thread stopping - abort requested")
+                self.daq.abort()
+                try:
+                    new_sigs = self.daq.get_chunk()
+                except Exception as e:
+                    self._logger.warning(f"Error on abort cleanup: {e}")
+                self.tab_parent.abort_now = False
+                break
+                
+            try:
+                new_sigs = self.daq.get_chunk()
+                chunk_num, num_in_chunk, pchunk, dchunk = new_sigs
+                
+                if num_in_chunk > 0:
+                    self.emit_reply(new_sigs)
+                    rec_chunks += 1
+                    if 'NIDAQ' in self.config.settings['daq_type']:
+                        self.rec_sweeps = num_in_chunk
+                    else:
+                        self.rec_sweeps += num_in_chunk
+                    
+                    self._logger.debug(f"Received chunk {rec_chunks}, sweeps: {self.rec_sweeps}/{self.sweep_num}")
+                
+                # Check for lost chunks
+                if not chunk_num + 1 == rec_chunks and not chunk_num == 0:
+                    error_msg = f"Lost chunk. Expecting {rec_chunks}, got {chunk_num + 1}. Aborting run."
+                    self._logger.error(error_msg)
+                    self.daq.abort()
+                    try:
+                        new_sigs = self.daq.get_chunk()
+                    except Exception as e:
+                        self._logger.warning(f"Error on abort after lost chunk: {e}")
+                    break
+                    
+            except Exception as e:
+                if not self.should_stop():  # Only log if not gracefully stopping
+                    self._logger.error(f"Error in run loop: {e}")
+                break
+                    
+        self._logger.info(f"Run completed. Received {self.rec_sweeps} sweeps in {rec_chunks} chunks")
+        
+    def cleanup(self):
+        '''Clean up DAQ connection'''
+        if self.daq:
+            try:
+                self.daq.stop()
+                del self.daq
+                self.daq = None
+                self._logger.info("DAQ connection cleaned up")
+            except Exception as e:
+                self._logger.warning(f"Error cleaning up DAQ: {e}")
+
+
+# Legacy compatibility wrapper
+class LegacyRunThread(QThread):
+    '''Legacy compatibility wrapper for old RunThread interface.'''
     reply = Signal(tuple)       # reply signal
     finished = Signal()       # finished signal
+    
     def __init__(self, parent, config):
         QThread.__init__(self)
         self.config = config
         self.parent = parent 
         self.sweep_num = config.controls['sweeps'].value
         self.num_per_chunk = config.settings['num_per_chunk']
-        self.rec_sweeps = 0     # number of total sweeps in set that we have received
+        self.rec_sweeps = 0
         try:
             self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_run'], False)
         except Exception as e:
@@ -599,27 +715,18 @@ class RunThread(QThread):
         try:
             if self.isRunning():
                 self.quit()
-                # Don't wait in destructor to avoid thread waiting on itself
         except RuntimeError:
-            # C++ object already deleted, ignore
             pass
         
     def run(self):
-        '''Main run loop. Request start of sweeps, receive sweeps, update event, report.
-        
-        Returns:
-            On completion of a chunk, emits new_sigs, the number of sweeps in the chunk and the phase and diode chunk data as numpy arrays
-        '''
-        #self.test_data = TestUDP(self.sweep_num)
-        
         try: 
-            self.daq.start_sweeps()              # send command to start sweeps
+            self.daq.start_sweeps()
         except AttributeError as e:   
             self.finished.emit()
             return            
             
-        rec_chunks = 0                              #  count of chunks we have received
-        while (self.rec_sweeps < self.sweep_num):                 # loop for total set of sweeps
+        rec_chunks = 0
+        while (self.rec_sweeps < self.sweep_num):
             if self.parent.abort_now:
                 print("Abort in run thread")
                 self.daq.abort()
@@ -629,11 +736,8 @@ class RunThread(QThread):
                     print("On abort:", e)
                 self.parent.abort_now = False
                 break
-            #start_time = time.time()    
             new_sigs = self.daq.get_chunk()
-            #print(new_sigs)
             chunk_num, num_in_chunk, pchunk, dchunk = new_sigs
-            #print(f"get_chunk took {time.time() - start_time }s")
             if num_in_chunk > 0:
                 self.reply.emit(new_sigs)
                 rec_chunks += 1

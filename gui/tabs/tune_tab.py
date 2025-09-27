@@ -8,6 +8,7 @@ from PySide6.QtCore import QThread, Signal,Qt
 import pyqtgraph as pg
  
 from core import RunningScan
+from core.thread_manager import BaseThread
 from hardware import DAQConnection
 
   
@@ -171,10 +172,33 @@ class TuneTab(QWidget):
        
         self.running_scan = RunningScan(self.parent.config, int(self.avg_value.text()))
         self.running = True
-        self.tune_thread = TuneThread(self, self.parent.config)
-        self.tune_thread.reply.connect(self.add_sweeps)
-        self.tune_thread.finished.connect(self.finished)
-        self.tune_thread.start()
+        
+        try:
+            from core.thread_manager import get_thread_manager
+            
+            # Create tune thread
+            self.tune_thread = TuneThread(self, self.parent.config)
+            
+            # Get thread manager and register thread
+            thread_manager = get_thread_manager()
+            thread_manager.register_thread(self.tune_thread)
+            
+            # Connect signals
+            self.tune_thread.reply.connect(self.add_sweeps)
+            self.tune_thread.finished.connect(self.finished)
+            self.tune_thread.error.connect(self.on_thread_error)
+            
+            # Start thread using thread manager
+            thread_manager.start_thread(self.tune_thread.thread_name)
+            
+        except Exception as e:
+            print(f'Exception starting tune thread: {e}')
+            self.running = False
+            
+    def on_thread_error(self, error_msg):
+        '''Handle thread error'''
+        print(f"Tune thread error: {error_msg}")
+        self.running = False
     
     def add_sweeps(self,new_sigs):
         '''Add the tuple of sweeps to event'''
@@ -207,28 +231,94 @@ class TuneTab(QWidget):
         self.diode_plot.setData(self.running_scan.freq_list,self.running_scan.diode)
         self.phase_plot.setData(self.running_scan.freq_list,self.running_scan.phase)
  
-class TuneThread(QThread):
+class TuneThread(BaseThread):
     '''Thread class for tune loop'''
+    
+    def __init__(self, parent, config):
+        '''Make new thread instance for running NMR'''
+        super().__init__(name=f"tune_{id(parent)}", parent=parent, config=config)
+        self.tab_parent = parent  # TuneTab instance
+        self.dac_v = 0
+        self.dac_c = 0
+        self.set_time = 0  # time when DAC last set
+        self.daq = None
+        
+    def execute(self):
+        '''Main tune loop. Request start of sweeps, receive sweeps, update event, report.'''
+        self._logger.info("Starting tune loop")
+        
+        while self.tab_parent.running and not self.should_stop():
+            now = time.time()
+            
+            # Create new DAQ connection for each iteration
+            try:
+                self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_tune'], True)
+            except Exception as e:
+                if not self.should_stop():
+                    self._logger.error(f'Exception creating DAQ connection: {e}')
+                break
+                
+            # Update DAC if needed
+            if now > self.set_time + 0.001:
+                if (self.dac_v != self.tab_parent.dac_v) or (self.dac_c != self.tab_parent.dac_c):
+                    self.dac_v = self.tab_parent.dac_v
+                    self.dac_c = self.tab_parent.dac_c
+                    try:
+                        if self.daq.set_dac(self.dac_v, self.dac_c):                         
+                            self._logger.debug(f"Set DAC values: C={self.dac_c}, V={self.dac_v}")
+                        self.set_time = now
+                    except Exception as e:
+                        if not self.should_stop():
+                            self._logger.warning(f"Exception setting DAC value: {e}")
+            
+            # Get tune data
+            try:
+                self.daq.start_sweeps()  # send command to start sweeps
+                new_sigs = self.daq.get_chunk()
+                
+                # For NIDAQ, wait for all sweeps
+                while new_sigs[1] < self.config.settings['tune_per_chunk']:   
+                    if self.should_stop():
+                        break
+                    new_sigs = self.daq.get_chunk()  
+                
+                if not self.should_stop():
+                    self.emit_reply(new_sigs)
+                    
+            except Exception as e:
+                if not self.should_stop():
+                    self._logger.error(f"Exception in tune loop: {e}")
+                break
+            finally:
+                # Clean up DAQ connection
+                if self.daq:
+                    try:
+                        del self.daq
+                        self.daq = None
+                    except Exception as e:
+                        self._logger.warning(f"Error cleaning up DAQ: {e}")
+        
+        self._logger.info("Tune loop completed")
+
+
+# Legacy compatibility wrapper
+class LegacyTuneThread(QThread):
+    '''Legacy compatibility wrapper for old TuneThread interface.'''
     reply = Signal(tuple)       # reply signal
 
     def __init__(self, parent, config):
-        '''Make new thread instance for running NMR'''
         QThread.__init__(self)
         self.config = config
         self.parent = parent 
         self.dac_v = 0
         self.dac_c = 0
-        self.set_time = 0 # time when DAC last set
-        
+        self.set_time = 0
         
     def __del__(self):
         if self.isRunning():
             self.quit()
-            # Don't wait in destructor to avoid thread waiting on itself
 
     def run(self):
-        '''Main run loop. Request start of sweeps, receive sweeps, update event, report.'''
-        
         while self.parent.running:
             now = time.time()
             try:
@@ -242,14 +332,13 @@ class TuneThread(QThread):
                     self.dac_c = self.parent.dac_c
                     try:
                         if self.daq.set_dac(self.dac_v, self.dac_c):                         
-                            #print("Set DAC while running:", self.dac_c,  self.dac_v)
                             pass
                         self.set_time = now
                     except Exception as e:
                         print("Exception setting DAC value: "+str(e))
-            self.daq.start_sweeps()              # send command to start sweeps
+            self.daq.start_sweeps()
             new_sigs = self.daq.get_chunk()
-            while new_sigs[1] < self.config.settings['tune_per_chunk']:   # for NIDAQ, we need to wait for all the sweeps
+            while new_sigs[1] < self.config.settings['tune_per_chunk']:
                 new_sigs = self.daq.get_chunk()  
             self.reply.emit(new_sigs)
             del self.daq

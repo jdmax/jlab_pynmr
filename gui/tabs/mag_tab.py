@@ -11,6 +11,7 @@ from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator, QStandard
 import pyqtgraph as pg
  
 from hardware.magnet import MagnetControl
+from core.thread_manager import BaseThread
 
 class MagTab(QWidget): 
     '''Creates manget control tab'''   
@@ -199,17 +200,51 @@ class MagnetBox(QGroupBox):
             sender.setText('Turn Heater On')
   
   
-class UpdateMag(QThread):
+class UpdateMag(BaseThread):
     '''Thread to update the magnet status'''
-    stat_now = Signal()
     def __init__(self, mc):
         '''Make new thread instance for monitoring magnet status'''
+        super().__init__(name=f"mag_update_{id(mc)}", parent=None)
+        self.mc = mc  # MagnetControl instance
+        
+    def execute(self):
+        '''Main magnet status update loop'''
+        self._logger.info("Starting magnet status update loop")
+        
+        while not self.should_stop():
+            try:
+                self._logger.debug('Running magnet status update')
+                self.mc.read_all()
+                self.emit_reply(None)  # Signal that status was updated
+                
+                # Sleep for 1 second with interruption checking
+                for _ in range(10):  # 10 x 0.1s = 1s
+                    if self.should_stop():
+                        self._logger.info("Magnet update stopping")
+                        return
+                    time.sleep(0.1)
+                    
+            except Exception as e:
+                if not self.should_stop():
+                    self._logger.error(f"Error updating magnet status: {e}")
+                    # Continue monitoring despite errors
+                    
+        self._logger.info("Magnet status update loop completed")
+
+
+# Legacy compatibility wrapper
+class LegacyUpdateMag(QThread):
+    '''Legacy compatibility wrapper for old UpdateMag interface.'''
+    stat_now = Signal()
+    
+    def __init__(self, mc):
         QThread.__init__(self)
         self.mc = mc
+        
     def __del__(self):
         if self.isRunning():
             self.quit()
-            # Don't wait in destructor to avoid thread waiting on itself
+            
     def run(self):
         while True:
             print('Ran mag update')

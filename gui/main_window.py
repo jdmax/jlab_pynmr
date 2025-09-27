@@ -325,8 +325,17 @@ class MainWindow(QMainWindow):
             # Stop all threads before closing
             if hasattr(self, 'epics') and self.epics:
                 self.epics.monitor_running = False
-                    
-            # Stop all threads using centralized management
+            
+            # Use ThreadManager for centralized cleanup
+            try:
+                from core.thread_manager import get_thread_manager, cleanup_thread_manager
+                thread_manager = get_thread_manager()
+                thread_manager.stop_all_threads(timeout=3000)  # 3 second timeout
+                cleanup_thread_manager()  # Clean up the global thread manager
+            except Exception as e:
+                print(f"Error during ThreadManager cleanup: {e}")
+            
+            # Fallback to old thread cleanup for any remaining threads
             self.cleanup_all_threads()
                     
             self.close_eventfile()

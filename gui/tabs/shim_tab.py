@@ -13,6 +13,7 @@ import pyqtgraph as pg
 from PySide6.QtCore import QThread, Signal,Qt
 from RsInstrument import * 
 import telnetlib
+from core.thread_manager import BaseThread
  
 
 class ShimTab(QWidget): 
@@ -536,27 +537,61 @@ class ShimControl():
         
         
 
-class ShimThread(QThread):
+class ShimThread(BaseThread):
     '''Thread class for shim monitoring
     Args:
+        parent: Parent widget (ShimTab)
         config: Config object of settings
     '''
+    def __init__(self, parent, config):
+        super().__init__(name=f"shim_{id(parent)}", parent=parent, config=config)
+        self.tab_parent = parent  # ShimTab instance
+        self.monitor_time_minutes = config.settings['shim_settings']['monitor_time']
+        
+    def execute(self):
+        '''Main shim read loop'''
+        self._logger.info(f"Starting shim monitor loop (interval: {self.monitor_time_minutes} minutes)")
+        
+        while not self.should_stop():   
+            try:
+                # Sleep for monitor time (in minutes)
+                sleep_seconds = self.monitor_time_minutes * 60
+                sleep_intervals = int(sleep_seconds * 10)  # Check stop every 0.1s
+                
+                for _ in range(sleep_intervals):
+                    if self.should_stop():
+                        self._logger.info("Shim monitor stopping")
+                        return
+                    time.sleep(0.1)
+                
+                # Perform shim reading
+                if not self.should_stop():
+                    self.tab_parent.read_clicked()
+                    self._logger.debug("Shim values read successfully")
+                    
+            except Exception as e:
+                if not self.should_stop():
+                    self._logger.error(f'Exception in shim monitor thread: {e}')
+                    # Continue monitoring despite errors
+          
+        self._logger.info("Shim monitor loop completed")
+
+
+# Legacy compatibility wrapper
+class LegacyShimThread(QThread):
+    '''Legacy compatibility wrapper for old ShimThread interface.'''
     finished = Signal()       # finished signal
+    
     def __init__(self, parent, config):
         QThread.__init__(self)
         self.config = config
         self.parent = parent 
-            
                 
     def __del__(self):
         if self.isRunning():
             self.quit()
-            # Don't wait in destructor to avoid thread waiting on itself
         
     def run(self):
-        '''Main shim read loop
-        '''    
-            
         while True:   
             try:
                 time.sleep(self.config.settings['shim_settings']['monitor_time']*60)

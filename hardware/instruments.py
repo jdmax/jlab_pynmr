@@ -4,29 +4,108 @@ import telnetlib, time
 from labjack import ljm
 import requests
 from PySide6.QtCore import QThread, Signal, Qt
+from core.thread_manager import BaseThread
 
   
-class MicrowaveThread(QThread):
+class MicrowaveThread(BaseThread):
     '''Thread class for microwave loop
     Args:
+        parent: Parent widget 
         config: Config object of settings
     '''
+    def __init__(self, parent, config):
+        super().__init__(name=f"microwave_{id(parent)}", parent=parent, config=config)
+        self.tab_parent = parent
+        self.count = None
+        self.pow_meter = None
+        self.monitor_time = config.settings['uWave_settings']['monitor_time']
+        
+    def setup(self):
+        '''Initialize counter and power meter connections'''
+        try:
+            self.count = Counter(self.config)
+            self.pow_meter = PowMeter(self.config)
+            time.sleep(self.monitor_time)  # Initial settle time
+            self._logger.info("Microwave instruments initialized")
+        except Exception as e:
+            error_msg = f'Exception starting microwave instruments: {e}'
+            self._logger.error(error_msg)
+            raise Exception(error_msg)
+            
+    def execute(self):
+        '''Main microwave read loop'''
+        if not self.count or not self.pow_meter:
+            self._logger.error("Microwave instruments not initialized")
+            return
+            
+        while self.tab_parent.enable_button.isChecked() and not self.should_stop():       
+            freq = 0
+            try:        
+                freq = self.count.read_freq()
+                self._logger.debug(f"Frequency reading: {freq}")
+            except Exception as e:
+                self._logger.warning(f"Counter read failed: {e}")
+                freq = "Read Error"
+                
+            power = 0
+            try:        
+                power = self.pow_meter.read_power()
+                self._logger.debug(f"Power reading: {power}")
+            except Exception as e:
+                self._logger.warning(f"Power meter read failed: {e}")
+                power = "Read Error"
+                
+            pot, temp = 0, 0
+            # Disabling Readback of uwave pot and temp for now 5/26/22     
+            # Original code was commented out for LabJack readback
+                
+            try:
+                self.emit_reply((freq, pot, temp, power))
+            except Exception as e:                
+                self._logger.error(f"Couldn't send microwave reply: {e}")
+                
+            # Sleep with interruption checking
+            sleep_intervals = int(self.monitor_time * 10)  # Check stop every 0.1s
+            for _ in range(sleep_intervals):
+                if self.should_stop() or not self.tab_parent.enable_button.isChecked():
+                    return
+                time.sleep(0.1)
+          
+    def cleanup(self):
+        '''Clean up instrument connections'''
+        if self.count:
+            try:
+                del self.count
+                self.count = None
+            except Exception as e:
+                self._logger.warning(f"Error cleaning up counter: {e}")
+                
+        if self.pow_meter:
+            try:
+                del self.pow_meter
+                self.pow_meter = None
+            except Exception as e:
+                self._logger.warning(f"Error cleaning up power meter: {e}")
+        
+        self._logger.info("Microwave instruments cleaned up")
+
+
+# Legacy compatibility wrapper
+class LegacyMicrowaveThread(QThread):
+    '''Legacy compatibility wrapper for old MicrowaveThread interface.'''
     reply = Signal(tuple)       # reply signal
     finished = Signal()       # finished signal
+    
     def __init__(self, parent, config):
         QThread.__init__(self)
         self.config = config
         self.parent = parent 
-            
                 
     def __del__(self):
         if self.isRunning():
             self.quit()
-            # Don't wait in destructor to avoid thread waiting on itself
         
     def run(self):
-        '''Main microwave read loop
-        '''        
         try:
             self.count = Counter(self.config)
             self.pow_meter = PowMeter(self.config)
@@ -40,25 +119,14 @@ class MicrowaveThread(QThread):
             except Exception as e:
                 print(f"Counter read failed: {e}")  
                 freq = "Read Error"
-                #self.parent.enable_button.toggle()
-                #self.parent.enable_pushed()
-                #break
                 
             try:        
                 power = self.pow_meter.read_power()
             except Exception as e:
                 print(f"Power meter read failed: {e}")  
                 power = "Read Error"
-                #self.parent.enable_button.toggle()
-                #self.parent.enable_pushed()
-                #break
                 
             pot, temp = 0, 0
-            # Disabling Readback of uwave pot and temp for now 5/26/22     
-            #try: 
-            #    pot, temp = self.parent.utune.read_back()
-            #except Exception as e:                
-            #    print('Exception reading LabJack: '+str(e))
                 
             try:
                 self.reply.emit((freq, pot, temp, power))

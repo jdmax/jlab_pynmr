@@ -179,8 +179,10 @@ class AnalTab(QWidget):
         '''Run event signal analysis if needed and call for new plots if base and sub methods are chosen'''
         self.current_event = self.parent.previous_event
         if self.base_chosen and self.sub_chosen and self.res_chosen:
-            # Only run analysis if it hasn't been done yet for this event
-            if (self.current_event and not hasattr(self.current_event, 'analysis_completed')):
+            # Always run analysis when parameters change (re-analysis allowed)
+            if self.current_event:
+                # Reset the analysis_completed flag to allow re-analysis
+                self.current_event.analysis_completed = False
                 self.current_event.signal_analysis(self.base_chosen, self.sub_chosen, self.res_chosen)
                 self.current_event.analysis_completed = True
             self.update_event_plots()

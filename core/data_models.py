@@ -218,16 +218,30 @@ class EventData:
     
     def signal_analysis(self, base_method, sub_method, res_method):
         """Perform analysis on signal"""
+        # Guard against multiple analysis thread creation
+        if hasattr(self, 'anal_thread') and self.anal_thread is not None:
+            if hasattr(self.anal_thread, 'isRunning') and self.anal_thread.isRunning():
+                print("Analysis thread already running for this event")
+                return
+        
         if np.any(self.scan.phase):  # do the thing
             try:
                 from .analysis import AnalThread
+                from .thread_manager import get_thread_manager
+                
+                # Create analysis thread
                 self.anal_thread = AnalThread(self, base_method, sub_method, res_method)
-                # Register thread with main window for lifecycle management
-                self.parent.register_thread(self.anal_thread)
-                # Connect to end_finished ONCE and also handle cleanup
+                
+                # Get thread manager and register thread
+                thread_manager = get_thread_manager()
+                thread_manager.register_thread(self.anal_thread)
+                
+                # Connect signals
                 self.anal_thread.finished.connect(self.parent.end_finished)
-                self.anal_thread.finished.connect(lambda: self.parent.cleanup_thread(self.anal_thread))
-                self.anal_thread.start()
+                
+                # Start thread using thread manager
+                thread_manager.start_thread(self.anal_thread.thread_name)
+                
             except Exception as e: 
                 print('Exception starting analysis thread: '+str(e))  
         else:  # unless the phase signal is zeroes, then set all to zeroes

@@ -3,6 +3,7 @@
 from epics import caget_many, caput_many
 import time
 from PySide6.QtCore import QThread, Signal, Qt
+from core.thread_manager import BaseThread
 
 
 class EPICS():
@@ -86,13 +87,45 @@ class EPICS():
             return
   
   
-class MonitorThread(QThread):
+class MonitorThread(BaseThread):
     '''Thread class for monitor loop. Gets values from EPICS, then waits before doing it again.
     Args:
-        config: Config object of settings
+        parent: EPICS instance
     '''
+    def __init__(self, parent):
+        super().__init__(name=f"epics_monitor_{id(parent)}", parent=parent)
+        self.epics_parent = parent  # EPICS instance
+        self.monitor_time = parent.monitor_time
+        
+    def execute(self):
+        '''Main monitor loop'''
+        self._logger.info("Starting EPICS monitor loop")
+        
+        while self.epics_parent.monitor_running and not self.should_stop():
+            try:
+                self.epics_parent.read_all()   
+                self.emit_reply(None)  # Signal that read completed
+                self._logger.debug("EPICS values read successfully")
+            except Exception as e:
+                self._logger.error(f"Error reading EPICS values: {e}")
+            
+            # Sleep with interruption checking
+            sleep_intervals = int(self.monitor_time * 10)  # Check stop every 0.1s
+            for _ in range(sleep_intervals):
+                if self.should_stop() or not self.epics_parent.monitor_running:
+                    self._logger.info("EPICS monitor stopping")
+                    return
+                time.sleep(0.1)
+          
+        self._logger.info("EPICS monitor loop completed")
+
+
+# Legacy compatibility wrapper
+class LegacyMonitorThread(QThread):
+    '''Legacy compatibility wrapper for old MonitorThread interface.'''
     reply = Signal()       # reply signal
     finished = Signal()       # finished signal
+    
     def __init__(self, parent):
         QThread.__init__(self)
         self.parent = parent  
@@ -100,12 +133,8 @@ class MonitorThread(QThread):
     def __del__(self):
         if self.isRunning():
             self.quit()
-            # Don't wait in destructor to avoid thread waiting on itself
         
     def run(self):
-        '''Main monitor loop
-        '''        
-        
         while self.parent.monitor_running:
             self.parent.read_all()   
             self.reply.emit()
