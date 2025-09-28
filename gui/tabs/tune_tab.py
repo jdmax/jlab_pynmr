@@ -9,6 +9,7 @@ import pyqtgraph as pg
  
 from core import RunningScan
 from core.thread_manager import BaseThread
+from core.event_bus import get_event_bus, EventType
 from hardware import DAQConnection
 
   
@@ -100,6 +101,17 @@ class TuneTab(QWidget):
         self.setLayout(self.main)
         
         self.restore()
+    
+    def publish_status_message(self, message):
+        """Publish status message via event bus (with fallback to direct access)."""
+        try:
+            event_bus = get_event_bus()
+            event_bus.publish(EventType.STATUS_MESSAGE, "tune_tab", {"message": message})
+        except Exception as e:
+            # Fallback to direct access if event bus is not available
+            print(f"Event bus not available, using direct status: {e}")
+            if hasattr(self, 'parent') and hasattr(self.parent, 'status_bar'):
+                self.parent.status_bar.showMessage(message)
         
     def restore(self):
         '''Restore previous session settings'''
@@ -157,7 +169,7 @@ class TuneTab(QWidget):
         
         if self.run_button.isChecked():
         
-            self.parent.status_bar.showMessage('Running sweeps to tune...')
+            self.publish_status_message('Running sweeps to tune...')
             self.run_button.setText('Stop')
             self.start_thread()
             self.parent.run_toggle()
@@ -214,7 +226,7 @@ class TuneTab(QWidget):
         '''Run when thread done'''
         self.progress = 0
         self.progress_bar.setValue(self.progress)  
-        self.parent.status_bar.showMessage('Ready.')
+        self.publish_status_message('Ready.')
         self.update_run_plot()
         
     def abort_run(self):

@@ -10,6 +10,8 @@ from PySide6.QtCore import QThread, Signal,Qt
 from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator, QStandardItemModel, QStandardItem
 import pyqtgraph as pg
 import numpy as np
+
+from core.event_bus import get_event_bus, EventType
  
 
 class BaseTab(QWidget): 
@@ -95,6 +97,17 @@ class BaseTab(QWidget):
         
         self.main.addLayout(self.right)
         self.setLayout(self.main)
+    
+    def publish_status_message(self, message):
+        """Publish status message via event bus (with fallback to direct access)."""
+        try:
+            event_bus = get_event_bus()
+            event_bus.publish(EventType.STATUS_MESSAGE, "base_tab", {"message": message})
+        except Exception as e:
+            # Fallback to direct access if event bus is not available
+            print(f"Event bus not available, using direct status: {e}")
+            if hasattr(self, 'parent') and hasattr(self.parent, 'status_bar'):
+                self.parent.status_bar.showMessage(message)
         
     def pick_basefile(self):
         '''Call open file dialog to get eventfile'''
@@ -138,7 +151,7 @@ class BaseTab(QWidget):
                             'read_time':time, 'stop_stamp':jd['stop_stamp'],'date':date,'label':jd['label'],
                             'base_file':self.basefile_path}})
                       
-            self.parent.status_bar.showMessage('Opened event file '+self.basefile_path)
+            self.publish_status_message('Opened event file '+self.basefile_path)
             #self.event_model.clear()
             self.event_model.removeRows(0, self.event_model.rowCount())
             for i,stamp in enumerate(self.events.keys()):
@@ -183,7 +196,7 @@ class BaseTab(QWidget):
         try:
             self.parent.new_base(self.base_dict)
         except Exception as e:
-            self.parent.status_bar.showMessage(f"Error setting baseline: {self.events[self.last_stamp]['read_time']} {e}")
+            self.publish_status_message(f"Error setting baseline: {self.events[self.last_stamp]['read_time']} {e}")
         #filename = re.findall('data.*\.txt', self.parent.event.base_file)
         #self.curr_base_line.setText(filename[0]+', '+ str(self.parent.event.base_time))
         self.curr_base_line.setText(str(self.parent.event.base_time))

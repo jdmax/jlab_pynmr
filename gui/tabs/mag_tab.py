@@ -12,6 +12,7 @@ import pyqtgraph as pg
  
 from hardware.magnet import MagnetControl
 from core.thread_manager import BaseThread
+from core.event_bus import get_event_bus, EventType
 
 class MagTab(QWidget): 
     '''Creates manget control tab'''   
@@ -120,7 +121,16 @@ class MagnetBox(QGroupBox):
         
         self.port_connect.clicked.connect(lambda: self.open_connection())
         
-        
+    def publish_status_message(self, message):
+        """Publish status message via event bus (with fallback to direct access)."""
+        try:
+            event_bus = get_event_bus()
+            event_bus.publish(EventType.STATUS_MESSAGE, "mag_tab", {"message": message})
+        except Exception as e:
+            # Fallback to direct access if event bus is not available
+            print(f"Event bus not available, using direct status: {e}")
+            if hasattr(self, 'parent') and hasattr(self.parent, 'parent') and hasattr(self.parent.parent, 'status_bar'):
+                self.parent.parent.status_bar.showMessage(message)
         
     def set_lims(self):
         '''Handle set button click'''
@@ -134,7 +144,7 @@ class MagnetBox(QGroupBox):
             time.sleep(0.05)
             self.mc.read_all() 
             self.update_status()
-            self.parent.parent.status_bar.showMessage('Set magnet:'+self.mc.commands[channel]+str(value))
+            self.publish_status_message('Set magnet:'+self.mc.commands[channel]+str(value))
         if 'pause' not in self.mc.status['sweep']['value']:
             #if not self.mag_thread.isRunning() 
             print('start thread')
@@ -150,10 +160,10 @@ class MagnetBox(QGroupBox):
                 self.mc.open_port()
                 self.update_status()
             except:
-                self.parent.parent.status_bar.showMessage('Error connecting to serial port: '+str(self.port_comb.currentText()))
+                self.publish_status_message('Error connecting to serial port: '+str(self.port_comb.currentText()))
                 raise
             if self.mc.s.is_open:#  and 'CS4' in self.mc.status['id']:
-                self.parent.parent.status_bar.showMessage("Opened connection to "+str(self.port_comb.currentText())+".")
+                self.publish_status_message("Opened connection to "+str(self.port_comb.currentText())+".")
                 self.sw_but.setEnabled(True)
                 self.swup_but.setEnabled(True)
                 self.swdown_but.setEnabled(True)

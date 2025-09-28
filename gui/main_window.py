@@ -17,6 +17,8 @@ from logging.handlers import TimedRotatingFileHandler
 
 from config import Config
 from core import Scan, RunningScan, EventData, Baseline, HistPoint, History
+from core import initialize_pynmr_service, cleanup_pynmr_service, get_pynmr_service
+from core import get_event_bus, cleanup_event_bus, EventType, StatusMessageHandler
 from hardware import EPICS, DAQConnection, UDP, TCP, RS_Connection, NI_Connection
 # Import tab modules individually to avoid circular dependencies
 from .tabs.run_tab import RunTab
@@ -24,7 +26,7 @@ from .tabs.base_tab import BaseTab
 from .tabs.tune_tab import TuneTab
 from .tabs.te_tab import TETab
 from .tabs.superte_tab import SuperTab
-from .tabs.analysis_tab import AnalTab
+from .tabs.analysis_tab_fixed import AnalTabFixed
 from .tabs.explore_tab import ExplTab
 from .tabs.shim_tab import ShimTab
 from .tabs.fm_tab import FMTab
@@ -75,6 +77,10 @@ class MainWindow(QMainWindow):
         self.label_changed('None')
         
         self.config = Config(channel_dict, self.settings)
+        
+        # Initialize event bus system
+        self.init_event_bus_system()
+        
         self.event = EventData(self)
         self.previous_event = self.event
         self.baseline = Baseline(self.config, {})
@@ -105,7 +111,7 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.base_tab, "Baseline")
         self.te_tab = TETab(self)
         self.tab_widget.addTab(self.te_tab, "TE")
-        self.anal_tab = AnalTab(self)
+        self.anal_tab = AnalTabFixed(self)
         self.tab_widget.addTab(self.anal_tab, "Analysis")
         
         # Conditional tabs based on settings
@@ -146,6 +152,13 @@ class MainWindow(QMainWindow):
         """Create new event instance"""
         self.event = EventData(self)
         self.set_event_base()
+        
+        # Publish event started via event bus
+        if hasattr(self, 'event_bus') and self.event_bus:
+            self.event_bus.publish(EventType.EVENT_STARTED, "main_window", {
+                "event": self.event,
+                "previous_event": self.previous_event if hasattr(self, 'previous_event') else None
+            })
 
     def new_eventfile(self):
         """Open new eventfile"""
@@ -227,9 +240,16 @@ class MainWindow(QMainWindow):
 
         self.run_tab.update_event_plots()
         self.te_tab.update_event_plots()
-        self.anal_tab.update_event_plots() 
+        # Note: anal_tab now uses event bus and will be notified via EVENT_FINISHED event below
         if self.config.settings['compare_tab']['enable']:
             self.compare_tab.update_event_plots()      
+        
+        # Publish event finished via event bus
+        if hasattr(self, 'event_bus') and self.event_bus:
+            self.event_bus.publish(EventType.EVENT_FINISHED, "main_window", {
+                "event": self.previous_event,
+                "current_event": self.event
+            })
         
         now = datetime.datetime.now(tz=datetime.timezone.utc)
         elapsed = now.timestamp() - self.start_end.timestamp() 
@@ -313,6 +333,62 @@ class MainWindow(QMainWindow):
         """Connect to DAQ system"""
         # DAQ connections are now created by individual threads when needed
         # to avoid multiple simultaneous connections to the same device
+    
+    def init_event_bus_system(self):
+        """Initialize the event bus and service layer."""
+        try:
+            # Initialize service with current config
+            self.service = initialize_pynmr_service(self.config)
+            
+            # Set up status message handler for the status bar
+            self.status_handler = StatusMessageHandler(self.status_bar)
+            
+            # Get event bus for main window event handling
+            self.event_bus = get_event_bus()
+            
+            # Subscribe to relevant events that the main window should handle
+            self.event_bus.subscribe(EventType.RUN_TOGGLE, self.handle_run_toggle_event)
+            self.event_bus.subscribe(EventType.EVENT_FINISHED, self.handle_event_finished)
+            self.event_bus.subscribe(EventType.CONFIG_CHANGED, self.handle_config_changed)
+            
+            print("Event bus system initialized successfully")
+            
+        except Exception as e:
+            print(f"Error initializing event bus system: {e}")
+            import traceback
+            traceback.print_exc()
+            # Continue without event bus if initialization fails
+            self.service = None
+            self.event_bus = None
+            self.status_handler = None
+    
+    def handle_run_toggle_event(self, bus_data):
+        """Handle run toggle requests from event bus."""
+        try:
+            if hasattr(self, 'run_tab'):
+                # This replaces direct calls to run_toggle()
+                self.run_toggle()
+        except Exception as e:
+            print(f"Error handling run toggle event: {e}")
+    
+    def handle_event_finished(self, bus_data):
+        """Handle event completion from event bus."""
+        try:
+            # Handle event completion logic
+            event = bus_data.get('event')
+            if event:
+                print(f"Event finished via event bus: pol={event.pol:.6f}")
+        except Exception as e:
+            print(f"Error handling event finished: {e}")
+    
+    def handle_config_changed(self, bus_data):
+        """Handle configuration changes from event bus."""
+        try:
+            # Handle config changes if needed
+            source = bus_data.source
+            print(f"Configuration changed by {source}")
+        except Exception as e:
+            print(f"Error handling config change: {e}")
 
 
     def closeEvent(self, close_event):
@@ -334,6 +410,17 @@ class MainWindow(QMainWindow):
                 cleanup_thread_manager()  # Clean up the global thread manager
             except Exception as e:
                 print(f"Error during ThreadManager cleanup: {e}")
+            
+            # Clean up event bus system
+            try:
+                if hasattr(self, 'service') and self.service:
+                    cleanup_pynmr_service()
+                    print("PyNMR service cleaned up")
+                if hasattr(self, 'event_bus') and self.event_bus:
+                    cleanup_event_bus()
+                    print("Event bus cleaned up")
+            except Exception as e:
+                print(f"Error during event bus cleanup: {e}")
             
             # Fallback to old thread cleanup for any remaining threads
             self.cleanup_all_threads()

@@ -12,6 +12,7 @@ import numpy as np
  
 from core import RunningScan
 from core.thread_manager import BaseThread
+from core.event_bus import get_event_bus, EventType
 from hardware import DAQConnection
 from hardware.instruments import NetRelay, LabJack, MicrowaveThread
    
@@ -94,7 +95,8 @@ class RunTab(QWidget):
         
        
         # Populate uWave settings if enabled
-        if self.parent.config.settings['uWave_settings']['enable']:
+        config = self.get_config_via_bus()
+        if config and config.settings['uWave_settings']['enable']:
             self.uwave_box = QGroupBox('Microwave Controls')
             self.uwave_box.setLayout(QVBoxLayout())
             self.midlayout.addWidget(self.uwave_box)
@@ -280,6 +282,51 @@ class RunTab(QWidget):
         self.setLayout(self.main)        
         
         self.update_time_plots()
+    
+    def publish_status_message(self, message):
+        """Publish status message via event bus (with fallback to direct access)."""
+        try:
+            event_bus = get_event_bus()
+            event_bus.publish(EventType.STATUS_MESSAGE, "run_tab", {"message": message})
+        except Exception as e:
+            # Fallback to direct access if event bus is not available
+            print(f"Event bus not available, using direct status: {e}")
+            if hasattr(self, 'parent') and hasattr(self.parent, 'status_bar'):
+                self.parent.status_bar.showMessage(message)
+    
+    def get_event_data_via_bus(self):
+        """Get event data via event bus service (with fallback to parent access)."""
+        try:
+            from core.event_bus_service import get_pynmr_service
+            service = get_pynmr_service()
+            if service:
+                return {
+                    'current_event': service.get_current_event(),
+                    'previous_event': service.get_previous_event(),
+                    'config': service.get_current_config()
+                }
+        except Exception as e:
+            print(f"Event bus service not available: {e}")
+        
+        # Fallback to direct parent access
+        return {
+            'current_event': getattr(self.parent, 'event', None),
+            'previous_event': getattr(self.parent, 'previous_event', None),
+            'config': getattr(self.parent, 'config', None)
+        }
+    
+    def get_config_via_bus(self):
+        """Get configuration via event bus service (with fallback to parent access)."""
+        try:
+            from core.event_bus_service import get_pynmr_service
+            service = get_pynmr_service()
+            if service:
+                return service.get_current_config()
+        except Exception as e:
+            print(f"Event bus service not available: {e}")
+        
+        # Fallback to direct parent access
+        return getattr(self.parent, 'config', None)
         
     def sync_pol_time(self):
         '''Sync resized on time plot'''
@@ -289,12 +336,18 @@ class RunTab(QWidget):
         '''Start main loop if conditions met'''
                
         if self.run_button.isChecked():        
-            self.parent.status_bar.showMessage('Running sweeps...')
+            self.publish_status_message('Running sweeps...')
             #self.abort_button.setEnabled(True)
             self.lock_button.setEnabled(False)
             self.run_button.setText('Finish')
             self.start_thread()
-            self.parent.run_toggle()
+            # Publish run toggle event via event bus
+            try:
+                event_bus = get_event_bus()
+                event_bus.publish(EventType.RUN_TOGGLE, "run_tab", {"action": "start"})
+            except Exception as e:
+                print(f"Event bus not available for run toggle: {e}")
+                self.parent.run_toggle()
                    
         else:
             if self.run_thread.isRunning:
@@ -343,6 +396,16 @@ class RunTab(QWidget):
         '''Add the tuple of sweeps to event'''
         self.parent.event.update_event(new_sigs)
         self.update_run_plot()
+        
+        # Publish event updated via event bus
+        try:
+            event_bus = get_event_bus()
+            event_bus.publish(EventType.EVENT_UPDATED, "run_tab", {
+                "event": self.parent.event,
+                "previous_event": self.parent.previous_event if hasattr(self.parent, 'previous_event') else None
+            })
+        except Exception as e:
+            print(f"Event bus not available for event update: {e}")
 
     def update_run_plot(self):
         '''Update the running plot'''
@@ -350,6 +413,19 @@ class RunTab(QWidget):
         progress = 100*self.parent.event.scan.num/self.parent.event.config.controls['sweeps'].value
         progress = 100*self.parent.event.scan.num/self.parent.event.config.controls['sweeps'].value
         self.progress_bar.setValue(int(progress))
+        
+        # Publish progress update via event bus for other tabs to consume
+        try:
+            event_bus = get_event_bus()
+            event_bus.publish(EventType.PROGRESS_UPDATED, "run_tab", {
+                "progress": int(progress),
+                "sweeps_completed": self.parent.event.scan.num,
+                "sweeps_total": self.parent.event.config.controls['sweeps'].value
+            })
+        except Exception as e:
+            print(f"Event bus not available for progress update: {e}")
+        
+        # Fallback to direct compare_tab access if needed
         if self.parent.config.settings['compare_tab']['enable']:
             self.parent.compare_tab.progress_bar.setValue(int(progress))
     
@@ -372,7 +448,7 @@ class RunTab(QWidget):
         self.parent.end_event()        
         now = datetime.datetime.now(tz=datetime.timezone.utc)
         if not self.run_button.isChecked():     # done and stop
-            self.parent.status_bar.showMessage(f'Finished event at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s.')
+            self.publish_status_message(f'Finished event at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s.')
             
             #self.abort_button.setEnabled(False)
             self.lock_button.setEnabled(True)
@@ -380,11 +456,17 @@ class RunTab(QWidget):
             self.run_button.setEnabled(True)
             self.run_button.setChecked(False)
             self.update_run_plot()
-            self.parent.run_toggle()
+            # Publish run toggle event via event bus
+            try:
+                event_bus = get_event_bus()
+                event_bus.publish(EventType.RUN_TOGGLE, "run_tab", {"action": "stop"})
+            except Exception as e:
+                print(f"Event bus not available for run toggle: {e}")
+                self.parent.run_toggle()
             if self.parent.config.settings['compare_tab']['enable']:  # if doing compare_tab   
                 self.parent.compare_tab.mode_done()
         else:                                    # done, continue running
-            self.parent.status_bar.showMessage(f'Finished event at  at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s. Running sweeps...')
+            self.publish_status_message(f'Finished event at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s. Running sweeps...')
             if self.parent.config.settings['compare_tab']['enable']:  # if doing compare_tab   
                 self.parent.compare_tab.mode_switch()
             # Only start next thread if analysis is not in progress
