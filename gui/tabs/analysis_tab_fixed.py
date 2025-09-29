@@ -338,7 +338,6 @@ class AnalTabFixed(EventBusTab):
                 
             # Get previous_event and event exactly like original
             self.current_event = main_window.previous_event
-            current_scan_event = main_window.event
             
             # Only update plots if analysis has been completed and data exists
             if (self.current_event and hasattr(self.current_event, 'basesweep') and 
@@ -347,22 +346,17 @@ class AnalTabFixed(EventBusTab):
                 isinstance(self.current_event.basesweep, np.ndarray) and
                 isinstance(self.current_event.basesub, np.ndarray)):
                 
-                # Update plots using exact same pattern as original
-                if current_scan_event and hasattr(current_scan_event, 'scan'):
-                    freq_list = current_scan_event.scan.freq_list
-                    phase_data = current_scan_event.scan.phase
-                    
-                    # Use the exact same plot updates as original
-                    self.raw_plot.setData(freq_list, phase_data - phase_data.max())
-                    self.base_plot.setData(freq_list, self.current_event.basesweep - self.current_event.basesweep.max())
-                    self.basesub_plot.setData(freq_list, self.current_event.basesub - self.current_event.basesub.max())
-                    
-                    self.sub_plot.setData(freq_list, self.current_event.basesub - self.current_event.basesub.max())
-                    self.fit_plot.setData(freq_list, self.current_event.fitcurve - self.current_event.basesub.max())
-                    self.fitsub_plot.setData(freq_list, self.current_event.fitsub)        
-                    
-                    self.unc_plot.setData(freq_list, self.current_event.fitsub)
-                    self.res_plot.setData(freq_list, self.current_event.rescurve)
+                # Use EXACT same pattern as original analysis tab - use main_window.event for frequency
+                self.raw_plot.setData(main_window.event.scan.freq_list, main_window.event.scan.phase - main_window.event.scan.phase.max())
+                self.base_plot.setData(main_window.event.scan.freq_list, self.current_event.basesweep - self.current_event.basesweep.max())
+                self.basesub_plot.setData(main_window.event.scan.freq_list, self.current_event.basesub - self.current_event.basesub.max())
+                
+                self.sub_plot.setData(main_window.event.scan.freq_list, self.current_event.basesub - self.current_event.basesub.max())
+                self.fit_plot.setData(main_window.event.scan.freq_list, self.current_event.fitcurve - self.current_event.basesub.max())
+                self.fitsub_plot.setData(main_window.event.scan.freq_list, self.current_event.fitsub)        
+                
+                self.unc_plot.setData(main_window.event.scan.freq_list, self.current_event.fitsub)
+                self.res_plot.setData(main_window.event.scan.freq_list, self.current_event.rescurve)
                 
         except Exception as e:
             # Log error silently - analysis tab should not crash the application
