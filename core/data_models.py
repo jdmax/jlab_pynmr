@@ -6,7 +6,6 @@ import pytz
 import numpy as np
 from scipy import optimize
 from dateutil.parser import parse
-from dataclasses import dataclass, field
 from typing import Dict, Any, List, Union
 from PySide6.QtCore import Qt
 
@@ -84,12 +83,11 @@ class RunningScan:
         self.diode = (new_diode*num_in_chunk + self.diode*(self.points_in - num_in_chunk))/self.points_in
 
 
-@dataclass
 class EventData:
     """Data and method object for single event point. Takes config instance on init.
     
     Arguments:
-        parent: Parent object containing config and other attributes
+        config: Config class instance
     
     Attributes:
         config: Config object for the event
@@ -101,7 +99,7 @@ class EventData:
         baseline: Baseline phase sweep list selected from baseline tab
         basesweep: Baseline used, varies based on chosen method from analysis tab
         basesub: Baseline subtracted phase sweep list for event
-        fitsub: Fit subtracted phase sweep list for event
+        polysub: Polyfit subtracted basesub list
         wings: Portion of sweep to use for fit, 4 long list giving position of left start, left stop, right start and right stop positions as a decimal from 0 to 1
         cc: Calibration constant float
         area: Area under polyfit curve float
@@ -114,40 +112,10 @@ class EventData:
         elapsed: Number of seconds taken to finish sweeps
         label: type of event from combobox
     """
-    parent: Any
-    config: Any = field(init=False)
-    scan: 'Scan' = field(init=False)
-    start_time: datetime.datetime = field(init=False)
-    start_stamp: float = field(init=False)
-    stop_time: datetime.datetime = field(default_factory=lambda: datetime.datetime(2000, 1, 1))
-    stop_stamp: float = field(default_factory=lambda: datetime.datetime(2000, 1, 1).timestamp())
-    baseline: np.ndarray = field(init=False)
-    basesweep: np.ndarray = field(init=False)
-    basesub: Any = field(default_factory=list)
-    fitsub: Any = field(default_factory=list)
-    wings: List[float] = field(default_factory=lambda: [0.01, 0.25, .75, 0.99])
-    cc: float = field(init=False)
-    area: float = field(default=0.0)
-    pol: float = field(default=0.0)
-    base_time: datetime.datetime = field(default_factory=lambda: datetime.datetime(2000, 1, 1))
-    base_stamp: float = field(default_factory=lambda: datetime.datetime(2000, 1, 1).timestamp())
-    base_file: str = field(default='None')
-    label: str = field(default='None')
-    epics: Dict[str, Any] = field(default_factory=dict)
-    uwave_freq: float = field(default=0.0)
-    uwave_power: float = field(default=0.0)
-    chassis_temp: float = field(init=False)
-    shimA: float = field(init=False)
-    shimB: float = field(init=False)
-    shimC: float = field(init=False)
-    shimD: float = field(init=False)
-    beam_current_sum: float = field(default=0.0)
-    beam_time_sum: float = field(default=0.0)
-    beam_current_update_time: datetime.datetime = field(init=False)
-    
-    def __post_init__(self):
-        """Initialize fields that depend on parent or other computed values."""
-        self.config = self.parent.config
+   
+    def __init__(self, parent):
+        self.config = parent.config
+        self.parent = parent
         self.scan = Scan(self.config)
         
         self.start_time = datetime.datetime.now(tz=datetime.timezone.utc)        
@@ -155,8 +123,24 @@ class EventData:
         
         self.baseline = np.zeros(len(self.scan.phase))
         self.basesweep = np.zeros(len(self.scan.phase))
+        self.basesub = []
+        self.fitsub = []
+        self.wings = [0.01, 0.25, .75, 0.99]  # portion of sweep to use for fit
         
         self.cc = self.config.controls['cc'].value
+        self.area = 0.
+        self.pol = 0.
+        self.stop_time = datetime.datetime(2000, 1, 1)
+        self.stop_stamp = datetime.datetime(2000, 1, 1).timestamp()
+        
+        self.base_time = datetime.datetime(2000, 1, 1)
+        self.base_stamp = datetime.datetime(2000, 1, 1).timestamp()
+        self.base_file = 'None'       
+        self.label = 'None'
+        self.epics = {}  # dict of epics reads
+        
+        self.uwave_freq = 0
+        self.uwave_power = 0
         
         self.chassis_temp = self.parent.chassis_temp
         self.shimA = self.parent.shimA
@@ -164,6 +148,8 @@ class EventData:
         self.shimC = self.parent.shimC
         self.shimD = self.parent.shimD
         
+        self.beam_current_sum = 0
+        self.beam_time_sum = 0
         self.beam_current_update_time = self.start_time
         
     def update_event(self, new_sigs):

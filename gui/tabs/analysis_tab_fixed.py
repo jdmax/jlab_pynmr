@@ -6,6 +6,7 @@ and integrates with the event bus system.
 """
 
 import numpy as np
+import time
 from scipy import optimize
 from PySide6.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QProgressBar, QStackedWidget, QDoubleSpinBox
 import pyqtgraph as pg
@@ -46,6 +47,10 @@ class AnalTabFixed(EventBusTab):
         self.res_chosen = None
         
         self.current_event = None  # Will be updated via event bus
+        
+        # Analysis throttling to prevent excessive thread creation
+        self._last_analysis_time = 0
+        self._analysis_throttle_ms = 500  # Minimum time between analysis runs
         
         # Create compatibility layer for existing analysis classes
         # They expect self.parent.parent to have event, config, etc.
@@ -271,13 +276,11 @@ class AnalTabFixed(EventBusTab):
             self.base_chosen = self.base_opts[i].result
             self.base_opts[i].switch_here()
         
-        # Publish parameter change event
+        # Publish parameter change event - this will trigger analysis via event handler
         self.publish_analysis_parameters_changed({
             "base_method": i,
             "source": "baseline_combo"
         })
-        
-        self.run_analysis()
     
     def change_sub(self, i):
         """Change subtraction method."""
@@ -288,13 +291,11 @@ class AnalTabFixed(EventBusTab):
             self.sub_chosen = self.sub_opts[i].result
             self.sub_opts[i].switch_here()
         
-        # Publish parameter change event
+        # Publish parameter change event - this will trigger analysis via event handler
         self.publish_analysis_parameters_changed({
             "sub_method": i,
             "source": "subtraction_combo"
         })
-        
-        self.run_analysis()
     
     def change_res(self, i):
         """Change result method."""
@@ -305,13 +306,11 @@ class AnalTabFixed(EventBusTab):
             self.res_chosen = self.res_opts[i].result
             self.res_opts[i].switch_here()
         
-        # Publish parameter change event
+        # Publish parameter change event - this will trigger analysis via event handler
         self.publish_analysis_parameters_changed({
             "res_method": i,
             "source": "result_combo"
         })
-        
-        self.run_analysis()
     
     def run_analysis(self):
         """Run event signal analysis if needed and call for new plots if base and sub methods are chosen."""
@@ -335,7 +334,6 @@ class AnalTabFixed(EventBusTab):
             main_window = self._main_window
             
             if not main_window:
-                print("DEBUG: No main window available")
                 return
                 
             # Get previous_event and event exactly like original
