@@ -298,7 +298,7 @@ class TuneTab(QWidget):
                 # Use thread manager to stop thread properly
                 from core.thread_manager import get_thread_manager
                 thread_manager = get_thread_manager()
-                thread_manager.stop_thread(self.tune_thread.thread_name, wait=True)
+                thread_manager.stop_thread(self.tune_thread.thread_name, timeout=5000)
                 self.tune_thread = None
             except Exception as e:
                 print(f"Error stopping tune thread: {e}")

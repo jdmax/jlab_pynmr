@@ -397,38 +397,53 @@ class MainWindow(QMainWindow):
         if hasattr(self, 'run_tab') and self.run_tab.run_button.isChecked():
             reply = ExitDialog().exec()
             if reply == QDialog.Rejected:
-                close_event.ignore()  
-        else:
-            # Stop all threads before closing
-            if hasattr(self, 'epics') and self.epics:
-                self.epics.monitor_running = False
-            
-            # Use ThreadManager for centralized cleanup
-            try:
-                from core.thread_manager import get_thread_manager, cleanup_thread_manager
-                thread_manager = get_thread_manager()
-                thread_manager.stop_all_threads(timeout=3000)  # 3 second timeout
-                cleanup_thread_manager()  # Clean up the global thread manager
-            except Exception as e:
-                print(f"Error during ThreadManager cleanup: {e}")
-            
-            # Clean up event bus system
-            try:
-                if hasattr(self, 'service') and self.service:
-                    cleanup_pynmr_service()
-                    print("PyNMR service cleaned up")
-                if hasattr(self, 'event_bus') and self.event_bus:
-                    cleanup_event_bus()
-                    print("Event bus cleaned up")
-            except Exception as e:
-                print(f"Error during event bus cleanup: {e}")
-            
-            # Fallback to old thread cleanup for any remaining threads
-            self.cleanup_all_threads()
-                    
-            self.close_eventfile()
-            self.save_session()
-            close_event.accept()
+                close_event.ignore()
+                return
+
+        # Stop all threads before closing
+        if hasattr(self, 'epics') and self.epics:
+            self.epics.monitor_running = False
+
+        # Use ThreadManager for centralized cleanup
+        try:
+            from core.thread_manager import get_thread_manager, cleanup_thread_manager
+            thread_manager = get_thread_manager()
+            thread_manager.stop_all_threads(timeout=3000)  # 3 second timeout
+        except Exception as e:
+            print(f"Error during ThreadManager cleanup: {e}")
+
+        # Process pending events to allow threads to finish cleanup
+        from PySide6.QtCore import QCoreApplication
+        QCoreApplication.processEvents()
+
+        # Clean up event bus system
+        try:
+            if hasattr(self, 'service') and self.service:
+                cleanup_pynmr_service()
+                print("PyNMR service cleaned up")
+            if hasattr(self, 'event_bus') and self.event_bus:
+                cleanup_event_bus()
+                print("Event bus cleaned up")
+        except Exception as e:
+            print(f"Error during event bus cleanup: {e}")
+
+        # Fallback to old thread cleanup for any remaining threads
+        self.cleanup_all_threads()
+
+        # Process events again before final cleanup
+        QCoreApplication.processEvents()
+
+        # Clean up thread manager last
+        try:
+            from core.thread_manager import cleanup_thread_manager
+            cleanup_thread_manager()
+            print("Thread manager cleaned up")
+        except Exception as e:
+            print(f"Error cleaning up thread manager: {e}")
+
+        self.close_eventfile()
+        self.save_session()
+        close_event.accept()
 
     def check_state(self, *args, **kwargs):
         """Enable colors for LineEdit validators"""
