@@ -276,7 +276,10 @@ class AnalTabFixed(EventBusTab):
             self.base_chosen = self.base_opts[i].result
             self.base_opts[i].switch_here()
         
-        # Publish parameter change event - this will trigger analysis via event handler
+        # Run analysis immediately like original analysis tab
+        self.run_analysis()
+        
+        # Also publish parameter change event for consistency
         self.publish_analysis_parameters_changed({
             "base_method": i,
             "source": "baseline_combo"
@@ -291,7 +294,10 @@ class AnalTabFixed(EventBusTab):
             self.sub_chosen = self.sub_opts[i].result
             self.sub_opts[i].switch_here()
         
-        # Publish parameter change event - this will trigger analysis via event handler
+        # Run analysis immediately like original analysis tab
+        self.run_analysis()
+        
+        # Also publish parameter change event for consistency
         self.publish_analysis_parameters_changed({
             "sub_method": i,
             "source": "subtraction_combo"
@@ -306,7 +312,10 @@ class AnalTabFixed(EventBusTab):
             self.res_chosen = self.res_opts[i].result
             self.res_opts[i].switch_here()
         
-        # Publish parameter change event - this will trigger analysis via event handler
+        # Run analysis immediately like original analysis tab
+        self.run_analysis()
+        
+        # Also publish parameter change event for consistency
         self.publish_analysis_parameters_changed({
             "res_method": i,
             "source": "result_combo"
@@ -347,8 +356,14 @@ class AnalTabFixed(EventBusTab):
                 isinstance(self.current_event.basesub, np.ndarray)):
                 
                 # Use EXACT same pattern as original analysis tab - use main_window.event for frequency
-                self.raw_plot.setData(main_window.event.scan.freq_list, main_window.event.scan.phase - main_window.event.scan.phase.max())
-                self.base_plot.setData(main_window.event.scan.freq_list, self.current_event.basesweep - self.current_event.basesweep.max())
+                raw_signal = main_window.event.scan.phase - main_window.event.scan.phase.max()
+                
+                # Use EXACT same pattern as original analysis tab
+                baseline_curve = self.current_event.basesweep - self.current_event.basesweep.max()
+                
+                # Plot 1: Raw signal + Baseline fit overlay  
+                self.raw_plot.setData(main_window.event.scan.freq_list, raw_signal)
+                self.base_plot.setData(main_window.event.scan.freq_list, baseline_curve)
                 self.basesub_plot.setData(main_window.event.scan.freq_list, self.current_event.basesub - self.current_event.basesub.max())
                 
                 self.sub_plot.setData(main_window.event.scan.freq_list, self.current_event.basesub - self.current_event.basesub.max())
