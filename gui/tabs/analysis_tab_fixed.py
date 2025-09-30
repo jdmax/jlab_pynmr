@@ -109,12 +109,12 @@ class AnalTabFixed(EventBusTab):
         # Baseline options box
         self.base_box = QGroupBox('Baseline Options')
         self.base_box.setLayout(QVBoxLayout())
-        self.left.addWidget(self.base_box)        
+        self.left.addWidget(self.base_box)
         self.base_combo = QComboBox()
         self.base_box.layout().addWidget(self.base_combo)
-        self.base_stack = QStackedWidget()    
+        self.base_stack = QStackedWidget()
         self.base_box.layout().addWidget(self.base_stack)
-        
+
         # Subtraction options box
         self.sub_box = QGroupBox('Subtraction Options')
         self.sub_box.setLayout(QVBoxLayout())
@@ -123,7 +123,7 @@ class AnalTabFixed(EventBusTab):
         self.sub_box.layout().addWidget(self.sub_combo)
         self.sub_stack = QStackedWidget()
         self.sub_box.layout().addWidget(self.sub_stack)
-        
+
         # Result options box
         self.res_box = QGroupBox('Result Options')
         self.res_box.setLayout(QVBoxLayout())
@@ -160,8 +160,10 @@ class AnalTabFixed(EventBusTab):
         self.base_wid = pg.PlotWidget(title='Baseline Subtraction')
         self.base_wid.showGrid(True, True)
         self.base_wid.addLegend(offset=(0.5, 0))
-        self.raw_plot = self.base_wid.plot([], [], pen=self.base_pen, name='Raw Signal') 
-        self.base_plot = self.base_wid.plot([], [], pen=self.base2_pen, name='Baseline') 
+        self.base_wid.setMinimumHeight(100)
+        self.base_wid.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.raw_plot = self.base_wid.plot([], [], pen=self.base_pen, name='Raw Signal')
+        self.base_plot = self.base_wid.plot([], [], pen=self.base2_pen, name='Baseline')
         self.basesub_plot = self.base_wid.plot([], [], pen=self.base3_pen, name='Subtracted') 
         
         # Create regions for base plot (need event for initialization)
@@ -186,8 +188,10 @@ class AnalTabFixed(EventBusTab):
         self.sub_wid = pg.PlotWidget(title='Fit Subtraction')
         self.sub_wid.showGrid(True, True)
         self.sub_wid.addLegend(offset=(0.5, 0))
-        self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen, name='Baseline Subtracted') 
-        self.fit_plot = self.sub_wid.plot([], [], pen=self.sub2_pen, name='Fit') 
+        self.sub_wid.setMinimumHeight(100)
+        self.sub_wid.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen, name='Baseline Subtracted')
+        self.fit_plot = self.sub_wid.plot([], [], pen=self.sub2_pen, name='Fit')
         self.fitsub_plot = self.sub_wid.plot([], [], pen=self.sub3_pen, name='Subtracted') 
         self.sub_region1 = pg.LinearRegionItem(pen=pg.mkPen(0, 180, 0, 0), brush=pg.mkBrush(0, 0, 180, 0))
         self.sub_region1.setMovable(False)
@@ -203,7 +207,9 @@ class AnalTabFixed(EventBusTab):
         self.res_wid = pg.PlotWidget(title='Results')
         self.res_wid.showGrid(True, True)
         self.res_wid.addLegend(offset=(0.5, 0))
-        self.unc_plot = self.res_wid.plot([], [], pen=self.res_pen, name='Fit Subtracted') 
+        self.res_wid.setMinimumHeight(100)
+        self.res_wid.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.unc_plot = self.res_wid.plot([], [], pen=self.res_pen, name='Fit Subtracted')
         self.res_plot = self.res_wid.plot([], [], pen=self.sub3_pen, name='Result') 
         self.res_region = pg.LinearRegionItem(pen=pg.mkPen(0, 180, 0, 0), brush=pg.mkBrush(0, 180, 0, 0))
         self.res_region.setMovable(False)

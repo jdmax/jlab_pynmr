@@ -98,6 +98,7 @@ class MainWindow(QMainWindow):
         self.height = 800
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setMinimumSize(800, 400)
 
         self.tab_widget = QTabWidget(self)
         self.setCentralWidget(self.tab_widget)
