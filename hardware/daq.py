@@ -236,18 +236,22 @@ class UDP():
         RegSets.append(ADCConfig.to_bytes(2,'little'))  
         RegSets.append(dac_value.to_bytes(2,'little'))
         RegSets.append(self.dac_c.to_bytes(2,'little'))
-        #print("Last two reg bytes:",RegSets[-2].hex(), RegSets[-1].hex())    
+        #print("Last two reg bytes:",RegSets[-2].hex(), RegSets[-1].hex())
+        return self.write_register(self.s, RegSets)
+
+    def write_register(self, socket, RegSets):
+        ''' Join byte array (RegSets) into string and send to socket, return True if ok returned
+        '''
         RegSetString = b''.join(RegSets)
-        self.s.send(RegSetString)
-        data, addr = self.s.recvfrom(1024)    # buffer size is 1024
+        socket.send(RegSetString)
+        data, addr = socket.recvfrom(1024)    # buffer size is 1024
         #print("Set string:",RegSetString.hex())
         #print("Read string:",self.read_stat())
         if data == self.ok:
             return True
         else:
-            #print(data)
             return False
-    
+
     def set_freq(self, freq_bytes):
         '''Send frequency points, converts freq list into bytes
         Args:
