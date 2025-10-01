@@ -1,6 +1,7 @@
 '''PyNMR, J.Maxwell 2020
 '''
 import socket
+import numpy as np
 
 class TCP():
     '''Handle TCP commands and responses

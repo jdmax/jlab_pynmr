@@ -15,9 +15,10 @@ class RS_Connection():
         '''
         self.host = config.settings['RS_settings']['ip']
         self.port = config.settings['RS_settings']['port']
+        self.timeout = config.settings['RS_settings']['timeout']
 
         try:
-            tn = telnetlib.Telnet(self.host, port=self.port, timeout=config.settings['RS_settings']['timeout'])
+            tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
 
             # Write all required settings
 
@@ -57,7 +58,7 @@ class RS_Connection():
     def rf_off(self):
         '''Connect to turn off RF, then close.'''
         try:
-            tn = telnetlib.Telnet(self.host, port=self.port)
+            tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
             tn.write(b"FM:STATE OFF\n")
             tn.close()
         except Exception as e:
@@ -66,7 +67,7 @@ class RS_Connection():
     def rf_on(self):
         '''Connect to turn on RF, then close.'''
         try:
-            tn = telnetlib.Telnet(self.host, port=self.port)
+            tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
             tn.write(b"FM:STATE ON\n")
             tn.close()
         except Exception as e:
