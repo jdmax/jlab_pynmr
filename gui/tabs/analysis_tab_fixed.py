@@ -6,6 +6,7 @@ and integrates with the event bus system.
 """
 
 import numpy as np
+import time
 from scipy import optimize
 from PySide6.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QProgressBar, QStackedWidget, QDoubleSpinBox
 import pyqtgraph as pg
@@ -46,6 +47,10 @@ class AnalTabFixed(EventBusTab):
         self.res_chosen = None
         
         self.current_event = None  # Will be updated via event bus
+        
+        # Analysis throttling to prevent excessive thread creation
+        self._last_analysis_time = 0
+        self._analysis_throttle_ms = 500  # Minimum time between analysis runs
         
         # Create compatibility layer for existing analysis classes
         # They expect self.parent.parent to have event, config, etc.
@@ -104,12 +109,12 @@ class AnalTabFixed(EventBusTab):
         # Baseline options box
         self.base_box = QGroupBox('Baseline Options')
         self.base_box.setLayout(QVBoxLayout())
-        self.left.addWidget(self.base_box)        
+        self.left.addWidget(self.base_box)
         self.base_combo = QComboBox()
         self.base_box.layout().addWidget(self.base_combo)
-        self.base_stack = QStackedWidget()    
+        self.base_stack = QStackedWidget()
         self.base_box.layout().addWidget(self.base_stack)
-        
+
         # Subtraction options box
         self.sub_box = QGroupBox('Subtraction Options')
         self.sub_box.setLayout(QVBoxLayout())
@@ -118,7 +123,7 @@ class AnalTabFixed(EventBusTab):
         self.sub_box.layout().addWidget(self.sub_combo)
         self.sub_stack = QStackedWidget()
         self.sub_box.layout().addWidget(self.sub_stack)
-        
+
         # Result options box
         self.res_box = QGroupBox('Result Options')
         self.res_box.setLayout(QVBoxLayout())
@@ -155,8 +160,10 @@ class AnalTabFixed(EventBusTab):
         self.base_wid = pg.PlotWidget(title='Baseline Subtraction')
         self.base_wid.showGrid(True, True)
         self.base_wid.addLegend(offset=(0.5, 0))
-        self.raw_plot = self.base_wid.plot([], [], pen=self.base_pen, name='Raw Signal') 
-        self.base_plot = self.base_wid.plot([], [], pen=self.base2_pen, name='Baseline') 
+        self.base_wid.setMinimumHeight(100)
+        self.base_wid.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.raw_plot = self.base_wid.plot([], [], pen=self.base_pen, name='Raw Signal')
+        self.base_plot = self.base_wid.plot([], [], pen=self.base2_pen, name='Baseline')
         self.basesub_plot = self.base_wid.plot([], [], pen=self.base3_pen, name='Subtracted') 
         
         # Create regions for base plot (need event for initialization)
@@ -181,8 +188,10 @@ class AnalTabFixed(EventBusTab):
         self.sub_wid = pg.PlotWidget(title='Fit Subtraction')
         self.sub_wid.showGrid(True, True)
         self.sub_wid.addLegend(offset=(0.5, 0))
-        self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen, name='Baseline Subtracted') 
-        self.fit_plot = self.sub_wid.plot([], [], pen=self.sub2_pen, name='Fit') 
+        self.sub_wid.setMinimumHeight(100)
+        self.sub_wid.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen, name='Baseline Subtracted')
+        self.fit_plot = self.sub_wid.plot([], [], pen=self.sub2_pen, name='Fit')
         self.fitsub_plot = self.sub_wid.plot([], [], pen=self.sub3_pen, name='Subtracted') 
         self.sub_region1 = pg.LinearRegionItem(pen=pg.mkPen(0, 180, 0, 0), brush=pg.mkBrush(0, 0, 180, 0))
         self.sub_region1.setMovable(False)
@@ -198,7 +207,9 @@ class AnalTabFixed(EventBusTab):
         self.res_wid = pg.PlotWidget(title='Results')
         self.res_wid.showGrid(True, True)
         self.res_wid.addLegend(offset=(0.5, 0))
-        self.unc_plot = self.res_wid.plot([], [], pen=self.res_pen, name='Fit Subtracted') 
+        self.res_wid.setMinimumHeight(100)
+        self.res_wid.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.unc_plot = self.res_wid.plot([], [], pen=self.res_pen, name='Fit Subtracted')
         self.res_plot = self.res_wid.plot([], [], pen=self.sub3_pen, name='Result') 
         self.res_region = pg.LinearRegionItem(pen=pg.mkPen(0, 180, 0, 0), brush=pg.mkBrush(0, 180, 0, 0))
         self.res_region.setMovable(False)
@@ -271,13 +282,14 @@ class AnalTabFixed(EventBusTab):
             self.base_chosen = self.base_opts[i].result
             self.base_opts[i].switch_here()
         
-        # Publish parameter change event
+        # Run analysis immediately like original analysis tab
+        self.run_analysis()
+        
+        # Also publish parameter change event for consistency
         self.publish_analysis_parameters_changed({
             "base_method": i,
             "source": "baseline_combo"
         })
-        
-        self.run_analysis()
     
     def change_sub(self, i):
         """Change subtraction method."""
@@ -288,13 +300,14 @@ class AnalTabFixed(EventBusTab):
             self.sub_chosen = self.sub_opts[i].result
             self.sub_opts[i].switch_here()
         
-        # Publish parameter change event
+        # Run analysis immediately like original analysis tab
+        self.run_analysis()
+        
+        # Also publish parameter change event for consistency
         self.publish_analysis_parameters_changed({
             "sub_method": i,
             "source": "subtraction_combo"
         })
-        
-        self.run_analysis()
     
     def change_res(self, i):
         """Change result method."""
@@ -305,13 +318,14 @@ class AnalTabFixed(EventBusTab):
             self.res_chosen = self.res_opts[i].result
             self.res_opts[i].switch_here()
         
-        # Publish parameter change event
+        # Run analysis immediately like original analysis tab
+        self.run_analysis()
+        
+        # Also publish parameter change event for consistency
         self.publish_analysis_parameters_changed({
             "res_method": i,
             "source": "result_combo"
         })
-        
-        self.run_analysis()
     
     def run_analysis(self):
         """Run event signal analysis if needed and call for new plots if base and sub methods are chosen."""
@@ -335,12 +349,10 @@ class AnalTabFixed(EventBusTab):
             main_window = self._main_window
             
             if not main_window:
-                print("DEBUG: No main window available")
                 return
                 
             # Get previous_event and event exactly like original
             self.current_event = main_window.previous_event
-            current_scan_event = main_window.event
             
             # Only update plots if analysis has been completed and data exists
             if (self.current_event and hasattr(self.current_event, 'basesweep') and 
@@ -349,22 +361,23 @@ class AnalTabFixed(EventBusTab):
                 isinstance(self.current_event.basesweep, np.ndarray) and
                 isinstance(self.current_event.basesub, np.ndarray)):
                 
-                # Update plots using exact same pattern as original
-                if current_scan_event and hasattr(current_scan_event, 'scan'):
-                    freq_list = current_scan_event.scan.freq_list
-                    phase_data = current_scan_event.scan.phase
-                    
-                    # Use the exact same plot updates as original
-                    self.raw_plot.setData(freq_list, phase_data - phase_data.max())
-                    self.base_plot.setData(freq_list, self.current_event.basesweep - self.current_event.basesweep.max())
-                    self.basesub_plot.setData(freq_list, self.current_event.basesub - self.current_event.basesub.max())
-                    
-                    self.sub_plot.setData(freq_list, self.current_event.basesub - self.current_event.basesub.max())
-                    self.fit_plot.setData(freq_list, self.current_event.fitcurve - self.current_event.basesub.max())
-                    self.fitsub_plot.setData(freq_list, self.current_event.fitsub)        
-                    
-                    self.unc_plot.setData(freq_list, self.current_event.fitsub)
-                    self.res_plot.setData(freq_list, self.current_event.rescurve)
+                # Use EXACT same pattern as original analysis tab - use main_window.event for frequency
+                raw_signal = main_window.event.scan.phase - main_window.event.scan.phase.max()
+                
+                # Use EXACT same pattern as original analysis tab
+                baseline_curve = self.current_event.basesweep - self.current_event.basesweep.max()
+                
+                # Plot 1: Raw signal + Baseline fit overlay  
+                self.raw_plot.setData(main_window.event.scan.freq_list, raw_signal)
+                self.base_plot.setData(main_window.event.scan.freq_list, baseline_curve)
+                self.basesub_plot.setData(main_window.event.scan.freq_list, self.current_event.basesub - self.current_event.basesub.max())
+                
+                self.sub_plot.setData(main_window.event.scan.freq_list, self.current_event.basesub - self.current_event.basesub.max())
+                self.fit_plot.setData(main_window.event.scan.freq_list, self.current_event.fitcurve - self.current_event.basesub.max())
+                self.fitsub_plot.setData(main_window.event.scan.freq_list, self.current_event.fitsub)        
+                
+                self.unc_plot.setData(main_window.event.scan.freq_list, self.current_event.fitsub)
+                self.res_plot.setData(main_window.event.scan.freq_list, self.current_event.rescurve)
                 
         except Exception as e:
             # Log error silently - analysis tab should not crash the application

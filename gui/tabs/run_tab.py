@@ -187,6 +187,7 @@ class RunTab(QWidget):
         self.pol_time_wid = pg.PlotWidget(
             title='', axisItems={'bottom': self.time_axis}
         )
+        self.pol_time_wid.setMinimumHeight(100)
         self.legend = self.pol_time_wid.addLegend()
         if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot
             self.time_plot =  self.pol_time_wid.plotItem
@@ -259,23 +260,26 @@ class RunTab(QWidget):
         self.raw_wid = pg.PlotWidget(title='Raw Signal')
         self.raw_wid.showGrid(True,True, alpha = 0.2)
         self.raw_wid.setMouseEnabled(x=False, y=False)
-        self.raw_plot = self.raw_wid.plot([], [], pen=self.raw_pen) 
+        self.raw_wid.setMinimumHeight(100)
+        self.raw_plot = self.raw_wid.plot([], [], pen=self.raw_pen)
         self.lowerlayout.addWidget(self.raw_wid)
-        
+
         # Sub plot
         self.sub_wid = pg.PlotWidget(title='Baseline Subtracted')
         self.sub_wid.showGrid(True,True, alpha = 0.2)
         self.sub_wid.setMouseEnabled(x=False, y=False)
-        self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen) 
-        self.fit_plot = self.sub_wid.plot([], [], pen=self.fit_pen) 
+        self.sub_wid.setMinimumHeight(100)
+        self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen)
+        self.fit_plot = self.sub_wid.plot([], [], pen=self.fit_pen)
         self.lowerlayout.addWidget(self.sub_wid)
-        
+
         # Final PLot
         self.fin_wid = pg.PlotWidget(title='Fit Subtracted')
         self.fin_wid.showGrid(True,True, alpha = 0.2)
         self.fin_wid.setMouseEnabled(x=False, y=False)
-        self.fin_plot = self.fin_wid.plot([], [], pen=self.fin_pen)  
-        self.res_plot = self.fin_wid.plot([], [], pen=self.res_pen)         
+        self.fin_wid.setMinimumHeight(100)
+        self.fin_plot = self.fin_wid.plot([], [], pen=self.fin_pen)
+        self.res_plot = self.fin_wid.plot([], [], pen=self.res_pen)
         self.lowerlayout.addWidget(self.fin_wid)
            
         self.main.addLayout(self.lowerlayout)

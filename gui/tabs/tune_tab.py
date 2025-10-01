@@ -4,7 +4,7 @@ import datetime
 import time
 from PySide6.QtWidgets import QWidget, QTabWidget, QVBoxLayout, QHBoxLayout, QPushButton, QGroupBox, QGridLayout, QLabel, QLineEdit, QSizePolicy, QComboBox, QSpacerItem, QSlider, QDoubleSpinBox, QProgressBar
 from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator
-from PySide6.QtCore import QThread, Signal,Qt
+from PySide6.QtCore import QThread, Signal, Qt, QTimer
 import pyqtgraph as pg
  
 from core import RunningScan
@@ -28,6 +28,13 @@ class TuneTab(QWidget):
         self.dio_pen = pg.mkPen(color=(250, 0, 0), width=1.5)
         self.pha_pen = pg.mkPen(color=(0, 0, 204), width=1.5)
         self.progress = 0
+        
+        # Thread-safe plotting
+        self.tune_thread = None
+        self.pending_plot_data = None
+        self.plot_timer = QTimer()
+        self.plot_timer.timeout.connect(self.update_plots_from_timer)
+        self.plot_timer.setSingleShot(True)
         
         # Populate Tune Tab
         self.main = QVBoxLayout()            # main layout
@@ -101,6 +108,18 @@ class TuneTab(QWidget):
         self.setLayout(self.main)
         
         self.restore()
+    
+    def __del__(self):
+        '''Cleanup when tab is destroyed'''
+        try:
+            self.abort_run()
+        except Exception as e:
+            print(f"Error in TuneTab cleanup: {e}")
+    
+    def closeEvent(self, event):
+        '''Handle close event'''
+        self.abort_run()
+        super().closeEvent(event) if hasattr(super(), 'closeEvent') else None
     
     def publish_status_message(self, message):
         """Publish status message via event bus (with fallback to direct access)."""
@@ -212,26 +231,79 @@ class TuneTab(QWidget):
         print(f"Tune thread error: {error_msg}")
         self.running = False
     
-    def add_sweeps(self,new_sigs):
-        '''Add the tuple of sweeps to event'''
+    def add_sweeps(self, new_sigs):
+        '''Add the tuple of sweeps to event - called from thread, so defer plot updates'''
         self.running_scan.running_avg(new_sigs)
-        self.update_run_plot()
-        if self.progress<100:
-            self.progress+=10
+        
+        # Queue plot update for main thread
+        self.pending_plot_data = (self.running_scan.freq_list.copy(), 
+                                  self.running_scan.diode.copy(), 
+                                  self.running_scan.phase.copy())
+        
+        # Update progress immediately (this is thread-safe)
+        if self.progress < 100:
+            self.progress += 10
         else:
             self.progress = 0
-        self.progress_bar.setValue(self.progress)   
+        self.progress_bar.setValue(self.progress)
         
+        # Start timer to update plots on main thread
+        if not self.plot_timer.isActive():
+            self.plot_timer.start(50)  # 50ms delay to batch updates   
+        
+    def update_plots_from_timer(self):
+        '''Update plots safely from main thread via timer'''
+        if self.pending_plot_data:
+            freq_list, diode_data, phase_data = self.pending_plot_data
+            self.diode_plot.setData(freq_list, diode_data)
+            self.phase_plot.setData(freq_list, phase_data)
+            self.pending_plot_data = None
+    
     def finished(self):
         '''Run when thread done'''
         self.progress = 0
         self.progress_bar.setValue(self.progress)  
         self.publish_status_message('Ready.')
+        
+        # Final plot update
         self.update_run_plot()
         
+        # Critical: Disconnect all signals before cleanup
+        if self.tune_thread:
+            try:
+                self.tune_thread.reply.disconnect()
+                self.tune_thread.finished.disconnect()
+                self.tune_thread.error.disconnect()
+            except Exception as e:
+                print(f"Warning: Error disconnecting tune thread signals: {e}")
+            self.tune_thread = None
+        
     def abort_run(self):
-        '''Quit now'''
+        '''Quit now - properly clean up thread and timers'''
         self.running = False
+        
+        # Stop plot timer
+        if self.plot_timer.isActive():
+            self.plot_timer.stop()
+        self.pending_plot_data = None
+        
+        # Clean up thread if it exists
+        if self.tune_thread:
+            try:
+                # CRITICAL: Disconnect all signals first to prevent segfault
+                self.tune_thread.reply.disconnect()
+                self.tune_thread.finished.disconnect()
+                self.tune_thread.error.disconnect()
+                
+                # Use thread manager to stop thread properly
+                from core.thread_manager import get_thread_manager
+                thread_manager = get_thread_manager()
+                thread_manager.stop_thread(self.tune_thread.thread_name, timeout=5000)
+                self.tune_thread = None
+            except Exception as e:
+                print(f"Error stopping tune thread: {e}")
+                # Force cleanup even if there's an error
+                self.tune_thread = None
         
     def change_avg(self,to_avg):
         '''Set the number to average'''

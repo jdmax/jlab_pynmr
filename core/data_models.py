@@ -6,8 +6,8 @@ import pytz
 import numpy as np
 from scipy import optimize
 from dateutil.parser import parse
-from dataclasses import dataclass, field
 from typing import Dict, Any, List, Union
+from dataclasses import dataclass, field
 from PySide6.QtCore import Qt
 
 
@@ -86,7 +86,7 @@ class RunningScan:
 
 @dataclass
 class EventData:
-    """Data and method object for single event point. Takes config instance on init.
+    """Data and method object for single event point. Takes parent instance on init.
     
     Arguments:
         parent: Parent object containing config and other attributes
