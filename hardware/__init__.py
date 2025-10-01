@@ -1,4 +1,7 @@
-from .daq import DAQConnection, UDP, TCP, RS_Connection, NI_Connection
+from .daq import DAQConnection, NI_Connection
+from .udp import UDP
+from .tcp import TCP
+from .rs import RS_Connection
 from .epics import EPICS, MonitorThread
 from .instruments import MicrowaveThread, Counter, PowMeter, NetRelay, LabJack
 from .magnet import MagnetControl
