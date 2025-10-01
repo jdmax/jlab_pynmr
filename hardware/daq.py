@@ -10,8 +10,8 @@ import nidaqmx
 from nidaqmx.constants import (DigitalWidthUnits, AcquisitionType,
                                ReadRelativeTo, OverwriteMode, DigitalWidthUnits,
                                TriggerType, TaskMode, READ_ALL_AVAILABLE)
-from udp import UDP
-from tcp import TCP
+from hardware.udp import UDP
+from hardware.tcp import TCP
                                
 class DAQConnection():
     '''Handle connection to and communication with DAQ system. Designed to hide all the specifics of different DAQ systems with generic actions for all. Init will open connections and send configuration settings to DAQ.
