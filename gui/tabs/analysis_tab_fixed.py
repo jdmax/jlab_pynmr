@@ -17,7 +17,7 @@ from core.tab_base import EventBusTab, AnalysisTabEventHandler
 from core.event_bus import EventType
 
 # Import the existing analysis classes
-from .analysis_tab import (StandardBase, PolyFitBase, CircuitBase, NoBase,
+from .analysis_modules import (StandardBase, PolyFitBase, CircuitBase, NoBase,
                           PolyFitSub, NoFitSub, SumAllRes, SumRangeRes, 
                           PeakHeightRes, FitPeakRes, FitPeakRes2, FitDeuteron)
 
