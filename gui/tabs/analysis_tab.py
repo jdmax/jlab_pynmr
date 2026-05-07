@@ -80,11 +80,11 @@ class AnalTab(QWidget):
         self.base_region1 = pg.LinearRegionItem(pen=pg.mkPen(0, 180, 0, 0), brush=pg.mkBrush(0, 180, 0, 0))
         self.base_region1.setMovable(False)
         self.base_region1.setRegion([self.parent.event.scan.freq_list.min(), self.parent.event.scan.freq_list.min()])
-        self.base_wid.addItem(self.base_region1)
+        self.base_wid.addItem(self.base_region1, ignoreBounds=True)
         self.base_region2 = pg.LinearRegionItem(pen=pg.mkPen(0, 180, 0, 0), brush=pg.mkBrush(0, 180, 0, 0))
         self.base_region2.setMovable(False)
         self.base_region2.setRegion([self.parent.event.scan.freq_list.max(), self.parent.event.scan.freq_list.max()])
-        self.base_wid.addItem(self.base_region2)
+        self.base_wid.addItem(self.base_region2, ignoreBounds=True)
         self.right.addWidget(self.base_wid)
 
         self.sub_wid = pg.PlotWidget(title='Fit Subtraction')
@@ -96,11 +96,11 @@ class AnalTab(QWidget):
         self.sub_region1 = pg.LinearRegionItem(pen=pg.mkPen(0, 180, 0, 0), brush=pg.mkBrush(0, 0, 180, 0))
         self.sub_region1.setMovable(False)
         self.sub_region1.setRegion([self.parent.event.scan.freq_list.min(), self.parent.event.scan.freq_list.min()])
-        self.sub_wid.addItem(self.sub_region1)
+        self.sub_wid.addItem(self.sub_region1, ignoreBounds=True)
         self.sub_region2 = pg.LinearRegionItem(pen=pg.mkPen(0, 180, 0, 0), brush=pg.mkBrush(0, 0, 180, 0))
         self.sub_region2.setMovable(False)
         self.sub_region2.setRegion([self.parent.event.scan.freq_list.max(), self.parent.event.scan.freq_list.max()])
-        self.sub_wid.addItem(self.sub_region2)
+        self.sub_wid.addItem(self.sub_region2, ignoreBounds=True)
         self.right.addWidget(self.sub_wid)
                 
         self.res_wid = pg.PlotWidget(title='Results')
@@ -111,7 +111,7 @@ class AnalTab(QWidget):
         self.res_region = pg.LinearRegionItem(pen=pg.mkPen(0, 180, 0, 0), brush=pg.mkBrush(0, 180, 0, 0))
         self.res_region.setMovable(False)
         self.res_region.setRegion([self.parent.event.scan.freq_list.max(), self.parent.event.scan.freq_list.max()])
-        self.res_wid.addItem(self.res_region)
+        self.res_wid.addItem(self.res_region, ignoreBounds=True)
         self.right.addWidget(self.res_wid)        
      
         # Set up list of options for each step, putting instances into stack
