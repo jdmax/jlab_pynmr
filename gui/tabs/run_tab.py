@@ -4,8 +4,8 @@ import datetime
 import time
 import math
 import pytz
-from PySide6.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QProgressBar
-from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator
+from PySide6.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QProgressBar, QApplication
+from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator, QPalette
 from PySide6.QtCore import QThread, Signal, Qt
 import pyqtgraph as pg
 import numpy as np
@@ -33,8 +33,15 @@ class RunTab(QWidget):
         self.wave_pen = pg.mkPen(color=(120, 150, 255), width=1.5)
         self.beam_brush = pg.mkBrush(color=(0,0,160, 10))
         self.beam_pen = pg.mkPen(color=(255,255,255, 0))
-        pg.setConfigOption('background', 'w')
-        pg.setConfigOption('foreground', 'k')
+        theme = self.parent.settings.get('theme', 'system')
+        if theme == 'dark':
+            is_dark = True
+        elif theme == 'light':
+            is_dark = False
+        else:
+            is_dark = QApplication.instance().palette().color(QPalette.ColorRole.Window).lightness() < 128
+        pg.setConfigOption('background', (30, 30, 30) if is_dark else 'w')
+        pg.setConfigOption('foreground', 'w' if is_dark else 'k')
         
         
         # Populate Run Tab
@@ -52,7 +59,8 @@ class RunTab(QWidget):
             self.stat_values[key] = QLabel(str(0))
             #self.stat_values[key].setEnabled(False)
             self.status_box.layout().addWidget(self.stat_values[key], i, 1)
-            self.stat_values[key].setStyleSheet("color : black")
+            if not is_dark:
+                self.stat_values[key].setStyleSheet("color : black")
             i+=1
         self.epics_beat = True
         

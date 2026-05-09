@@ -38,6 +38,7 @@ channels:
         sweep_file: tri 
      
 settings:
+    theme: system                 # GUI theme: system (follow OS), light, or dark
     default_channel: Proton5T     # Default from channels listed above
     daq_type: Test              # Select DAQ mode (FPGA, NIDAQ or Test)
     test_signal: utils/d_signal_event.txt  # signal to use for test mode
