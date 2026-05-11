@@ -26,7 +26,7 @@ from .tabs.base_tab import BaseTab
 from .tabs.tune_tab import TuneTab
 from .tabs.te_tab import TETab
 from .tabs.superte_tab import SuperTab
-from .tabs.analysis_tab_fixed import AnalTabFixed
+from .tabs.analysis_tab import AnalTab
 from .tabs.explore_tab import ExplTab
 from .tabs.shim_tab import ShimTab
 from .tabs.fm_tab import FMTab
@@ -112,7 +112,7 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.base_tab, "Baseline")
         self.te_tab = TETab(self)
         self.tab_widget.addTab(self.te_tab, "TE")
-        self.anal_tab = AnalTabFixed(self)
+        self.anal_tab = AnalTab(self)
         self.tab_widget.addTab(self.anal_tab, "Analysis")
         
         # Conditional tabs based on settings
