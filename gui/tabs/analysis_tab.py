@@ -11,7 +11,6 @@ from PySide6.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayo
 import pyqtgraph as pg
 from lmfit import Model
 
-from core.deuteron_fits import DFits
 from core.tab_base import EventBusTab, AnalysisTabEventHandler
 from core.event_bus import EventType
 
@@ -398,6 +397,9 @@ class AnalTab(EventBusTab):
                 if hasattr(res_opt, 'wings'):
                     b = [w * (fmax - fmin) + fmin for w in res_opt.wings]
                     self.res_region.setRegion(b)
+                    self.res_region.setVisible(True)
+                else:
+                    self.res_region.setVisible(False)
                 
         except Exception as e:
             # Log error silently - analysis tab should not crash the application

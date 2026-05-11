@@ -5,6 +5,7 @@ import pyqtgraph as pg
 import numpy as np
 from scipy import optimize
 from lmfit import Model
+from core.deuteron_fits import fit as deuteron_fit
 
 
 class StandardBase(QWidget):
@@ -842,21 +843,22 @@ class FitDeuteron(QWidget):
         self.params = dict(zip(labels, values))
         print(self.params)
 
-        res = DFits(freqs, sweep, self.params)
+        result = deuteron_fit(freqs, sweep, self.params)
 
-        r = res.result.params['r'].value
-        fit = res.result.best_fit
-        if res.result.success:  # if successful, set these params for next time
-            self.params = res.result.params.valuesdict()
+        r = result.params['r'].value
+        fit = result.best_fit
+        if result.success:  # if successful, set these params for next time
+            self.params = result.params.valuesdict()
 
         pol = (r * r - 1) / (r * r + r + 1)
         area = fit.sum()
         cc = pol / area
         text = '\n'
         i = 0
-        for name, param in res.result.params.items():
+        for name, param in result.params.items():
             i += 1
-            text = text + f'{name} {param.value:.3e}+-{param.stderr:.3e} '
+            stderr = param.stderr if param.stderr is not None else float('nan')
+            text = text + f'{name} {param.value:.3e}+-{stderr:.3e} '
             if i == 4:
                 text = text + "\n"
         self.message.setText(f"Polarization: {pol * 100:.2f}%, Area:  {area:.2f}, CC:  {cc:.2f}\n {text}")

@@ -155,6 +155,10 @@ class EventData:
         
         self.baseline = np.zeros(len(self.scan.phase))
         self.basesweep = np.zeros(len(self.scan.phase))
+        self.basesub = np.zeros(len(self.scan.phase))
+        self.fitcurve = np.zeros(len(self.scan.phase))
+        self.fitsub = np.zeros(len(self.scan.phase))
+        self.rescurve = np.zeros(len(self.scan.phase))
         
         self.cc = self.config.controls['cc'].value
         
