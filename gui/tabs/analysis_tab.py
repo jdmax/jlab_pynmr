@@ -380,6 +380,24 @@ class AnalTab(EventBusTab):
                 self.base_wid.setXRange(fmin, fmax, padding=0.02)
                 self.sub_wid.setXRange(fmin, fmax, padding=0.02)
                 self.res_wid.setXRange(fmin, fmax, padding=0.02)
+
+                # Reposition regions to match new frequency range
+                base_opt = self.base_opts[self.base_combo.currentIndex()]
+                if hasattr(base_opt, 'wings'):
+                    b = [w * (fmax - fmin) + fmin for w in base_opt.wings]
+                    self.base_region1.setRegion(b[:2])
+                    self.base_region2.setRegion(b[2:])
+
+                sub_opt = self.sub_opts[self.sub_combo.currentIndex()]
+                if hasattr(sub_opt, 'wings'):
+                    b = [w * (fmax - fmin) + fmin for w in sub_opt.wings]
+                    self.sub_region1.setRegion(b[:2])
+                    self.sub_region2.setRegion(b[2:])
+
+                res_opt = self.res_opts[self.res_combo.currentIndex()]
+                if hasattr(res_opt, 'wings'):
+                    b = [w * (fmax - fmin) + fmin for w in res_opt.wings]
+                    self.res_region.setRegion(b)
                 
         except Exception as e:
             # Log error silently - analysis tab should not crash the application
