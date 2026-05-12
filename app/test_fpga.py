@@ -54,23 +54,26 @@ def main():
 
     #print(write_register(s, RegSets))
 
-    if False:
-        s.send(bytes.fromhex('110002c4f03e0005060708090a0b120000'))  #My 1st String to set Trigger rate and trigger width
+    run = True
+
+    if run:
+        s.send(bytes.fromhex('110002c4f03e000506070836000b120000'))  #My 1st String to set Trigger rate and trigger width
         data, addr = s.recvfrom(1024)  # buffer size is 1024
         print(data)
-        s.send(bytes.fromhex('110002c4f03e0005060708090a0b120404'))
+        s.send(bytes.fromhex('110002c4f03e000506070836000b120404'))
         data, addr = s.recvfrom(1024)  # buffer size is 1024
         print(data)
 
-    if False:
+    if run:
         s.send(bytes.fromhex('0F0005000000000000000000000000'))  # start sweeps
         data, addr = s.recvfrom(1024)  # buffer size is 1024
         if data == ok:
             print(True)
         else:
             print(False)
-    if True:
-        s.send(bytes.fromhex('0F0006000000000000000000000000'))  # cancel sweeps
+    if not run:
+        #s.send(bytes.fromhex('0F0006000000000000000000000000'))  # cancel sweeps
+        s.send(bytes.fromhex('110002c4f03e000506070836000b120000'))
         data, addr = s.recvfrom(1024)  # buffer size is 1024
         if data == ok:
             print(True)
