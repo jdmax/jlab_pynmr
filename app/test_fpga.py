@@ -27,6 +27,7 @@ def main():
     ADCConfig = int(adcbits, 2)
 
     dac_value = 4619
+    #dac_value = int(.5 * 65535)
 
     # Make Resiter byte string from other inputs
     # Number Bytes LSB, Nymber Bytes MSB, LSByte GenSetTime, MSByte GenSetTime, LSByte NumOfSamToAve, MByte NumOfSamToAve, LSByte TotSweepCycle, MSByte TotSweepCycle, LSByte IntSweepCycle, MSByte IntSweepCycle, LSByte AdcConfig, MSByte AdcConfig, LSByte Dac Value, MSByte Dac Value, LSByte Dac Config, MSByte Dac Config
