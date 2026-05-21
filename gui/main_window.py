@@ -56,12 +56,13 @@ class MainWindow(QMainWindow):
         epics_writes: Dict keyed on epics channels with EventData attributes to send
     """
     
-    def __init__(self, config_file, parent=None):
+    def __init__(self, config_file, profile=None, parent=None):
         super().__init__(parent)
         self.error_dialog = QErrorMessage(self)
         self.status_bar = self.statusBar()
         self.status_bar.showMessage('Ready.')
         self.config_filename = config_file
+        self.profile = profile
         self.load_settings()
         channel_dict = self.config_dict['channels'][self.config_dict['settings']['default_channel']]
         self.start_logger()
@@ -140,14 +141,43 @@ class MainWindow(QMainWindow):
         self.run_toggle()
         
     def load_settings(self):
-        """Load settings from YAML config file"""
+        """Load settings from YAML config file, applying profile overrides if set."""
         with open(self.config_filename) as f:
-           self.config_dict = yaml.load(f, Loader=yaml.FullLoader)
+            self.config_dict = yaml.load(f, Loader=yaml.FullLoader)
+        if self.profile:
+            self.config_dict = self._apply_profile(self.config_dict, self.profile)
         self.channels = list(self.config_dict['channels'].keys())
         self.settings = self.config_dict['settings']
         self.epics_reads = self.config_dict['epics_reads']
         self.epics_writes = self.config_dict['epics_writes']
-        print(f"Loaded settings from {self.config_filename}.")
+        print(f"Loaded settings from {self.config_filename} (profile: {self.profile or 'default'}).")
+
+    @staticmethod
+    def _deep_merge(base, override):
+        result = dict(base)
+        for key, val in override.items():
+            if key in result and isinstance(result[key], dict) and isinstance(val, dict):
+                result[key] = MainWindow._deep_merge(result[key], val)
+            else:
+                result[key] = val
+        return result
+
+    @staticmethod
+    def _apply_profile(config, profile_name):
+        profiles = config.get('profiles', {})
+        if profile_name not in profiles:
+            raise ValueError(f"Profile '{profile_name}' not found in config")
+        profile = profiles[profile_name]
+        result = dict(config)
+        result.pop('profiles', None)
+        if 'channels' in profile:
+            result['channels'] = profile['channels']
+        if 'settings' in profile:
+            result['settings'] = MainWindow._deep_merge(result.get('settings', {}), profile['settings'])
+        for key in ('epics_reads', 'epics_writes'):
+            if key in profile:
+                result[key] = profile[key]
+        return result
                 
     def new_event(self):
         """Create new event instance"""
@@ -166,6 +196,7 @@ class MainWindow(QMainWindow):
         self.close_eventfile()
         now = datetime.datetime.now(tz=datetime.timezone.utc)
         self.eventfile_start = now.strftime("%Y-%m-%d_%H-%M-%S")
+        os.makedirs(self.config.settings["event_dir"], exist_ok=True)
         self.eventfile_name = os.path.join(self.config.settings["event_dir"], f'current_{self.eventfile_start}.txt')
         self.eventfile = open(self.eventfile_name, "w")
         self.eventfile_lines = 0
@@ -190,22 +221,23 @@ class MainWindow(QMainWindow):
             'cc': float(self.run_tab.controls_lines['cc'].text()),
             'channel': self.run_tab.channel_combo.currentIndex()
         }
-        with open(f'{self.config.settings["session_file"]}.yaml', 'w') as file:
+        with open(os.path.join('config', f'{self.config.settings["session_file"]}.yaml'), 'w') as file:
             yaml.dump(saved_dict, file)
-            logging.info(f"Printed settings on exit to {file}.") 
-            
+            logging.info(f"Printed settings on exit to {file}.")
+
     def restore_session(self):
         """Restore settings from previous session"""
         try:
-            with open(f'{self.config.settings["session_file"]}.yaml') as f:                     
+            with open(os.path.join('config', f'{self.config.settings["session_file"]}.yaml')) as f:
                 self.restore_dict = yaml.load(f, Loader=yaml.FullLoader)
         except FileNotFoundError:
             # No session file exists, skip restoration
             self.restore_dict = {}
-           
+
     def restore_history(self):
-        """Open history object and restore previous history into it"""       
-        self.hist_file = open(f"{self.config_dict['settings']['history_file']}.json", "a+") 
+        """Open history object and restore previous history into it"""
+        os.makedirs('config', exist_ok=True)
+        self.hist_file = open(os.path.join('config', f"{self.config_dict['settings']['history_file']}.json"), "a+") 
         self.hist_file.seek(0)
         self.history = History()
         for line in self.hist_file:
@@ -259,6 +291,7 @@ class MainWindow(QMainWindow):
         logging.info(mes)
         
         if self.config.settings["ss_dir"]:
+            os.makedirs(self.config.settings["ss_dir"], exist_ok=True)
             screenshot = self.run_tab.grab()
             now = datetime.datetime.now(tz=datetime.timezone.utc)
             screenshot.save(f'{self.config.settings["ss_dir"]}/{now.strftime("%Y-%m-%d_%H-%M-%S")}.png')

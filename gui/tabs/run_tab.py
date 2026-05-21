@@ -156,7 +156,8 @@ class RunTab(QWidget):
         #if i>=0: 
         #    self.channel_combo.setCurrentIndex(i) 
         channel_index = self.parent.restore_dict.get('channel', 0)
-        self.channel_combo.setCurrentIndex(channel_index) 
+        channel_index = max(0, min(channel_index, len(self.parent.channels) - 1))
+        self.channel_combo.setCurrentIndex(channel_index)
         self.channel_combo.currentIndexChanged.connect(self.combo_changed)
         self.combo_changed(channel_index)
         self.settings_box.layout().addWidget(self.channel_combo)

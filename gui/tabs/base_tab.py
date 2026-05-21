@@ -35,16 +35,18 @@ class BaseTab(QWidget):
         self.basefile_path = ''
         self.basetime = 0        
         self.basefile_name = os.path.join(self.parent.config.settings["event_dir"], f'recent_baselines.txt')
-        with open(self.basefile_name, "r") as file:
-            count = 0     
-            for line in file: 
-                count+=1
-            if count+1 > 30:    # make a new baseline file after 50 lines
-                now = datetime.datetime.now(tz=datetime.timezone.utc)
-                new = f'baselines_{now.strftime("%Y-%m-%d_%H-%M-%S")}.txt'
-                file.close()
-                os.rename(self.basefile_name, os.path.join(self.parent.config.settings["event_dir"], new))
-                newfile = open(self.basefile_name, "x")
+        os.makedirs(self.parent.config.settings["event_dir"], exist_ok=True)
+        if os.path.exists(self.basefile_name):
+            with open(self.basefile_name, "r") as file:
+                count = 0
+                for line in file:
+                    count+=1
+                if count+1 > 30:    # make a new baseline file after 50 lines
+                    now = datetime.datetime.now(tz=datetime.timezone.utc)
+                    new = f'baselines_{now.strftime("%Y-%m-%d_%H-%M-%S")}.txt'
+                    file.close()
+                    os.rename(self.basefile_name, os.path.join(self.parent.config.settings["event_dir"], new))
+                    newfile = open(self.basefile_name, "x")
                
         self.base_box = QGroupBox('Baseline Controls')
         self.left.addWidget(self.base_box)

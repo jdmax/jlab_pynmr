@@ -1,42 +1,5 @@
 # PyNMR Config file, YAML
 ---
-channels:    
-    Proton5T:
-        name: Proton5T
-        species: proton 
-        cent_freq: 212.882            # Center frequency in MHz   (float)
-        mod_freq: 400.0             # Frequency modulation in kHz   (float)
-        power: 450.0                # RF power in mV  (float)
-        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
-    Proton4.87T:
-        name: Proton4.87T
-        species: proton 
-        cent_freq: 207.38            # Center frequency in MHz   (float)
-        mod_freq: 400.0             # Frequency modulation in kHz   (float)
-        power: 200.0                # RF power in mV  (float)
-        sweep_file: tri             # Sweep type (tri is standard triangle; if file name that exists, reads for arbitrary)
-    Deuteron5T:
-        name: Deuteron5T
-        species: deuteron
-        cent_freq: 32.7       
-        mod_freq: 400.0        
-        power: 200.0      
-        sweep_file: tri   
-    Deuteron4.87T:
-        name: Deuteron4.87T
-        species: deuteron
-        cent_freq: 31.83       
-        mod_freq: 400.0        
-        power: 200.0      
-        sweep_file: tri 
-    Crystal:
-        name: Crystal
-        species: proton
-        cent_freq: 224.5       
-        mod_freq: 400.0        
-        power: 200.0      
-        sweep_file: tri 
-     
 settings:
     theme: system                 # GUI theme: system (follow OS), light, or dark
     default_channel: Proton5T     # Default from channels listed above
@@ -167,3 +130,115 @@ epics_writes:                   # Dict of channels to write, key is channel, val
     TGT:PT12:ShimCurrent_B: shimB
     TGT:PT12:ShimCurrent_C: shimC
     TGT:PT12:ShimCurrent_D: shimD
+
+# Profiles override the base settings above via deep merge; channels are replaced entirely.
+# Launch without -p to select a profile from the startup dialog.
+profiles:
+    Test:
+        channels:
+            Deuteron5T:
+                name: Deuteron5T
+                species: deuteron
+                cent_freq: 32.7
+                mod_freq: 400.0
+                power: 400.0
+                sweep_file: tri
+            Proton5T:
+                name: Proton5T
+                species: proton
+                cent_freq: 212.882
+                mod_freq: 400.0
+                power: 450.0
+                sweep_file: tri
+        settings:
+            default_channel: Deuteron5T
+            daq_type: Test
+            event_dir: data
+            session_file: session
+            history_file: history
+            analysis:
+                wings:
+                    - 0.01
+                    - 0.25
+                    - 0.75
+                    - 0.99
+                d_fit_params:
+                    wL: 32.7
+                    G: -0.0003
+    Deuteron:
+        channels:
+            Deuteron5T:
+                name: Deuteron5T
+                species: deuteron
+                cent_freq: 32.7
+                mod_freq: 400.0
+                power: 400.0
+                sweep_file: tri
+            Deuteron5T-800kHz:
+                name: Deuteron5T-800kHz
+                species: deuteron
+                cent_freq: 32.7
+                mod_freq: 800.0
+                power: 400.0
+                sweep_file: tri
+        settings:
+            default_channel: Deuteron5T
+            daq_type: FPGA
+            event_dir: data-d
+            session_file: deuteron_session
+            history_file: deuteron_history
+            fpga_settings:
+                ip: 129.57.161.8
+            RS_settings:
+                ip: 129.57.160.3
+            analysis:
+                wings:
+                    - 0.01
+                    - 0.25
+                    - 0.75
+                    - 0.99
+                d_fit_params:
+                    wL: 32.7
+                    G: -0.0003
+    Proton:
+        channels:
+            Proton5T:
+                name: Proton5T
+                species: proton
+                cent_freq: 212.882
+                mod_freq: 400.0
+                power: 450.0
+                sweep_file: tri
+            Proton5T-500mV:
+                name: Proton5T-500mV
+                species: proton
+                cent_freq: 212.882
+                mod_freq: 400.0
+                power: 500.0
+                sweep_file: tri
+            Proton5T-550mV:
+                name: Proton5T-550mV
+                species: proton
+                cent_freq: 212.882
+                mod_freq: 400.0
+                power: 550.0
+                sweep_file: tri
+        settings:
+            default_channel: Proton5T
+            daq_type: FPGA
+            event_dir: data-p
+            session_file: proton_session
+            history_file: proton_history
+            fpga_settings:
+                ip: 129.57.160.2
+            RS_settings:
+                ip: 129.57.160.8
+            analysis:
+                wings:
+                    - 0.01
+                    - 0.30
+                    - 0.70
+                    - 0.99
+                d_fit_params:
+                    wL: 31.83
+                    G: -0.003

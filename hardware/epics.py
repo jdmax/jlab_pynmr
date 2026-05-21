@@ -93,7 +93,7 @@ class MonitorThread(BaseThread):
         parent: EPICS instance
     '''
     def __init__(self, parent):
-        super().__init__(name=f"epics_monitor_{id(parent)}", parent=parent)
+        super().__init__(name=f"epics_monitor_{id(parent)}", parent=None)
         self.epics_parent = parent  # EPICS instance
         self.monitor_time = parent.monitor_time
         
