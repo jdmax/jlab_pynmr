@@ -329,58 +329,51 @@ class TuneThread(BaseThread):
     def execute(self):
         '''Main tune loop. Request start of sweeps, receive sweeps, update event, report.'''
         self._logger.info("Starting tune loop")
-        
-        while self.tab_parent.running and not self.should_stop():
-            now = time.time()
-            
-            # Create new DAQ connection for each iteration
-            try:
-                self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_tune'], True)
-            except Exception as e:
-                if not self.should_stop():
-                    self._logger.error(f'Exception creating DAQ connection: {e}')
-                break
-                
-            # Always re-send DAC state before each sweep — UDP.__init__ resets dac_v/dac_c
-            # to 0 on every connection, so change-detection alone is not sufficient.
-            self.dac_v = self.tab_parent.dac_v
-            self.dac_c = self.tab_parent.dac_c
-            try:
-                if not self.daq.set_dac(self.dac_v, self.dac_c):
-                    self._logger.warning(f"set_dac returned False: C={self.dac_c}, V={self.dac_v}")
-                else:
-                    self._logger.debug(f"Set DAC values: C={self.dac_c}, V={self.dac_v}")
-            except Exception as e:
-                if not self.should_stop():
-                    self._logger.warning(f"Exception setting DAC value: {e}")
-            
-            # Get tune data
-            try:
-                self.daq.start_sweeps()  # send command to start sweeps
-                new_sigs = self.daq.get_chunk()
-                
-                # For NIDAQ, wait for all sweeps
-                while new_sigs[1] < self.config.settings['tune_per_chunk']:   
-                    if self.should_stop():
-                        break
-                    new_sigs = self.daq.get_chunk()  
-                
-                if not self.should_stop():
-                    self.emit_reply(new_sigs)
-                    
-            except Exception as e:
-                if not self.should_stop():
-                    self._logger.error(f"Exception in tune loop: {e}")
-                break
-            finally:
-                # Clean up DAQ connection
-                if self.daq:
-                    try:
-                        del self.daq
-                        self.daq = None
-                    except Exception as e:
-                        self._logger.warning(f"Error cleaning up DAQ: {e}")
-        
+
+        try:
+            self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_tune'], True)
+        except Exception as e:
+            self._logger.error(f'Exception creating DAQ connection: {e}')
+            return
+
+        try:
+            while self.tab_parent.running and not self.should_stop():
+                # Sync DAC state before each sweep. set_dac calls set_register which
+                # keeps all FPGA parameters current without reopening the connection.
+                self.dac_v = self.tab_parent.dac_v
+                self.dac_c = self.tab_parent.dac_c
+                try:
+                    if not self.daq.set_dac(self.dac_v, self.dac_c):
+                        self._logger.warning(f"set_dac returned False: C={self.dac_c}, V={self.dac_v}")
+                except Exception as e:
+                    if not self.should_stop():
+                        self._logger.warning(f"Exception setting DAC value: {e}")
+
+                try:
+                    self.daq.start_sweeps()
+                    new_sigs = self.daq.get_chunk()
+
+                    while new_sigs[1] < self.config.settings['tune_per_chunk']:
+                        if self.should_stop():
+                            break
+                        new_sigs = self.daq.get_chunk()
+
+                    if not self.should_stop():
+                        self.emit_reply(new_sigs)
+
+                except Exception as e:
+                    if not self.should_stop():
+                        self._logger.error(f"Exception in tune loop: {e}")
+                    break
+
+        finally:
+            if self.daq:
+                try:
+                    del self.daq
+                    self.daq = None
+                except Exception as e:
+                    self._logger.warning(f"Error cleaning up DAQ: {e}")
+
         self._logger.info("Tune loop completed")
 
 
