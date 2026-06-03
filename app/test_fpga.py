@@ -32,7 +32,7 @@ def main():
     # Make Resiter byte string from other inputs
     # Number Bytes LSB, Nymber Bytes MSB, LSByte GenSetTime, MSByte GenSetTime, LSByte NumOfSamToAve, MByte NumOfSamToAve, LSByte TotSweepCycle, MSByte TotSweepCycle, LSByte IntSweepCycle, MSByte IntSweepCycle, LSByte AdcConfig, MSByte AdcConfig, LSByte Dac Value, MSByte Dac Value, LSByte Dac Config, MSByte Dac Config
     RegSets = [bytes.fromhex('1100'), bytes.fromhex('02')]
-    RegSets.append((61636).to_bytes(2, 'little'))  # GenSetTime (or trig rate 1 count=20us)
+    RegSets.append((1).to_bytes(2, 'little'))  # GenSetTime (or trig rate 1 count=20us)
     RegSets.append((62).to_bytes(2, 'little'))  # NumOfSamToAve or pulse width
 
     RegSets.append((1541).to_bytes(2, 'little'))  # Number of sweeps
@@ -40,7 +40,7 @@ def main():
 
     RegSets.append(ADCConfig.to_bytes(2, 'little'))
     RegSets.append(dac_value.to_bytes(2, 'little'))
-    RegSets.append((0).to_bytes(1, 'little'))
+    RegSets.append((0).to_bytes(1, 'little'))   # Start (4) or Stop (0) trigger sweeps
     RegSets.append((0).to_bytes(1, 'little'))
     #RegSets.append((0).to_bytes(2, 'little'))
     print("Last three reg bytes:",RegSets[-3].hex(),RegSets[-2].hex(), RegSets[-1].hex())
