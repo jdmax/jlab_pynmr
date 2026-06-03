@@ -3,7 +3,7 @@
 settings:
     theme: system                 # GUI theme: system (follow OS), light, or dark
     default_channel: Proton5T     # Default from channels listed above
-    daq_type: Test              # Select DAQ mode (FPGA, NIDAQ or Test)
+    daq_type: FPGA              # Select DAQ mode (FPGA, NIDAQ or Test)
     test_signal: utils/d_signal_event.txt  # signal to use for test mode
     event_dir: data             # Directory to put eventfiles in, relative to main.py or absolute
     te_dir: te                  # Directory to put te files in, relative to main.py or absolute
@@ -24,7 +24,7 @@ settings:
     fpga_settings:    
         #ip: 192.168.0.70       # Device IP address (str)
         #ip: 129.57.160.2        # Device IP address (str) Hall B Proton
-        ip: 129.57.161.8        # Device IP address (str) Hall B Deuteron
+        ip: 192.168.0.72        # Device IP address (str) Hall B Deuteron
         port: 1028              # Device port  (int)
         tcp_buffer: 1460        # Default TCP buffer size  (int)
         dwell: 10               # Settle time in usec between frequency switch and ADC read (int) (was 10)
@@ -51,8 +51,8 @@ settings:
         time_per_pt: 29         # Dwell time at frequency, usecs
         settling_ratio: 0.5     # Where in the dwell time the read occurs (0 to 1)     
     RS_settings:
-        #ip: 192.168.0.50             # R&S RF generator IP
-        ip: 129.57.160.8              # R&S RF generator IP Hall B
+        ip: 192.168.0.50             # R&S RF generator IP
+        #ip: 129.57.160.8              # R&S RF generator IP Hall B
         port: 5025 
         timeout: 2              # Telnet timeout in secs
     uWave_settings:
@@ -187,10 +187,10 @@ profiles:
             event_dir: data-d
             session_file: deuteron_session
             history_file: deuteron_history
-            fpga_settings:
-                ip: 129.57.161.8
-            RS_settings:
-                ip: 129.57.160.3
+            #fpga_settings:
+                #ip: 129.57.161.8
+           # RS_settings:
+               # ip: 129.57.160.3
             analysis:
                 wings:
                     - 0.01
@@ -229,10 +229,10 @@ profiles:
             event_dir: data-p
             session_file: proton_session
             history_file: proton_history
-            fpga_settings:
-                ip: 129.57.160.2
-            RS_settings:
-                ip: 129.57.160.8
+            #fpga_settings:
+              #  ip: 129.57.160.2
+            #RS_settings:
+              #  ip: 129.57.160.8
             analysis:
                 wings:
                     - 0.01
