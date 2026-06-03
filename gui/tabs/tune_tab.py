@@ -324,7 +324,6 @@ class TuneThread(BaseThread):
         self.tab_parent = parent  # TuneTab instance
         self.dac_v = 0
         self.dac_c = 0
-        self.set_time = 0  # time when DAC last set
         self.daq = None
         
     def execute(self):
@@ -342,18 +341,18 @@ class TuneThread(BaseThread):
                     self._logger.error(f'Exception creating DAQ connection: {e}')
                 break
                 
-            # Update DAC if needed
-            if now > self.set_time + 0.001:
-                if (self.dac_v != self.tab_parent.dac_v) or (self.dac_c != self.tab_parent.dac_c):
-                    self.dac_v = self.tab_parent.dac_v
-                    self.dac_c = self.tab_parent.dac_c
-                    try:
-                        if self.daq.set_dac(self.dac_v, self.dac_c):                         
-                            self._logger.debug(f"Set DAC values: C={self.dac_c}, V={self.dac_v}")
-                        self.set_time = now
-                    except Exception as e:
-                        if not self.should_stop():
-                            self._logger.warning(f"Exception setting DAC value: {e}")
+            # Always re-send DAC state before each sweep — UDP.__init__ resets dac_v/dac_c
+            # to 0 on every connection, so change-detection alone is not sufficient.
+            self.dac_v = self.tab_parent.dac_v
+            self.dac_c = self.tab_parent.dac_c
+            try:
+                if not self.daq.set_dac(self.dac_v, self.dac_c):
+                    self._logger.warning(f"set_dac returned False: C={self.dac_c}, V={self.dac_v}")
+                else:
+                    self._logger.debug(f"Set DAC values: C={self.dac_c}, V={self.dac_v}")
+            except Exception as e:
+                if not self.should_stop():
+                    self._logger.warning(f"Exception setting DAC value: {e}")
             
             # Get tune data
             try:
