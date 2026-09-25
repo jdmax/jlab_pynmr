@@ -1,184 +1,107 @@
 '''PyNMR, J.Maxwell 2021
 '''
-import telnetlib, time
+import time
+import epics
 from labjack import ljm
 import requests
 from PySide6.QtCore import QThread, Signal, Qt
+from core.thread_manager import BaseThread
 
   
-class MicrowaveThread(QThread):
+class MicrowaveThread(BaseThread):
     '''Thread class for microwave loop
     Args:
+        parent: Parent widget 
         config: Config object of settings
     '''
+    def __init__(self, parent, config):
+        super().__init__(name=f"microwave_{id(parent)}", parent=parent, config=config)
+        self.tab_parent = parent
+        self.monitor_time = config.settings['uWave_settings']['monitor_time']
+        self.freq_pv = config.settings['uWave_settings']['counter_pv']
+        self.power_pv = config.settings['uWave_settings']['power_meter_pv']
+
+    def setup(self):
+        '''Verify EPICS PV names are configured'''
+        self._logger.info(f"Microwave monitoring via EPICS: freq={self.freq_pv}, power={self.power_pv}")
+            
+    def execute(self):
+        '''Main microwave read loop'''
+        while self.tab_parent.enable_button.isChecked() and not self.should_stop():
+            freq = epics.caget(self.freq_pv)
+            if freq is None:
+                self._logger.warning(f"Counter PV read returned None: {self.freq_pv}")
+                freq = "Read Error"
+            else:
+                self._logger.debug(f"Frequency reading: {freq}")
+
+            power = epics.caget(self.power_pv)
+            if power is None:
+                self._logger.warning(f"Power meter PV read returned None: {self.power_pv}")
+                power = "Read Error"
+            else:
+                self._logger.debug(f"Power reading: {power}")
+                
+            pot, temp = 0, 0
+            # Disabling Readback of uwave pot and temp for now 5/26/22     
+            # Original code was commented out for LabJack readback
+                
+            try:
+                self.emit_reply((freq, pot, temp, power))
+            except Exception as e:                
+                self._logger.error(f"Couldn't send microwave reply: {e}")
+                
+            # Sleep with interruption checking
+            sleep_intervals = int(self.monitor_time * 10)  # Check stop every 0.1s
+            for _ in range(sleep_intervals):
+                if self.should_stop() or not self.tab_parent.enable_button.isChecked():
+                    return
+                time.sleep(0.1)
+          
+    def cleanup(self):
+        self._logger.info("Microwave monitor stopped")
+
+
+# Legacy compatibility wrapper
+class LegacyMicrowaveThread(QThread):
+    '''Legacy compatibility wrapper for old MicrowaveThread interface.'''
     reply = Signal(tuple)       # reply signal
     finished = Signal()       # finished signal
+    
     def __init__(self, parent, config):
         QThread.__init__(self)
         self.config = config
         self.parent = parent 
-            
                 
     def __del__(self):
         if self.isRunning():
             self.quit()
-            # Don't wait in destructor to avoid thread waiting on itself
         
     def run(self):
-        '''Main microwave read loop
-        '''        
-        try:
-            self.count = Counter(self.config)
-            self.pow_meter = PowMeter(self.config)
-            time.sleep(self.config.settings['uWave_settings']['monitor_time'])
-        except Exception as e:
-            print('Exception starting counter thread, lost connection: '+str(e))
-      
-        while self.parent.enable_button.isChecked():       
-            try:        
-                freq = self.count.read_freq()
-            except Exception as e:
-                print(f"Counter read failed: {e}")  
+        freq_pv = self.config.settings['uWave_settings']['counter_pv']
+        power_pv = self.config.settings['uWave_settings']['power_meter_pv']
+        monitor_time = self.config.settings['uWave_settings']['monitor_time']
+
+        while self.parent.enable_button.isChecked():
+            freq = epics.caget(freq_pv)
+            if freq is None:
                 freq = "Read Error"
-                #self.parent.enable_button.toggle()
-                #self.parent.enable_pushed()
-                #break
-                
-            try:        
-                power = self.pow_meter.read_power()
-            except Exception as e:
-                print(f"Power meter read failed: {e}")  
+
+            power = epics.caget(power_pv)
+            if power is None:
                 power = "Read Error"
-                #self.parent.enable_button.toggle()
-                #self.parent.enable_pushed()
-                #break
-                
+
             pot, temp = 0, 0
-            # Disabling Readback of uwave pot and temp for now 5/26/22     
-            #try: 
-            #    pot, temp = self.parent.utune.read_back()
-            #except Exception as e:                
-            #    print('Exception reading LabJack: '+str(e))
-                
+
             try:
                 self.reply.emit((freq, pot, temp, power))
-            except Exception as e:                
+            except Exception as e:
                 print("Couldn't send microwave reply: "+str(e))
-            time.sleep(self.config.settings['uWave_settings']['monitor_time'])
-          
+            time.sleep(monitor_time)
+
         self.finished.emit()
-        del self.count
 
 
-
-class Counter():
-    '''Class to interface with Prologix GPIB controller to control frequency counter
-        
-    Arguments:
-        config: Current Config object 
-    '''    
-    
-    def __init__(self, config):    
-        '''Open connection to GPIB, send commands for all settings. Close.  
-        '''
-        self.host = config.settings['uWave_settings']['counter']['ip']
-        self.port = config.settings['uWave_settings']['counter']['port']   
-        self.timeout = config.settings['uWave_settings']['counter']['timeout']              # Telnet timeout in secs
-
- 
-        try:
-            self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
-            
-            # Write all required settings
-            #self.tn.write(bytes(f"FE 1\n", 'ascii'))  # Fetch setup 1
-            
-            self.tn.write(bytes(f"++addr {config.settings['uWave_settings']['counter']['addr']}\n", 'ascii'))
-            self.tn.write(bytes(f"BA {config.settings['uWave_settings']['counter']['band']}\n", 'ascii'))
-            self.tn.write(bytes(f"SU {config.settings['uWave_settings']['counter']['subband']}\n", 'ascii'))
-            self.tn.write(bytes(f"CE {config.settings['uWave_settings']['counter']['cent_freq']} GHz\n", 'ascii'))
-            self.tn.write(bytes(f"SA {config.settings['uWave_settings']['counter']['rate']} ms\n", 'ascii'))
-            
-            
-            #self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
-            #freq = self.tn.read_some().decode('ascii')        
-                     
-            print(f"Successfully sent settings to counter on {self.host}")
-            
-        except Exception as e:
-            print(f"GPIB connection failed on {self.host}: {e}")
-    
-    def read_freq(self):
-        '''Read frequency from open connection'''        
-        #try:
-        self.tn.write(bytes(f"OU DE\n", 'ascii'))  # Read displayed data
-        freq = self.tn.read_until(b'\r', timeout=self.timeout).decode('ascii')  
-        #print(int(freq.strip()))
-        try:
-            ret = int(freq.strip())
-        except ValueError:
-            ret = 'Read Error'
-        return ret  
-        #except exception as e:
-        #   print(f"GPIB connection failed on {self.host}: {e}")  
-        
-    def close(self):           
-        try:
-            tn.close()
-        except Exception as e:
-            print(f"GPIB connection failed on {self.host}: {e}")
-
- 
-class PowMeter():
-    '''Class to interface with serial to ethernet adapter, accessing ELVA-1 power meter
-        
-    Arguments:
-        config: Current Config object 
-    '''    
-    
-    def __init__(self, config):    
-        '''Open connection to GPIB, send commands for all settings. Close.  
-        '''
-        self.host = config.settings['uWave_settings']['power_meter']['ip']
-        self.port = config.settings['uWave_settings']['power_meter']['port']   
-        self.timeout = config.settings['uWave_settings']['power_meter']['timeout']              # Telnet
-        self.freq = config.settings['uWave_settings']['power_meter']['freq']  # center freq setting, GHz
-
- 
-        try:
-            self.tn = telnetlib.Telnet(self.host, port=self.port, timeout=self.timeout)
-            
-            # Write all required settings
-            self.tn.write(bytes(f"sens:freq {self.freq}\n", 'ascii'))  # Write freq   
-            self.tn.write(bytes(f"unit:pow w\n", 'ascii'))  # Write unit      
-                     
-            #print(f"Successfully sent settings to GPIB on {self.host}")
-            
-        except Exception as e:
-            print(f"Connection to serial port failed on {self.host}: {e}")
-    
-    def read_power(self):
-        '''Read power from open connection'''          
-        try:
-            self.tn.write(bytes(f"read?\n", 'ascii'))  # Read power
-            power = self.tn.read_some().decode('ascii')              
-        except Exception as e:
-            print(f"Connection to serial port failed on {self.host}: {e}")
-              
-        if 'U' in power:     # turn into float of mW 
-            p = power.strip().split()
-            power = float(p[0])/1000.0
-        elif 'error' in power:
-            power = -1                
-        else:
-            p = power.strip().split()
-            power = float(p[0])   
-        return power
-        
-    def close(self):           
-        try:
-            tn.close()
-        except Exception as e:
-            print(f"Network to serial connection failed on {self.host}: {e}")
 
 
 class NetRelay():

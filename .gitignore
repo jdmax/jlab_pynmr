@@ -17,11 +17,8 @@ app/__pycache__/*
 app/*history.json
 app/*session.yaml
 *.pyc
-app/history.json
-app/history.json
+history.json
 log/log
-log/log
-app/history.json
 
 # Secrets and tokens
 gittoken.txt

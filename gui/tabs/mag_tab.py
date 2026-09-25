@@ -11,6 +11,8 @@ from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator, QStandard
 import pyqtgraph as pg
  
 from hardware.magnet import MagnetControl
+from core.thread_manager import BaseThread
+from core.event_bus import get_event_bus, EventType
 
 class MagTab(QWidget): 
     '''Creates manget control tab'''   
@@ -119,7 +121,16 @@ class MagnetBox(QGroupBox):
         
         self.port_connect.clicked.connect(lambda: self.open_connection())
         
-        
+    def publish_status_message(self, message):
+        """Publish status message via event bus (with fallback to direct access)."""
+        try:
+            event_bus = get_event_bus()
+            event_bus.publish(EventType.STATUS_MESSAGE, "mag_tab", {"message": message})
+        except Exception as e:
+            # Fallback to direct access if event bus is not available
+            print(f"Event bus not available, using direct status: {e}")
+            if hasattr(self, 'parent') and hasattr(self.parent, 'parent') and hasattr(self.parent.parent, 'status_bar'):
+                self.parent.parent.status_bar.showMessage(message)
         
     def set_lims(self):
         '''Handle set button click'''
@@ -133,7 +144,7 @@ class MagnetBox(QGroupBox):
             time.sleep(0.05)
             self.mc.read_all() 
             self.update_status()
-            self.parent.parent.status_bar.showMessage('Set magnet:'+self.mc.commands[channel]+str(value))
+            self.publish_status_message('Set magnet:'+self.mc.commands[channel]+str(value))
         if 'pause' not in self.mc.status['sweep']['value']:
             #if not self.mag_thread.isRunning() 
             print('start thread')
@@ -149,10 +160,10 @@ class MagnetBox(QGroupBox):
                 self.mc.open_port()
                 self.update_status()
             except:
-                self.parent.parent.status_bar.showMessage('Error connecting to serial port: '+str(self.port_comb.currentText()))
+                self.publish_status_message('Error connecting to serial port: '+str(self.port_comb.currentText()))
                 raise
             if self.mc.s.is_open:#  and 'CS4' in self.mc.status['id']:
-                self.parent.parent.status_bar.showMessage("Opened connection to "+str(self.port_comb.currentText())+".")
+                self.publish_status_message("Opened connection to "+str(self.port_comb.currentText())+".")
                 self.sw_but.setEnabled(True)
                 self.swup_but.setEnabled(True)
                 self.swdown_but.setEnabled(True)
@@ -199,17 +210,51 @@ class MagnetBox(QGroupBox):
             sender.setText('Turn Heater On')
   
   
-class UpdateMag(QThread):
+class UpdateMag(BaseThread):
     '''Thread to update the magnet status'''
-    stat_now = Signal()
     def __init__(self, mc):
         '''Make new thread instance for monitoring magnet status'''
+        super().__init__(name=f"mag_update_{id(mc)}", parent=None)
+        self.mc = mc  # MagnetControl instance
+        
+    def execute(self):
+        '''Main magnet status update loop'''
+        self._logger.info("Starting magnet status update loop")
+        
+        while not self.should_stop():
+            try:
+                self._logger.debug('Running magnet status update')
+                self.mc.read_all()
+                self.emit_reply(None)  # Signal that status was updated
+                
+                # Sleep for 1 second with interruption checking
+                for _ in range(10):  # 10 x 0.1s = 1s
+                    if self.should_stop():
+                        self._logger.info("Magnet update stopping")
+                        return
+                    time.sleep(0.1)
+                    
+            except Exception as e:
+                if not self.should_stop():
+                    self._logger.error(f"Error updating magnet status: {e}")
+                    # Continue monitoring despite errors
+                    
+        self._logger.info("Magnet status update loop completed")
+
+
+# Legacy compatibility wrapper
+class LegacyUpdateMag(QThread):
+    '''Legacy compatibility wrapper for old UpdateMag interface.'''
+    stat_now = Signal()
+    
+    def __init__(self, mc):
         QThread.__init__(self)
         self.mc = mc
+        
     def __del__(self):
         if self.isRunning():
             self.quit()
-            # Don't wait in destructor to avoid thread waiting on itself
+            
     def run(self):
         while True:
             print('Ran mag update')

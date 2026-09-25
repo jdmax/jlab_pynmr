@@ -4,13 +4,15 @@ import datetime
 import time
 import math
 import pytz
-from PySide6.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QProgressBar
-from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator
+from PySide6.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QProgressBar, QApplication
+from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator, QPalette
 from PySide6.QtCore import QThread, Signal, Qt
 import pyqtgraph as pg
 import numpy as np
  
 from core import RunningScan
+from core.thread_manager import BaseThread
+from core.event_bus import get_event_bus, EventType
 from hardware import DAQConnection
 from hardware.instruments import NetRelay, LabJack, MicrowaveThread
    
@@ -33,8 +35,15 @@ class RunTab(QWidget):
         self.wave_pen = pg.mkPen(color=(120, 150, 255), width=1.5)
         self.beam_brush = pg.mkBrush(color=(0,0,160, 10))
         self.beam_pen = pg.mkPen(color=(255,255,255, 0))
-        pg.setConfigOption('background', 'w')
-        pg.setConfigOption('foreground', 'k')
+        theme = self.parent.settings.get('theme', 'system')
+        if theme == 'dark':
+            is_dark = True
+        elif theme == 'light':
+            is_dark = False
+        else:
+            is_dark = QApplication.instance().palette().color(QPalette.ColorRole.Window).lightness() < 128
+        pg.setConfigOption('background', (30, 30, 30) if is_dark else 'w')
+        pg.setConfigOption('foreground', 'w' if is_dark else 'k')
         
         
         # Populate Run Tab
@@ -52,7 +61,8 @@ class RunTab(QWidget):
             self.stat_values[key] = QLabel(str(0))
             #self.stat_values[key].setEnabled(False)
             self.status_box.layout().addWidget(self.stat_values[key], i, 1)
-            self.stat_values[key].setStyleSheet("color : black")
+            if not is_dark:
+                self.stat_values[key].setStyleSheet("color : black")
             i+=1
         self.epics_beat = True
         
@@ -93,7 +103,8 @@ class RunTab(QWidget):
         
        
         # Populate uWave settings if enabled
-        if self.parent.config.settings['uWave_settings']['enable']:
+        config = self.get_config_via_bus()
+        if config and config.settings['uWave_settings']['enable']:
             self.uwave_box = QGroupBox('Microwave Controls')
             self.uwave_box.setLayout(QVBoxLayout())
             self.midlayout.addWidget(self.uwave_box)
@@ -145,7 +156,8 @@ class RunTab(QWidget):
         #if i>=0: 
         #    self.channel_combo.setCurrentIndex(i) 
         channel_index = self.parent.restore_dict.get('channel', 0)
-        self.channel_combo.setCurrentIndex(channel_index) 
+        channel_index = max(0, min(channel_index, len(self.parent.channels) - 1))
+        self.channel_combo.setCurrentIndex(channel_index)
         self.channel_combo.currentIndexChanged.connect(self.combo_changed)
         self.combo_changed(channel_index)
         self.settings_box.layout().addWidget(self.channel_combo)
@@ -184,6 +196,7 @@ class RunTab(QWidget):
         self.pol_time_wid = pg.PlotWidget(
             title='', axisItems={'bottom': self.time_axis}
         )
+        self.pol_time_wid.setMinimumHeight(100)
         self.legend = self.pol_time_wid.addLegend()
         if self.parent.config.settings['uWave_settings']['enable']:   # turn on uwave freq plot
             self.time_plot =  self.pol_time_wid.plotItem
@@ -256,29 +269,77 @@ class RunTab(QWidget):
         self.raw_wid = pg.PlotWidget(title='Raw Signal')
         self.raw_wid.showGrid(True,True, alpha = 0.2)
         self.raw_wid.setMouseEnabled(x=False, y=False)
-        self.raw_plot = self.raw_wid.plot([], [], pen=self.raw_pen) 
+        self.raw_wid.setMinimumHeight(100)
+        self.raw_plot = self.raw_wid.plot([], [], pen=self.raw_pen)
         self.lowerlayout.addWidget(self.raw_wid)
-        
+
         # Sub plot
         self.sub_wid = pg.PlotWidget(title='Baseline Subtracted')
         self.sub_wid.showGrid(True,True, alpha = 0.2)
         self.sub_wid.setMouseEnabled(x=False, y=False)
-        self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen) 
-        self.fit_plot = self.sub_wid.plot([], [], pen=self.fit_pen) 
+        self.sub_wid.setMinimumHeight(100)
+        self.sub_plot = self.sub_wid.plot([], [], pen=self.sub_pen)
+        self.fit_plot = self.sub_wid.plot([], [], pen=self.fit_pen)
         self.lowerlayout.addWidget(self.sub_wid)
-        
+
         # Final PLot
         self.fin_wid = pg.PlotWidget(title='Fit Subtracted')
         self.fin_wid.showGrid(True,True, alpha = 0.2)
         self.fin_wid.setMouseEnabled(x=False, y=False)
-        self.fin_plot = self.fin_wid.plot([], [], pen=self.fin_pen)  
-        self.res_plot = self.fin_wid.plot([], [], pen=self.res_pen)         
+        self.fin_wid.setMinimumHeight(100)
+        self.fin_plot = self.fin_wid.plot([], [], pen=self.fin_pen)
+        self.res_plot = self.fin_wid.plot([], [], pen=self.res_pen)
         self.lowerlayout.addWidget(self.fin_wid)
            
         self.main.addLayout(self.lowerlayout)
         self.setLayout(self.main)        
         
         self.update_time_plots()
+    
+    def publish_status_message(self, message):
+        """Publish status message via event bus (with fallback to direct access)."""
+        try:
+            event_bus = get_event_bus()
+            event_bus.publish(EventType.STATUS_MESSAGE, "run_tab", {"message": message})
+        except Exception as e:
+            # Fallback to direct access if event bus is not available
+            print(f"Event bus not available, using direct status: {e}")
+            if hasattr(self, 'parent') and hasattr(self.parent, 'status_bar'):
+                self.parent.status_bar.showMessage(message)
+    
+    def get_event_data_via_bus(self):
+        """Get event data via event bus service (with fallback to parent access)."""
+        try:
+            from core.event_bus_service import get_pynmr_service
+            service = get_pynmr_service()
+            if service:
+                return {
+                    'current_event': service.get_current_event(),
+                    'previous_event': service.get_previous_event(),
+                    'config': service.get_current_config()
+                }
+        except Exception as e:
+            print(f"Event bus service not available: {e}")
+        
+        # Fallback to direct parent access
+        return {
+            'current_event': getattr(self.parent, 'event', None),
+            'previous_event': getattr(self.parent, 'previous_event', None),
+            'config': getattr(self.parent, 'config', None)
+        }
+    
+    def get_config_via_bus(self):
+        """Get configuration via event bus service (with fallback to parent access)."""
+        try:
+            from core.event_bus_service import get_pynmr_service
+            service = get_pynmr_service()
+            if service:
+                return service.get_current_config()
+        except Exception as e:
+            print(f"Event bus service not available: {e}")
+        
+        # Fallback to direct parent access
+        return getattr(self.parent, 'config', None)
         
     def sync_pol_time(self):
         '''Sync resized on time plot'''
@@ -288,12 +349,18 @@ class RunTab(QWidget):
         '''Start main loop if conditions met'''
                
         if self.run_button.isChecked():        
-            self.parent.status_bar.showMessage('Running sweeps...')
+            self.publish_status_message('Running sweeps...')
             #self.abort_button.setEnabled(True)
             self.lock_button.setEnabled(False)
             self.run_button.setText('Finish')
             self.start_thread()
-            self.parent.run_toggle()
+            # Publish run toggle event via event bus
+            try:
+                event_bus = get_event_bus()
+                event_bus.publish(EventType.RUN_TOGGLE, "run_tab", {"action": "start"})
+            except Exception as e:
+                print(f"Event bus not available for run toggle: {e}")
+                self.parent.run_toggle()
                    
         else:
             if self.run_thread.isRunning:
@@ -306,14 +373,31 @@ class RunTab(QWidget):
         self.parent.new_event()                 # start new event in main window
         #self.parent.set_event_base()            # set current basline to this event
         try:
+            from core.thread_manager import get_thread_manager
+            
+            # Create run thread
             self.run_thread = RunThread(self, self.parent.config)
-            # Register thread with main window for lifecycle management
-            self.parent.register_thread(self.run_thread)
+            
+            # Get thread manager and register thread
+            thread_manager = get_thread_manager()
+            thread_manager.register_thread(self.run_thread)
+            
+            # Connect signals
             self.run_thread.finished.connect(self.done)
             self.run_thread.reply.connect(self.add_sweeps)
-            self.run_thread.start()
+            self.run_thread.error.connect(self.on_thread_error)
+            
+            # Start thread using thread manager
+            thread_manager.start_thread(self.run_thread.thread_name)
+            
         except Exception as e: 
-            print('Exception starting run thread, lost connection: '+str(e))   
+            print('Exception starting run thread, lost connection: '+str(e))
+            
+    def on_thread_error(self, error_msg):
+        '''Handle thread error'''
+        print(f"Run thread error: {error_msg}")
+        self.run_button.setText('Start Run')
+        self.run_button.setEnabled(True)   
 
     def combo_changed(self, i):
         '''Channel changed'''
@@ -325,6 +409,16 @@ class RunTab(QWidget):
         '''Add the tuple of sweeps to event'''
         self.parent.event.update_event(new_sigs)
         self.update_run_plot()
+        
+        # Publish event updated via event bus
+        try:
+            event_bus = get_event_bus()
+            event_bus.publish(EventType.EVENT_UPDATED, "run_tab", {
+                "event": self.parent.event,
+                "previous_event": self.parent.previous_event if hasattr(self.parent, 'previous_event') else None
+            })
+        except Exception as e:
+            print(f"Event bus not available for event update: {e}")
 
     def update_run_plot(self):
         '''Update the running plot'''
@@ -332,6 +426,19 @@ class RunTab(QWidget):
         progress = 100*self.parent.event.scan.num/self.parent.event.config.controls['sweeps'].value
         progress = 100*self.parent.event.scan.num/self.parent.event.config.controls['sweeps'].value
         self.progress_bar.setValue(int(progress))
+        
+        # Publish progress update via event bus for other tabs to consume
+        try:
+            event_bus = get_event_bus()
+            event_bus.publish(EventType.PROGRESS_UPDATED, "run_tab", {
+                "progress": int(progress),
+                "sweeps_completed": self.parent.event.scan.num,
+                "sweeps_total": self.parent.event.config.controls['sweeps'].value
+            })
+        except Exception as e:
+            print(f"Event bus not available for progress update: {e}")
+        
+        # Fallback to direct compare_tab access if needed
         if self.parent.config.settings['compare_tab']['enable']:
             self.parent.compare_tab.progress_bar.setValue(int(progress))
     
@@ -354,7 +461,7 @@ class RunTab(QWidget):
         self.parent.end_event()        
         now = datetime.datetime.now(tz=datetime.timezone.utc)
         if not self.run_button.isChecked():     # done and stop
-            self.parent.status_bar.showMessage(f'Finished event at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s.')
+            self.publish_status_message(f'Finished event at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s.')
             
             #self.abort_button.setEnabled(False)
             self.lock_button.setEnabled(True)
@@ -362,11 +469,17 @@ class RunTab(QWidget):
             self.run_button.setEnabled(True)
             self.run_button.setChecked(False)
             self.update_run_plot()
-            self.parent.run_toggle()
+            # Publish run toggle event via event bus
+            try:
+                event_bus = get_event_bus()
+                event_bus.publish(EventType.RUN_TOGGLE, "run_tab", {"action": "stop"})
+            except Exception as e:
+                print(f"Event bus not available for run toggle: {e}")
+                self.parent.run_toggle()
             if self.parent.config.settings['compare_tab']['enable']:  # if doing compare_tab   
                 self.parent.compare_tab.mode_done()
         else:                                    # done, continue running
-            self.parent.status_bar.showMessage(f'Finished event at  at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s. Running sweeps...')
+            self.publish_status_message(f'Finished event at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s. Running sweeps...')
             if self.parent.config.settings['compare_tab']['enable']:  # if doing compare_tab   
                 self.parent.compare_tab.mode_switch()
             # Only start next thread if analysis is not in progress
@@ -576,20 +689,118 @@ class RunTab(QWidget):
 
 
    
-class RunThread(QThread):
+class RunThread(BaseThread):
     '''Thread class for main NMR run loop
     Args:
+        parent: Parent widget (RunTab)
         config: Config object of settings
     '''
+    def __init__(self, parent, config):
+        import time
+        timestamp = int(time.time() * 1000000)  # microsecond precision
+        super().__init__(name=f"run_{timestamp}", parent=parent, config=config)
+        self.tab_parent = parent  # RunTab instance
+        self.sweep_num = config.controls['sweeps'].value
+        self.num_per_chunk = config.settings['num_per_chunk']
+        self.rec_sweeps = 0     # number of total sweeps in set that we have received
+        self.daq = None
+        
+    def setup(self):
+        '''Initialize DAQ connection'''
+        try:
+            self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_run'], False)
+            self._logger.info(f"DAQ connection established for run thread")
+        except Exception as e:
+            error_msg = f'Exception starting DAQ connection: {e}'
+            self._logger.error(error_msg)
+            raise Exception(error_msg)
+        
+    def execute(self):
+        '''Main run loop. Request start of sweeps, receive sweeps, update event, report.
+        
+        Emits new_sigs with the number of sweeps in the chunk and the phase and diode chunk data as numpy arrays
+        '''
+        if not self.daq:
+            self._logger.error("DAQ not initialized")
+            return
+            
+        try: 
+            self.daq.start_sweeps()              # send command to start sweeps
+            self._logger.info(f"Started sweeps for {self.sweep_num} total sweeps")
+        except AttributeError as e:   
+            self._logger.error(f"Failed to start sweeps: {e}")
+            return            
+            
+        rec_chunks = 0                              #  count of chunks we have received
+        while (self.rec_sweeps < self.sweep_num):
+            # Check for graceful stop or abort request
+            if self.should_stop() or self.tab_parent.abort_now:
+                self._logger.info("Run thread stopping - abort requested")
+                self.daq.abort()
+                try:
+                    new_sigs = self.daq.get_chunk()
+                except Exception as e:
+                    self._logger.warning(f"Error on abort cleanup: {e}")
+                self.tab_parent.abort_now = False
+                break
+                
+            try:
+                new_sigs = self.daq.get_chunk()
+                chunk_num, num_in_chunk, pchunk, dchunk = new_sigs
+                
+                if num_in_chunk > 0:
+                    self.emit_reply(new_sigs)
+                    rec_chunks += 1
+                    if 'NIDAQ' in self.config.settings['daq_type']:
+                        self.rec_sweeps = num_in_chunk
+                    else:
+                        self.rec_sweeps += num_in_chunk
+                    
+                    self._logger.debug(f"Received chunk {rec_chunks}, sweeps: {self.rec_sweeps}/{self.sweep_num}")
+                
+                # Check for lost chunks
+                if not chunk_num + 1 == rec_chunks and not chunk_num == 0:
+                    error_msg = f"Lost chunk. Expecting {rec_chunks}, got {chunk_num + 1}. Aborting run."
+                    self._logger.error(error_msg)
+                    self.daq.abort()
+                    try:
+                        new_sigs = self.daq.get_chunk()
+                    except Exception as e:
+                        self._logger.warning(f"Error on abort after lost chunk: {e}")
+                    break
+                    
+            except Exception as e:
+                if not self.should_stop():  # Only log if not gracefully stopping
+                    self._logger.error(f"Error in run loop: {e}")
+                break
+                    
+        self._logger.info(f"Run completed. Received {self.rec_sweeps} sweeps in {rec_chunks} chunks")
+        
+    def cleanup(self):
+        '''Clean up DAQ connection'''
+        if self.daq:
+            try:
+                self.daq.stop()
+                del self.daq
+                self.daq = None
+                self._logger.info("DAQ connection cleaned up")
+            except Exception as e:
+                self._logger.warning(f"Error cleaning up DAQ: {e}")
+
+
+# Legacy compatibility wrapper
+class LegacyRunThread(QThread):
+    '''Legacy compatibility wrapper for old RunThread interface.'''
     reply = Signal(tuple)       # reply signal
     finished = Signal()       # finished signal
+    
     def __init__(self, parent, config):
         QThread.__init__(self)
         self.config = config
         self.parent = parent 
         self.sweep_num = config.controls['sweeps'].value
         self.num_per_chunk = config.settings['num_per_chunk']
-        self.rec_sweeps = 0     # number of total sweeps in set that we have received
+        self.rec_sweeps = 0
         try:
             self.daq = DAQConnection(self.config, self.config.settings['fpga_settings']['timeout_run'], False)
         except Exception as e:
@@ -599,27 +810,18 @@ class RunThread(QThread):
         try:
             if self.isRunning():
                 self.quit()
-                # Don't wait in destructor to avoid thread waiting on itself
         except RuntimeError:
-            # C++ object already deleted, ignore
             pass
         
     def run(self):
-        '''Main run loop. Request start of sweeps, receive sweeps, update event, report.
-        
-        Returns:
-            On completion of a chunk, emits new_sigs, the number of sweeps in the chunk and the phase and diode chunk data as numpy arrays
-        '''
-        #self.test_data = TestUDP(self.sweep_num)
-        
         try: 
-            self.daq.start_sweeps()              # send command to start sweeps
+            self.daq.start_sweeps()
         except AttributeError as e:   
             self.finished.emit()
             return            
             
-        rec_chunks = 0                              #  count of chunks we have received
-        while (self.rec_sweeps < self.sweep_num):                 # loop for total set of sweeps
+        rec_chunks = 0
+        while (self.rec_sweeps < self.sweep_num):
             if self.parent.abort_now:
                 print("Abort in run thread")
                 self.daq.abort()
@@ -629,11 +831,8 @@ class RunThread(QThread):
                     print("On abort:", e)
                 self.parent.abort_now = False
                 break
-            #start_time = time.time()    
             new_sigs = self.daq.get_chunk()
-            #print(new_sigs)
             chunk_num, num_in_chunk, pchunk, dchunk = new_sigs
-            #print(f"get_chunk took {time.time() - start_time }s")
             if num_in_chunk > 0:
                 self.reply.emit(new_sigs)
                 rec_chunks += 1

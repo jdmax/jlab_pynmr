@@ -4,6 +4,7 @@ import datetime, time
 import telnetlib
 from PySide6.QtCore import QThread, Signal, Qt
 from labjack import ljm
+from core.thread_manager import BaseThread
 from PySide6.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QTableView, QAbstractItemView, QAbstractScrollArea, QFileDialog, QStackedWidget
  
 
@@ -102,28 +103,84 @@ class LabJack():
         # ljm.close(self.lj) 
         
         
-class TempThread(QThread):
+class TempThread(BaseThread):
     '''Thread class for chassis temperature monitor
     Args:
+        parent: Parent widget (TempTab)
         config: Config object of settings
     '''
+    def __init__(self, parent, config):
+        super().__init__(name=f"temp_{id(parent)}", parent=parent, config=config)
+        self.tab_parent = parent  # TempTab instance
+        self.thermom = None
+        self.monitor_time = config.settings['temp_settings']['monitor_time']
+        
+    def setup(self):
+        '''Initialize LabJack connection'''
+        try:
+            from hardware.instruments import LabJack
+            self.thermom = LabJack(self.config)
+            self._logger.info("LabJack connection established for temperature monitoring")
+        except Exception as e:
+            error_msg = f'Exception starting temp thread: {e}'
+            self._logger.error(error_msg)
+            raise Exception(error_msg)
+                
+    def execute(self):
+        '''Main temp read loop - single reading'''
+        if not self.thermom:
+            self._logger.error("LabJack not initialized")
+            return
+            
+        temp = 0
+        try:        
+            temp = self.thermom.read_temp()
+            self._logger.debug(f"Temperature reading: {temp}")
+        except Exception as e:
+            self._logger.error(f"Temperature read failed: {e}")
+            # Note: Original code had commented out error handling for UI toggle
+            
+        try:
+            self.emit_reply(temp)  # Emit just the temperature value
+        except Exception as e:                
+            self._logger.error(f"Couldn't send temp reply: {e}")
+            
+        # Sleep for monitor time interval
+        sleep_intervals = int(self.monitor_time * 10)  # Check stop every 0.1s
+        for _ in range(sleep_intervals):
+            if self.should_stop():
+                return
+            time.sleep(0.1)
+        
+    def cleanup(self):
+        '''Clean up LabJack connection'''
+        if self.thermom:
+            try:
+                del self.thermom
+                self.thermom = None
+                self._logger.info("LabJack connection cleaned up")
+            except Exception as e:
+                self._logger.warning(f"Error cleaning up LabJack: {e}")
+
+
+# Legacy compatibility wrapper
+class LegacyTempThread(QThread):
+    '''Legacy compatibility wrapper for old TempThread interface.'''
     reply = Signal(tuple)       # reply signal
     finished = Signal()       # finished signal
+    
     def __init__(self, parent, config):
         QThread.__init__(self)
         self.config = config
         self.parent = parent 
-            
                 
     def __del__(self):
         if self.isRunning():
             self.quit()
-            # Don't wait in destructor to avoid thread waiting on itself
         
     def run(self):
-        '''Main temp read loop
-        '''        
         try:
+            from hardware.instruments import LabJack
             self.thermom = LabJack(self.config)
         except Exception as e:
             print('Exception starting temp thread, lost connection: '+str(e))
@@ -133,9 +190,6 @@ class TempThread(QThread):
             temp = self.thermom.read_temp()
         except Exception as e:
             print(f"Temperature read failed: {e}")  
-            #self.parent.enable_button.toggle()
-            #self.parent.enable_pushed()
-            #break
             
         try:
             self.reply.emit((temp,))
