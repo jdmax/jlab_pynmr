@@ -340,9 +340,14 @@ class TuneThread(BaseThread):
             while self.tab_parent.running and not self.should_stop():
                 # Sync DAC state before each sweep. set_dac calls set_register which
                 # keeps all FPGA parameters current without reopening the connection.
+                changed = (self.dac_v != self.tab_parent.dac_v) or (self.dac_c != self.tab_parent.dac_c)
                 self.dac_v = self.tab_parent.dac_v
                 self.dac_c = self.tab_parent.dac_c
                 try:
+                    # FPGA only latches a new DAC value when the DAC config word changes
+                    # from 0, as happens on a fresh connection. Send a no-op write first.
+                    if changed:
+                        self.daq.set_dac(self.dac_v, 0)
                     if not self.daq.set_dac(self.dac_v, self.dac_c):
                         self._logger.warning(f"set_dac returned False: C={self.dac_c}, V={self.dac_v}")
                 except Exception as e:
