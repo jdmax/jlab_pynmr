@@ -9,7 +9,7 @@ from PySide6.QtGui import QIntValidator, QDoubleValidator, QValidator, QStandard
 import pyqtgraph as pg
 from scipy import optimize
  
-from core.calculations import TE
+from core.calculations import TE, SPECIES
 
 class TETab(QWidget): 
     '''Creates settings tab'''   
@@ -51,7 +51,7 @@ class TETab(QWidget):
         self.species_label = QLabel('Species:')
         self.calc_top.addWidget(self.species_label, 0, 0)
         self.species_box = QComboBox()
-        self.species_box.addItems(["Proton", "Deuteron"])    # currentText() gives status of combobox
+        self.species_box.addItems(list(SPECIES))    # currentText() gives status of combobox
         self.calc_top.addWidget(self.species_box, 0, 1)
         self.field_label = QLabel('B Field (T):')
         self.calc_top.addWidget(self.field_label, 0, 2)

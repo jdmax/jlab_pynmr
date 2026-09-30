@@ -396,8 +396,8 @@ class RunTab(QWidget):
     def on_thread_error(self, error_msg):
         '''Handle thread error'''
         print(f"Run thread error: {error_msg}")
-        self.run_button.setText('Start Run')
-        self.run_button.setEnabled(True)   
+        self.publish_status_message(f"Run stopped on error: {error_msg}")
+        self.run_button.setChecked(False)   # finished signal follows; done() then resets buttons instead of retrying
 
     def combo_changed(self, i):
         '''Channel changed'''

@@ -297,6 +297,15 @@ class MainWindow(QMainWindow):
             screenshot.save(f'{self.config.settings["ss_dir"]}/{now.strftime("%Y-%m-%d_%H-%M-%S")}.png')
             
         # Analysis is complete, clear flag and start next run if needed
+        self.start_pending_run()
+
+    def analysis_skipped(self):
+        """Event closed without an analysis thread (empty scan or thread failed to start). Nothing is written, but the run loop must continue."""
+        logging.warning("Event closed without analysis; not written to eventfile.")
+        self.start_pending_run()
+
+    def start_pending_run(self):
+        """Clear analysis flag and start the next run if one is waiting on analysis"""
         self.analysis_in_progress = False
         if self.pending_next_run:
             self.pending_next_run = False

@@ -1,6 +1,7 @@
 '''PyNMR, J.Maxwell 2020
 '''
 from PySide6.QtWidgets import QWidget, QLabel, QGroupBox, QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit, QSpacerItem, QSizePolicy, QComboBox, QPushButton, QProgressBar, QStackedWidget, QDoubleSpinBox
+from PySide6.QtCore import Signal, Slot
 import pyqtgraph as pg
 import numpy as np
 from scipy import optimize
@@ -8,7 +9,27 @@ from lmfit import Model
 from core.deuteron_fits import fit as deuteron_fit
 
 
-class StandardBase(QWidget):
+class AnalysisModule(QWidget):
+    '''Base for analysis option widgets. result() methods run in the analysis thread, so they
+    must not touch widgets directly; set_message() queues the label update to the GUI thread.
+    '''
+    message_ready = Signal(str)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.message_ready.connect(self._show_message)
+
+    def set_message(self, text):
+        '''Thread-safe update of self.message'''
+        self.message_ready.emit(text)
+
+    @Slot(str)
+    def _show_message(self, text):
+        if hasattr(self, 'message'):
+            self.message.setText(text)
+
+
+class StandardBase(AnalysisModule):
     '''Layout and method for standard baseline subtract based on selected baseline from baseline tab.  Base type.
     '''
 
@@ -36,11 +57,11 @@ class StandardBase(QWidget):
             baseline sweep, baseline subtracted sweep
         '''
         basesweep = event_data.baseline
-        self.message.setText(f"Baseline from {event_data.base_time.strftime('%D %H:%M:%S')} UTC")
+        self.set_message(f"Baseline from {event_data.base_time.strftime('%D %H:%M:%S')} UTC")
         return basesweep, event_data.scan.phase - basesweep
 
 
-class PolyFitBase(QWidget):
+class PolyFitBase(AnalysisModule):
     '''Layout for polynomial fit to the background wings, including methods to produce fits.  Base type.
     '''
 
@@ -139,7 +160,7 @@ class PolyFitBase(QWidget):
         r_squared = 1 - (ss_res / ss_tot)
 
         text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]
-        self.message.setText(f"Fit coefficients: \t \t \t R-squared: {r_squared:.2f}\n" + "\n".join(text_list))
+        self.set_message(f"Fit coefficients: \t \t \t R-squared: {r_squared:.2f}\n" + "\n".join(text_list))
         return fit, sub
 
     def poly2(self, x, *p):
@@ -152,7 +173,7 @@ class PolyFitBase(QWidget):
         return p[0] + p[1] * x + p[2] * np.power(x, 2) + p[3] * np.power(x, 3) + p[4] * np.power(x, 4)
 
 
-class CircuitBase(QWidget):
+class CircuitBase(AnalysisModule):
     '''Layout for circuit model fit to the background wings, including methods to produce fits.  Base type.
 
     NOT IMPLEMENTED. Fits not quite converging, slow.
@@ -233,7 +254,7 @@ class CircuitBase(QWidget):
         fit = self.real_curve(range(len(event_data.scan.phase)), **result.best_values)
         sub = sweep - fit
         # text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]
-        # self.message.setText("Fit coefficients:\n"+"\n".join(text_list))
+        # self.set_message("Fit coefficients:\n"+"\n".join(text_list))
         return fit, sub
 
     def full_curve(self, f, cap, phase, coil_l):
@@ -279,7 +300,7 @@ class CircuitBase(QWidget):
         return ([vout * scale + offset for vout in v_out])
 
 
-class NoBase(QWidget):
+class NoBase(AnalysisModule):
     '''Layout for no fit to the background wings, including methods to produce fits. Base type.
     '''
 
@@ -309,7 +330,7 @@ class NoBase(QWidget):
         return fitcurve, sub
 
 
-class PolyFitSub(QWidget):
+class PolyFitSub(AnalysisModule):
     '''Layout for polynomial fit to the background wings, including methods to produce fits. Sub type.
     '''
 
@@ -420,7 +441,7 @@ class PolyFitSub(QWidget):
         r_squared = 1 - (ss_res / ss_tot)
 
         text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]
-        self.message.setText(f"Fit coefficients: \t \t \t R-squared: {r_squared:.2f}\n" + "\n".join(text_list))
+        self.set_message(f"Fit coefficients: \t \t \t R-squared: {r_squared:.2f}\n" + "\n".join(text_list))
         return fit, sub
 
     def poly2(self, x, *p):
@@ -441,7 +462,7 @@ class PolyFitSub(QWidget):
             5] * np.power(x, 5) + p[6] * np.power(x, 6) + p[7] * np.power(x, 7) + p[8] * np.power(x, 8)
 
 
-class NoFitSub(QWidget):
+class NoFitSub(AnalysisModule):
     '''Layout for no fit to the background wings, including methods. Sub type.
     '''
 
@@ -471,7 +492,7 @@ class NoFitSub(QWidget):
         return fitcurve, sub
 
 
-class SumAllRes(QWidget):
+class SumAllRes(AnalysisModule):
     '''Layout and methods for integrtation over full signal range.  Results type.
     '''
 
@@ -498,12 +519,12 @@ class SumAllRes(QWidget):
         sub = sweep - fitcurve
         area = sub.sum()
         pol = area * event_data.cc
-        self.message.setText(f"Area: {area}")
+        self.set_message(f"Area: {area}")
         data = [0 for x in event_data.scan.freq_list]
         return data, area, pol
 
 
-class SumRangeRes(QWidget):
+class SumRangeRes(AnalysisModule):
     '''Layout and methods for integration within a given range.  Results type.
     '''
 
@@ -565,11 +586,11 @@ class SumRangeRes(QWidget):
         Y = np.array([y for x, y in data])
         area = Y.sum()
         pol = area * event_data.cc
-        self.message.setText(f"Area: {area}")
+        self.set_message(f"Area: {area}")
         return Y, area, pol
 
 
-class PeakHeightRes(QWidget):
+class PeakHeightRes(AnalysisModule):
     '''Layout and methods for peak height results method. Area attribute is filled with peak height instead.  Results type.
     '''
 
@@ -599,11 +620,11 @@ class PeakHeightRes(QWidget):
         data = [area for x in event_data.scan.freq_list]
 
         pol = area * event_data.cc
-        self.message.setText(f"Peak height: {area}")
+        self.set_message(f"Peak height: {area}")
         return data, area, pol
 
 
-class FitPeakRes(QWidget):
+class FitPeakRes(AnalysisModule):
     '''Layout and methods for fitting Gaussian  on subtracted signal. Results type.
     '''
 
@@ -680,7 +701,7 @@ class FitPeakRes(QWidget):
         area = fit.sum()
         pol = area * event_data.cc
         text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]
-        self.message.setText(
+        self.set_message(
             f"Fit coefficients: \t \t \t R-squared: {r_squared:.2f}\n" + "\n".join(text_list) + "\n" + f"Area: {area}")
         return fit, area, pol
 
@@ -694,7 +715,7 @@ class FitPeakRes(QWidget):
         return p[1] / np.pi / ((x - p[0]) ** 2 + p[1] ** 2)
 
 
-class FitPeakRes2(QWidget):
+class FitPeakRes2(AnalysisModule):
     '''Layout and methods for fitting sum of Gaussians  on subtracted signal. Results type.
     '''
 
@@ -773,7 +794,7 @@ class FitPeakRes2(QWidget):
         area = fit.sum()
         pol = area * event_data.cc
         text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]
-        self.message.setText(
+        self.set_message(
             f"Fit coefficients: \t \t \t R-squared: {r_squared:.2f}\n" + "\n".join(text_list) + "\n" + f"Area: {area}")
         return fit, area, pol
 
@@ -782,7 +803,7 @@ class FitPeakRes2(QWidget):
             -np.power((x - p[4]), 2) / (2 * np.power(p[5], 2)))
 
 
-class FitDeuteron(QWidget):
+class FitDeuteron(AnalysisModule):
     '''Layout and methods for Dulya fits from deuteron_fits.py
     '''
 
@@ -861,7 +882,7 @@ class FitDeuteron(QWidget):
             text = text + f'{name} {param.value:.3e}+-{stderr:.3e} '
             if i == 4:
                 text = text + "\n"
-        self.message.setText(f"Polarization: {pol * 100:.2f}%, Area:  {area:.2f}, CC:  {cc:.2f}\n {text}")
+        self.set_message(f"Polarization: {pol * 100:.2f}%, Area:  {area:.2f}, CC:  {cc:.2f}\n {text}")
         return fit, r, pol
 
 

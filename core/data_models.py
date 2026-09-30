@@ -261,8 +261,9 @@ class EventData:
                 # Start thread using thread manager
                 thread_manager.start_thread(self.anal_thread.thread_name)
                 
-            except Exception as e: 
-                print('Exception starting analysis thread: '+str(e))  
+            except Exception as e:
+                print('Exception starting analysis thread: '+str(e))
+                self.parent.analysis_skipped()  # no thread will call end_finished, so release the run loop
         else:  # unless the phase signal is zeroes, then set all to zeroes
             self.basesweep = np.zeros(len(self.basesweep))
             self.basesub = np.zeros(len(self.basesweep))
@@ -270,6 +271,7 @@ class EventData:
             self.fitsub = np.zeros(len(self.basesweep))
             self.rescurve = np.zeros(len(self.basesweep))
             self.pol, self.area = 0, 0
+            self.parent.analysis_skipped()  # no thread will call end_finished, so release the run loop
             
     def poly(self, p, x):
         """Third order polynomial for fitting

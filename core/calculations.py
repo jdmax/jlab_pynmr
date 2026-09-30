@@ -1,17 +1,62 @@
 '''J.Maxwell 2020
 '''
-import sys
 import numpy as np
 import datetime
 import pytz
 import json
-                
-                
-class TE():    
-    '''Class to perform TE measurements, output results. Ignores error in CC due to error in temp, as the contribution to delta CC from delta t is suppressed by 1/pol^2, and pol is small.
-    
+from scipy.constants import physical_constants, k as boltz_const
+
+NUC_MAGNETON = physical_constants['nuclear magneton'][0]   # J/T
+
+# Species name: (magnetic moment in J/T, spin I)
+# Proton and deuteron moments are CODATA. Li moments (in nuclear magnetons) are not in CODATA;
+# values from N.J. Stone, Table of Nuclear Magnetic Dipole Moments (IAEA INDC(NDS)-0658).
+SPECIES = {
+    'Proton':    (physical_constants['proton mag. mom.'][0], 1/2),
+    'Deuteron':  (physical_constants['deuteron mag. mom.'][0], 1),
+    'Lithium-6': (0.822043 * NUC_MAGNETON, 1),
+    'Lithium-7': (3.256407 * NUC_MAGNETON, 3/2),
+}
+
+
+def match_species(species):
+    '''Map a flexible species string (e.g. "p", "Deuteron", "Li7", "6Li") to a key of SPECIES'''
+    s = species.lower()
+    if 'li' in s:
+        if '6' in s:
+            return 'Lithium-6'
+        if '7' in s:
+            return 'Lithium-7'
+        raise ValueError(f'Lithium species must specify isotope 6 or 7: {species}')
+    if 'p' in s:
+        return 'Proton'
+    if 'd' in s:
+        return 'Deuteron'
+    raise ValueError(f'Incorrect species: {species}')
+
+
+def te_polarization(mu, spin, field, temps):
+    '''Thermal equilibrium vector polarization P = <m>/I from the Boltzmann populations of the
+    2I+1 Zeeman sublevels, E_m = -m*mu*B/I. Reduces to tanh(mu*B/kT) for I=1/2 and to
+    4t/(3+t^2), t = tanh(mu*B/2kT), for I=1.
+
     Args:
-        species: Nuclear species string, proton or deuteron. Looks for p or d to select which, so flexible on the string provided
+        mu: magnetic moment in J/T
+        spin: nuclear spin I
+        field: field in Tesla
+        temps: 1-D numpy array of temperatures in K
+    '''
+    m = np.arange(-spin, spin + 0.5)                               # sublevels -I..I
+    x = mu * field / (spin * boltz_const * np.asarray(temps))      # energy step / kT
+    weights = np.exp(np.outer(x, m - m.max()))                     # shifted by max to avoid overflow
+    return (weights @ m) / weights.sum(axis=1) / spin
+
+
+class TE():
+    '''Class to perform TE measurements, output results. Ignores error in CC due to error in temp, as the contribution to delta CC from delta t is suppressed by 1/pol^2, and pol is small.
+
+    Args:
+        species: Nuclear species string, one of SPECIES keys. Flexible matching: p for proton, d for deuteron, li with 6 or 7 for lithium
         field: field value float in Tesla
         areas: 1-D numpy array with areas
         temps: 1-D numpy array with temps
@@ -30,30 +75,17 @@ class TE():
     '''    
     def __init__(self, species, field, areas, temps):
     
-        nuc_magtn = 5.05078658e-27   #J/T
-        boltz_const = 1.380658e-23   #J/K
+        areas = np.asarray(areas, dtype=float)
+        temps = np.array(temps, dtype=float)   # copy, so the caller's array isn't modified
+        temps[temps < 1E-5] = 1E-9     # replace zero values to avoid divide by zero
         self.areas = areas
         self.temps = temps
-        
-        if 'P' in species or 'p' in species:
-            self.species = 'Proton'
-            magneton =  2.79268    # mu_0
 
-            te_pols = np.tanh(magneton * nuc_magtn * field / boltz_const / temps)
-            ccs = te_pols / areas
+        self.species = match_species(species)
+        mu, spin = SPECIES[self.species]
+        te_pols = te_polarization(mu, spin, field, temps)
+        ccs = te_pols / areas
 
-        elif 'D' in species or 'd' in species:
-            self.species = 'Deuteron'
-            magneton =  0.857387  # mu_0
-
-            tanh_part = np.tanh(magneton * nuc_magtn * field / boltz_const / temps)
-            te_pols = 4 * tanh_part/(3 + tanh_part**2)
-            ccs = te_pols / areas
-        else:
-            print('Incorrect species')
-            sys.exit()
-        temps[temps<1E-5] = 1E-9     # replace zero values to avoid divide by zero
-        
         self.field = field
         self.num = len(ccs)
         self.te_pol = np.mean(te_pols)
