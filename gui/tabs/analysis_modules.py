@@ -680,8 +680,8 @@ class FitPeakRes(AnalysisModule):
             area and polarization from sum under gaussian
         '''
 
-        self.pi = [-0.1, self.parent.parent.config.channel['cent_freq'],
-                   self.parent.parent.config.channel['mod_freq'] * 1E-3 / 10]
+        self.pi = [-0.1, event_data.config.channel['cent_freq'],
+                   event_data.config.channel['mod_freq'] * 1E-3 / 10]
 
         sweep = event_data.fitsub
         freqs = event_data.scan.freq_list
@@ -771,10 +771,10 @@ class FitPeakRes2(AnalysisModule):
             area and polarization from sum under gaussian
         '''
 
-        self.pi = [-0.1, self.parent.parent.config.channel['cent_freq'],
-                   self.parent.parent.config.channel['mod_freq'] * 1E-3 / 10, -0.01,
-                   self.parent.parent.config.channel['cent_freq'],
-                   self.parent.parent.config.channel['mod_freq'] * 1E-3 / 10]
+        self.pi = [-0.1, event_data.config.channel['cent_freq'],
+                   event_data.config.channel['mod_freq'] * 1E-3 / 10, -0.01,
+                   event_data.config.channel['cent_freq'],
+                   event_data.config.channel['mod_freq'] * 1E-3 / 10]
 
         sweep = event_data.fitsub
         freqs = event_data.scan.freq_list

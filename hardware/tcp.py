@@ -12,6 +12,8 @@ class TCP():
 
     '''
 
+    HEADER = b'\xff\xff\xff\xff\xff'
+
     def __init__(self, config, timeout):
         '''Start connection'''
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
@@ -23,6 +25,7 @@ class TCP():
         self.freq_num = config.settings['steps']
         self.phase_cal = config.settings['fpga_settings']['phase_cal']
         self.diode_cal = config.settings['fpga_settings']['diode_cal']
+        self._rx = bytearray()   # received bytes not yet parsed, kept between get_chunk calls
 
         if config.settings['fpga_settings']['phase_adc_number'] == 2:
             self.adc_one = 'diode'
@@ -44,48 +47,60 @@ class TCP():
         Returns:
             Number of sweeps in chunk, phase chunk and diode chunk numpy arrays
         '''
-        num_in_chunk = 0  # Number of sweeps in the chunk
+        # Chunk layout: FF FF FF FF FF header, 2 chunk number bytes, 2 chunk sweep count bytes, adc_one block
+        # (freq_num 5-byte signed sums), then a BB marker byte before the adc_two block. Packet boundaries don't
+        # line up with any of these, so parse from a buffer that persists between calls.
+        block_len = self.freq_num * 5
         chunk = {}
-        chunk['phase'] = bytearray()
-        chunk['diode'] = bytearray()
-        sweep_type = ''  # phase or diode, starts as ''
 
-        while not (len(chunk['phase']) == self.freq_num * 5 and len(chunk['diode']) == self.freq_num * 5):
-            # loop for chunk packets
-            response = self.s.recv(self.buffer_size)
+        header_at = self._fill_until(lambda: self._rx.find(self.HEADER), len(self.HEADER) + 4)
+        if header_at > 0:
+            print(f"TCP: discarded {header_at} bytes before chunk header")
+        del self._rx[:header_at + len(self.HEADER)]
+        chunk_num = int.from_bytes(self._rx[0:2], 'little')
+        num_in_chunk = int.from_bytes(self._rx[2:4], 'little')
+        del self._rx[:4]
 
-            if (
-                    sweep_type == ''):  # first packet has FF FF FF FF FF then 2 chunk number bytes, then 2 chunk sw cyc bytes, then an aa or bb byte to denote phase or diode
-                if b'\xff\xff\xff\xff\xff' == response[:5]:
-                    chunk_num = int.from_bytes(response[5:7], 'little')
-                    num_in_chunk = int.from_bytes(response[7:9], 'little')
-                    # print(num_in_chunk, response[:2].hex())
-                    response = response[9:]
-                    sweep_type = self.adc_one
+        chunk[self.adc_one] = self._take(block_len)
+        marker_at = self._fill_until(lambda: self._rx.find(b'\xbb'), 1)
+        del self._rx[:marker_at + 1]
+        chunk[self.adc_two] = self._take(block_len)
 
-                # add in check if we don't have the type set and it's not the beginning of the chunk
+        if num_in_chunk == 0:   # nothing accumulated; caller skips chunks with no sweeps
+            return chunk_num, 0, np.zeros(self.freq_num), np.zeros(self.freq_num)
 
-            res_list = [response[i:i + 1] for i in range(len(response))]
-            for b in res_list:
-                if sweep_type == '':
-                    # print("no type: ",b)
-                    if b == b'\xbb':
-                        sweep_type = self.adc_two
-                    continue
-                # if sweep_type == 'diode': print(b.hex())
-                chunk[sweep_type] += bytearray(b)
-                if (len(chunk[sweep_type]) == self.freq_num * 5):  # filled up chunk
-                    sweep_type = ''  # unset type
-
-        pchunk_byte_list = [chunk['phase'][i:i + 5] for i in range(0, len(chunk['phase']), 5)]
-        dchunk_byte_list = [chunk['diode'][i:i + 5] for i in range(0, len(chunk['diode']), 5)]
-        pchunk = np.fromiter(
-            ((int.from_bytes(i, 'little', signed=True)) / (num_in_chunk * 2) for i in pchunk_byte_list),
-            np.int64)  # average (number of sweeps times two for up and down) and put in numpy array
-        dchunk = np.fromiter(
-            ((int.from_bytes(i, 'little', signed=True)) / (num_in_chunk * 2) for i in dchunk_byte_list), np.int64)
-        # print("phase average", np.average(pchunk))
-        # print("diode average", np.average(dchunk))
+        # average (number of sweeps times two for up and down)
+        pchunk = self._decode(chunk['phase']) / (num_in_chunk * 2)
+        dchunk = self._decode(chunk['diode']) / (num_in_chunk * 2)
         return chunk_num, num_in_chunk, pchunk / self.phase_cal, dchunk / self.diode_cal  # converting value to voltage
+
+    def _recv(self):
+        '''Append next packet to receive buffer'''
+        data = self.s.recv(self.buffer_size)
+        if not data:
+            raise ConnectionError('TCP connection closed by DAQ')
+        self._rx += data
+
+    def _fill_until(self, find, need):
+        '''Receive until find() returns an index i with at least need bytes buffered from i. Returns i.'''
+        while True:
+            i = find()
+            if i >= 0 and len(self._rx) >= i + need:
+                return i
+            self._recv()
+
+    def _take(self, n):
+        '''Remove and return the next n bytes, receiving more as needed'''
+        while len(self._rx) < n:
+            self._recv()
+        out = bytes(self._rx[:n])
+        del self._rx[:n]
+        return out
+
+    @staticmethod
+    def _decode(block):
+        '''Convert block of 5-byte little-endian signed integers to float array'''
+        return np.array([int.from_bytes(block[i:i + 5], 'little', signed=True) for i in range(0, len(block), 5)],
+                        dtype=np.float64)
         # 11/20/2020: phase 1V is roughly 211692085, diode 1V is 829421
         # return chunk_num, num_in_chunk, pchunk*3/8388607/0.5845, dchunk*3/8388607/0.5845  # converting value to voltage

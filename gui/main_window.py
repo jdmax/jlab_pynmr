@@ -265,11 +265,13 @@ class MainWindow(QMainWindow):
             return
         
         self.previous_event.print_event(self.eventfile)
+        self.eventfile.flush()   # keep file current for crash safety and for the baseline tab reading it
         self.previous_event.written_to_file = True
         self.eventfile_lines += 1
         if self.eventfile_lines > 500:
             self.new_eventfile()
         self.history.add_hist(HistPoint(self.previous_event), self.hist_file)
+        self.hist_file.flush()
 
         self.run_tab.update_event_plots()
         self.te_tab.update_event_plots()
@@ -364,6 +366,8 @@ class MainWindow(QMainWindow):
         """Channel setting changed. Make new config."""
         name = self.channels[i]
         self.config = Config(self.config_dict['channels'][name], self.settings)
+        if self.service:
+            self.service.config = self.config   # tabs reading config via the service must see the new channel
         self.event = EventData(self)
         self.rs = RS_Connection(self.config)
         logging.info(f"Changed channel to {self.config.channel['name']}.")

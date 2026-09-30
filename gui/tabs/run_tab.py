@@ -363,9 +363,14 @@ class RunTab(QWidget):
                 self.parent.run_toggle()
                    
         else:
-            if self.run_thread.isRunning:
-                self.run_button.setText('Finishing...')
+            run_thread = getattr(self, 'run_thread', None)
+            if run_thread is not None and run_thread.isRunning():
+                self.run_button.setText('Finishing...')   # done() resets buttons when the thread ends
                 self.run_button.setEnabled(False)
+            else:
+                # Between events (waiting on analysis): no thread will call done(), so stop here
+                self.parent.pending_next_run = False
+                self.finish_run('Run stopped.')
        
     def start_thread(self):
         '''Open new event instance, create then start threads for data taking and plotting '''
@@ -461,24 +466,8 @@ class RunTab(QWidget):
         self.parent.end_event()        
         now = datetime.datetime.now(tz=datetime.timezone.utc)
         if not self.run_button.isChecked():     # done and stop
-            self.publish_status_message(f'Finished event at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s.')
-            
-            #self.abort_button.setEnabled(False)
-            self.lock_button.setEnabled(True)
-            self.run_button.setText('Run')
-            self.run_button.setEnabled(True)
-            self.run_button.setChecked(False)
-            self.update_run_plot()
-            # Publish run toggle event via event bus
-            try:
-                event_bus = get_event_bus()
-                event_bus.publish(EventType.RUN_TOGGLE, "run_tab", {"action": "stop"})
-            except Exception as e:
-                print(f"Event bus not available for run toggle: {e}")
-                self.parent.run_toggle()
-            if self.parent.config.settings['compare_tab']['enable']:  # if doing compare_tab   
-                self.parent.compare_tab.mode_done()
-        else:                                    # done, continue running
+            self.finish_run(f'Finished event at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s.')
+        else:                                   # done, continue running
             self.publish_status_message(f'Finished event at {now:%H:%M:%S} UTC. Event took {self.parent.event.elapsed}s. Running sweeps...')
             if self.parent.config.settings['compare_tab']['enable']:  # if doing compare_tab   
                 self.parent.compare_tab.mode_switch()
@@ -488,6 +477,25 @@ class RunTab(QWidget):
             else:
                 self.parent.pending_next_run = True        
     
+    def finish_run(self, message):
+        '''Reset run controls to idle after the run stops'''
+        self.publish_status_message(message)
+        #self.abort_button.setEnabled(False)
+        self.lock_button.setEnabled(True)
+        self.run_button.setText('Run')
+        self.run_button.setEnabled(True)
+        self.run_button.setChecked(False)
+        self.update_run_plot()
+        # Publish run toggle event via event bus
+        try:
+            event_bus = get_event_bus()
+            event_bus.publish(EventType.RUN_TOGGLE, "run_tab", {"action": "stop"})
+        except Exception as e:
+            print(f"Event bus not available for run toggle: {e}")
+            self.parent.run_toggle()
+        if self.parent.config.settings['compare_tab']['enable']:  # if doing compare_tab
+            self.parent.compare_tab.mode_done()
+
     def update_event_plots(self):
         '''Update all plots and indicators for this event using instance data'''
         freqs = self.parent.event.scan.freq_list        
@@ -698,7 +706,7 @@ class RunThread(BaseThread):
     def __init__(self, parent, config):
         import time
         timestamp = int(time.time() * 1000000)  # microsecond precision
-        super().__init__(name=f"run_{timestamp}", parent=parent, config=config)
+        super().__init__(name=f"run_{timestamp}", parent=None, config=config)  # no Qt parent, so finished threads can be freed
         self.tab_parent = parent  # RunTab instance
         self.sweep_num = config.controls['sweeps'].value
         self.num_per_chunk = config.settings['num_per_chunk']

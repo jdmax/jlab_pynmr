@@ -6,7 +6,7 @@ Provides centralized thread management with consistent base classes and lifecycl
 
 from abc import ABCMeta, abstractmethod
 from typing import Dict, Optional, Any, Callable
-from PySide6.QtCore import QThread, Signal, QObject, QTimer
+from PySide6.QtCore import QThread, Signal, Slot, QObject, QTimer
 import logging
 import threading
 import time
@@ -23,14 +23,14 @@ class BaseThread(QThread, metaclass=QThreadMeta):
     
     Signals:
         reply: Emitted with data during thread execution
-        finished: Emitted when thread completes
+        finished: QThread's own signal, emitted by Qt once run() returns. Not redeclared here: a
+            same-signature Signal plus a manual emit made every connected slot fire twice.
         error: Emitted when an error occurs
         status_changed: Emitted when thread status changes
     """
-    
+
     # Standardized signals
     reply = Signal(object)  # Generic data signal
-    finished = Signal()     # Thread completion signal  
     error = Signal(str)     # Error signal with message
     status_changed = Signal(str)  # Status update signal
     
@@ -131,8 +131,7 @@ class BaseThread(QThread, metaclass=QThreadMeta):
             except Exception as e:
                 self._logger.error(f"Error in cleanup for thread {self.thread_name}: {e}")
             
-            self.status_changed.emit("finished")
-            self.finished.emit()
+            self.status_changed.emit("finished")   # QThread emits finished itself after run() returns
     
     def setup(self):
         """Override to perform thread initialization."""
@@ -236,9 +235,11 @@ class ThreadManager(QObject):
                     self._logger.warning(f"Thread {thread.thread_name} already registered and running")
                     return False
             
-            # Connect thread signals
-            thread.error.connect(lambda msg: self.thread_error.emit(thread.thread_name, msg))
-            thread.finished.connect(lambda: self._on_thread_finished(thread.thread_name))
+            # Connect thread signals to slots on this object (not lambdas capturing the thread: those
+            # are owned by the thread's own connections, a cycle Python's GC can't collect).
+            # Receiver lives in the main thread, so these are queued there.
+            thread.error.connect(self._on_thread_error)
+            thread.finished.connect(self._on_thread_finished)
             
             self._threads[thread.thread_name] = thread
             self._logger.info(f"Registered thread: {thread.thread_name}")
@@ -349,20 +350,38 @@ class ThreadManager(QObject):
             Dict mapping thread names to status info
         """
         with self._thread_lock:
-            return {name: self.get_thread_status(name) for name in self._threads.keys()}
+            names = list(self._threads.keys())
+        return {name: self.get_thread_status(name) for name in names}  # get_thread_status takes the lock itself
     
-    def _on_thread_finished(self, name: str):
-        """Handle thread finished signal."""
+    @Slot(str)
+    def _on_thread_error(self, msg: str):
+        """Relay thread error signal with the thread's name."""
+        thread = self.sender()
+        if thread is not None:
+            self.thread_error.emit(thread.thread_name, msg)
+
+    @Slot()
+    def _on_thread_finished(self):
+        """Handle thread finished signal: drop the manager's reference so finished threads don't accumulate.
+
+        QThread emits finished from the worker just before it exits, so it may still be running; wait for it
+        before releasing, as destroying a running QThread crashes. No deleteLater: other holders (the tab's
+        run_thread attribute, an event's anal_thread) may still touch the object, and Python frees it once
+        they let go.
+        """
+        thread = self.sender()
+        if thread is None:
+            return
+        name = thread.thread_name
         self.thread_stopped.emit(name)
         self._logger.info(f"Thread {name} finished")
-        
-        # Disable auto-cleanup to prevent segfaults during rapid thread creation
-        # Cleanup will happen during application shutdown or manual cleanup
-        # try:
-        #     from PySide6.QtCore import QTimer
-        #     QTimer.singleShot(5000, lambda: self._cleanup_finished_thread(name))
-        # except:
-        #     pass
+
+        if not thread.wait(2000):
+            self._logger.warning(f"Thread {name} emitted finished but has not exited; keeping reference")
+            return
+        with self._thread_lock:
+            if self._threads.get(name) is thread:
+                del self._threads[name]
     
     def _cleanup_finished_thread(self, name: str):
         """Clean up a finished thread."""

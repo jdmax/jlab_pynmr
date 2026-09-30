@@ -320,7 +320,7 @@ class TuneThread(BaseThread):
     
     def __init__(self, parent, config):
         '''Make new thread instance for running NMR'''
-        super().__init__(name=f"tune_{id(parent)}", parent=parent, config=config)
+        super().__init__(name=f"tune_{id(parent)}", parent=None, config=config)  # no Qt parent, so finished threads can be freed
         self.tab_parent = parent  # TuneTab instance
         self.dac_v = 0
         self.dac_c = 0

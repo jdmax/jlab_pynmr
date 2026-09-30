@@ -59,7 +59,7 @@ class AnalTab(EventBusTab):
     @property
     def event(self):
         """Get current event for compatibility with existing analysis classes."""
-        event = self.get_current_event() or self.get_previous_event()
+        event = getattr(getattr(self, '_main_window', None), 'event', None) or self.get_current_event() or self.get_previous_event()
         if event is None:
             # Create a minimal event object for initialization
             # This provides the config during startup
@@ -83,8 +83,8 @@ class AnalTab(EventBusTab):
     
     @property
     def config(self):
-        """Get config for compatibility with existing analysis classes."""
-        return self.get_config()
+        """Get config for compatibility with existing analysis classes. Main window's config is replaced on channel change."""
+        return getattr(getattr(self, '_main_window', None), 'config', None) or self.get_config()
     
     @property
     def previous_event(self):
