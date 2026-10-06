@@ -29,6 +29,49 @@ class AnalysisModule(QWidget):
             self.message.setText(text)
 
 
+def poly_fit_wings(freqs, sweep, wings, order):
+    '''Linear least-squares polynomial fit to the wing regions of a sweep.
+
+    Frequencies are mapped to u = (f - center)/half_width, spanning -1 to 1, before fitting. Powers of raw
+    MHz values (213^8 ~ 4e18) make the normal equations badly conditioned.
+
+    Arguments:
+        freqs: frequency points of sweep, MHz
+        sweep: signal points
+        wings: 4 fractions of sweep, left start/stop and right start/stop of fit regions
+        order: polynomial order
+
+    Returns:
+        fit curve over all freqs, coefficients (constant term first, in u), their std errors, R-squared
+    '''
+    freqs = np.asarray(freqs, dtype=float)
+    sweep = np.asarray(sweep, dtype=float)
+    idx = np.arange(len(sweep))
+    bounds = [x * len(sweep) for x in wings]
+    in_wings = ((bounds[0] < idx) & (idx < bounds[1])) | ((bounds[2] < idx) & (idx < bounds[3]))
+
+    center = (freqs.max() + freqs.min()) / 2
+    half_width = (freqs.max() - freqs.min()) / 2 or 1.0
+    u = (freqs - center) / half_width
+    X, Y = u[in_wings], sweep[in_wings]
+
+    coef, cov = np.polyfit(X, Y, order, cov='unscaled')
+    residuals = Y - np.polyval(coef, X)
+    ss_res = np.sum(residuals ** 2)
+    dof = len(X) - (order + 1)
+    pstd = np.sqrt(np.diag(cov) * ss_res / dof) if dof > 0 else np.full(order + 1, np.nan)  # as curve_fit
+    ss_tot = np.sum((Y - np.mean(Y)) ** 2)
+    r_squared = 1 - ss_res / ss_tot if ss_tot > 0 else np.nan
+
+    return np.polyval(coef, u), coef[::-1], pstd[::-1], r_squared
+
+
+def poly_fit_message(coef, pstd, r_squared):
+    text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(coef, pstd)]
+    return (f"Fit coefficients, x = (f - center)/half-width: \t R-squared: {r_squared:.2f}\n"
+            + "\n".join(text_list))
+
+
 class StandardBase(AnalysisModule):
     '''Layout and method for standard baseline subtract based on selected baseline from baseline tab.  Base type.
     '''
@@ -109,15 +152,7 @@ class PolyFitBase(AnalysisModule):
 
     def change_poly(self, i):
         '''Choose polynomial order method'''
-        if i == 0:
-            self.poly = self.poly2
-            self.pi = [0.01, 0.8, 0.01]
-        elif i == 1:
-            self.poly = self.poly3
-            self.pi = [0.01, 0.8, 0.01, 0.001]
-        elif i == 2:
-            self.poly = self.poly4
-            self.pi = [0.01, 0.8, 0.01, 0.001, 0.00001]
+        self.order = [2, 3, 4][i]
         self.parent.run_analysis()
 
     def change_wings(self):
@@ -144,33 +179,9 @@ class PolyFitBase(AnalysisModule):
             polyfit used, baseline subtracted sweep
         '''
         sweep = event_data.scan.phase
-        freqs = event_data.scan.freq_list
-        bounds = [x * len(sweep) for x in self.wings]
-        data = [z for x, z in enumerate(zip(freqs, sweep)) if (bounds[0] < x < bounds[1] or bounds[2] < x < bounds[3])]
-        X = np.array([x for x, y in data])
-        Y = np.array([y for x, y in data])
-        pf, pcov = optimize.curve_fit(self.poly, X, Y, p0=self.pi)
-        pstd = np.sqrt(np.diag(pcov))
-        fit = self.poly(freqs, *pf)
-        sub = sweep - fit
-
-        residuals = Y - self.poly(X, *pf)
-        ss_res = np.sum(residuals ** 2)
-        ss_tot = np.sum((Y - np.mean(Y)) ** 2)
-        r_squared = 1 - (ss_res / ss_tot)
-
-        text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]
-        self.set_message(f"Fit coefficients: \t \t \t R-squared: {r_squared:.2f}\n" + "\n".join(text_list))
-        return fit, sub
-
-    def poly2(self, x, *p):
-        return p[0] + p[1] * x + p[2] * np.power(x, 2)
-
-    def poly3(self, x, *p):
-        return p[0] + p[1] * x + p[2] * np.power(x, 2) + p[3] * np.power(x, 3)
-
-    def poly4(self, x, *p):
-        return p[0] + p[1] * x + p[2] * np.power(x, 2) + p[3] * np.power(x, 3) + p[4] * np.power(x, 4)
+        fit, coef, pstd, r_squared = poly_fit_wings(event_data.scan.freq_list, sweep, self.wings, self.order)
+        self.set_message(poly_fit_message(coef, pstd, r_squared))
+        return fit, sweep - fit
 
 
 class CircuitBase(AnalysisModule):
@@ -373,21 +384,7 @@ class PolyFitSub(AnalysisModule):
 
     def change_poly(self, i):
         '''Choose polynomial order method'''
-        if i == 0:
-            self.poly = self.poly2
-            self.pi = [0.01, 0.8, 0.01]
-        elif i == 1:
-            self.poly = self.poly3
-            self.pi = [0.01, 0.8, 0.01, 0.001]
-        elif i == 2:
-            self.poly = self.poly4
-            self.pi = [0.01, 0.8, 0.01, 0.001, 0.00001]
-        elif i == 3:
-            self.poly = self.poly6
-            self.pi = [0.01, 0.8, 0.01, 0.001, 0.00001, 0.00001, 0.00001]
-        elif i == 4:
-            self.poly = self.poly8
-            self.pi = [0.01, 0.8, 0.01, 0.001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001]
+        self.order = [2, 3, 4, 6, 8][i]
         self.parent.run_analysis()
 
     def switch_here(self):
@@ -418,48 +415,10 @@ class PolyFitSub(AnalysisModule):
         Returns:
             polyfit used, baseline subtracted sweep
         '''
-
         sweep = event_data.basesub
-        freqs = event_data.scan.freq_list
-        bounds = [x * len(sweep) for x in self.wings]
-        data = [z for x, z in enumerate(zip(freqs, sweep)) if (bounds[0] < x < bounds[1] or bounds[2] < x < bounds[3])]
-        X = np.array([x for x, y in data])
-        Y = np.array([y for x, y in data])
-        pf, pcov = optimize.curve_fit(self.poly, X, Y, p0=self.pi)
-        try:
-            pstd = np.sqrt(np.diag(pcov))
-        except:
-            pass
-        fit = self.poly(freqs, *pf)
-        sub = sweep - fit
-
-        area = sub.sum()
-
-        residuals = Y - self.poly(X, *pf)
-        ss_res = np.sum(residuals ** 2)
-        ss_tot = np.sum((Y - np.mean(Y)) ** 2)
-        r_squared = 1 - (ss_res / ss_tot)
-
-        text_list = [f"{f:.2e} ± {s:.2e}" for f, s in zip(pf, pstd)]
-        self.set_message(f"Fit coefficients: \t \t \t R-squared: {r_squared:.2f}\n" + "\n".join(text_list))
-        return fit, sub
-
-    def poly2(self, x, *p):
-        return p[0] + p[1] * x + p[2] * np.power(x, 2)
-
-    def poly3(self, x, *p):
-        return p[0] + p[1] * x + p[2] * np.power(x, 2) + p[3] * np.power(x, 3)
-
-    def poly4(self, x, *p):
-        return p[0] + p[1] * x + p[2] * np.power(x, 2) + p[3] * np.power(x, 3) + p[4] * np.power(x, 4)
-
-    def poly6(self, x, *p):
-        return p[0] + p[1] * x + p[2] * np.power(x, 2) + p[3] * np.power(x, 3) + p[4] * np.power(x, 4) + p[
-            5] * np.power(x, 5) + p[6] * np.power(x, 6)
-
-    def poly8(self, x, *p):
-        return p[0] + p[1] * x + p[2] * np.power(x, 2) + p[3] * np.power(x, 3) + p[4] * np.power(x, 4) + p[
-            5] * np.power(x, 5) + p[6] * np.power(x, 6) + p[7] * np.power(x, 7) + p[8] * np.power(x, 8)
+        fit, coef, pstd, r_squared = poly_fit_wings(event_data.scan.freq_list, sweep, self.wings, self.order)
+        self.set_message(poly_fit_message(coef, pstd, r_squared))
+        return fit, sweep - fit
 
 
 class NoFitSub(AnalysisModule):

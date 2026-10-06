@@ -106,22 +106,18 @@ class PyNMRService(EventListener):
     
     def _handle_config_changed(self, event_data) -> None:
         """Handle configuration change events."""
+        # Adopt the new config. Don't republish CONFIG_CHANGED here: this handler receives that event,
+        # so republishing recursed until RecursionError.
         config_data = event_data.get('config')
-        if config_data:
-            # Update configuration
+        if isinstance(config_data, Config):
+            self.config = config_data
             self._logger.info(f"Configuration changed by {event_data.source}")
-            # Notify other components of config change
-            event_bus = get_event_bus()
-            event_bus.publish(EventType.CONFIG_CHANGED, "PyNMRService", {
-                "config": self.config
-            })
-    
+
     def _handle_event_started(self, event_data) -> None:
-        """Handle event start."""
-        # Create new event
-        self.previous_event = self.current_event
-        self.current_event = EventData(self)
-        
+        """Handle event start: track the main window's events rather than creating shadow copies."""
+        self.previous_event = event_data.get('previous_event')
+        self.current_event = event_data.get('event')
+
         self._logger.info("New event started")
         
         # Notify components
@@ -133,18 +129,18 @@ class PyNMRService(EventListener):
     
     def _handle_event_finished(self, event_data) -> None:
         """Handle event completion."""
-        if self.current_event:
-            # Add to history
-            hist_point = HistPoint(self.current_event)
-            self.history.add_hist(hist_point, self.eventfile)
-            
-            self._logger.info(f"Event completed: pol={self.current_event.pol:.6f}")
-            
+        # Main window has already written the event and added it to the shared history
+        # (self.history is the main window's History, set in MainWindow.restore_history)
+        event = event_data.get('event')
+        if event:
+            self.previous_event = event
+            self._logger.info(f"Event completed: pol={event.pol:.6f}")
+
             # Notify components
             event_bus = get_event_bus()
             event_bus.publish(EventType.HISTORY_UPDATED, "PyNMRService", {
-                "history_point": hist_point,
-                "event": self.current_event
+                "history_point": self.history.data.get(event.stop_stamp),
+                "event": event
             })
     
     def _handle_analysis_completed(self, event_data) -> None:

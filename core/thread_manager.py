@@ -174,16 +174,10 @@ class BaseThread(QThread, metaclass=QThreadMeta):
         if self._start_time is None:
             return 0.0
         return time.time() - self._start_time
-    
-    def __del__(self):
-        """Destructor ensuring thread is stopped."""
-        try:
-            if hasattr(self, '_is_stopping') and hasattr(self, 'isRunning'):
-                if self.isRunning() and not self._is_stopping:
-                    self.stop_thread(timeout=1000)
-        except (RuntimeError, AttributeError):
-            # C++ object already deleted or attributes missing, ignore
-            pass
+
+    # No __del__: calling Qt from a destructor during interpreter-exit garbage collection touched
+    # already-destroyed C++ objects and crashed on close. Running threads are always referenced by
+    # the ThreadManager, so they are never collected while running.
 
 
 class ThreadManager(QObject):

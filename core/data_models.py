@@ -113,6 +113,7 @@ class EventData:
         uwave_power: Microwave power (W) as read from serial
         elapsed: Number of seconds taken to finish sweeps
         label: type of event from combobox
+        daq_error: DAQ error message if event ended early, else empty string
     """
     parent: Any
     config: Any = field(init=False)
@@ -133,6 +134,7 @@ class EventData:
     base_stamp: float = field(default_factory=lambda: datetime.datetime(2000, 1, 1).timestamp())
     base_file: str = field(default='None')
     label: str = field(default='None')
+    daq_error: str = field(default='')   # set if the DAQ failed and the event ended with fewer sweeps than requested
     epics: Dict[str, Any] = field(default_factory=dict)
     uwave_freq: float = field(default=0.0)
     uwave_power: float = field(default=0.0)
@@ -309,10 +311,17 @@ class EventData:
         
     def sum_beam_current(self, current):
         """Sum in time-weighted beam current to make average over event"""
-        time = (datetime.datetime.now(tz=datetime.timezone.utc) - self.beam_current_update_time).total_seconds()
+        now = datetime.datetime.now(tz=datetime.timezone.utc)
+        time = (now - self.beam_current_update_time).total_seconds()
+        self.beam_current_update_time = now
+        try:
+            current = float(current)
+        except (TypeError, ValueError):   # PV disconnected (None) or unreadable: leave this interval out of the average
+            return
+        if not np.isfinite(current):
+            return
         self.beam_current_sum = self.beam_current_sum + current*time
         self.beam_time_sum = self.beam_time_sum + time
-        self.beam_current_update_time = datetime.datetime.now(tz=datetime.timezone.utc)
 
 
 class Baseline:

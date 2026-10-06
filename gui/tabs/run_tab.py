@@ -391,6 +391,7 @@ class RunTab(QWidget):
             self.run_thread.finished.connect(self.done)
             self.run_thread.reply.connect(self.add_sweeps)
             self.run_thread.error.connect(self.on_thread_error)
+            self.run_thread.daq_error.connect(self.on_daq_error)
             
             # Start thread using thread manager
             thread_manager.start_thread(self.run_thread.thread_name)
@@ -403,6 +404,12 @@ class RunTab(QWidget):
         print(f"Run thread error: {error_msg}")
         self.publish_status_message(f"Run stopped on error: {error_msg}")
         self.run_button.setChecked(False)   # finished signal follows; done() then resets buttons instead of retrying
+
+    def on_daq_error(self, error_msg):
+        '''DAQ failed mid-event. Keep running, but record the error on the event, which is written with the
+        sweeps received so far. Arrives before done(), so parent.event is still the event that failed.'''
+        self.parent.event.daq_error = error_msg
+        self.publish_status_message(error_msg)
 
     def combo_changed(self, i):
         '''Channel changed'''
@@ -703,6 +710,8 @@ class RunThread(BaseThread):
         parent: Parent widget (RunTab)
         config: Config object of settings
     '''
+    daq_error = Signal(str)   # event ended early; message for the event record and status bar
+
     def __init__(self, parent, config):
         import time
         timestamp = int(time.time() * 1000000)  # microsecond precision
@@ -768,21 +777,26 @@ class RunThread(BaseThread):
                 
                 # Check for lost chunks
                 if not chunk_num + 1 == rec_chunks and not chunk_num == 0:
-                    error_msg = f"Lost chunk. Expecting {rec_chunks}, got {chunk_num + 1}. Aborting run."
-                    self._logger.error(error_msg)
-                    self.daq.abort()
-                    try:
-                        new_sigs = self.daq.get_chunk()
-                    except Exception as e:
-                        self._logger.warning(f"Error on abort after lost chunk: {e}")
+                    self._report_daq_error(f"Lost chunk. Expecting {rec_chunks}, got {chunk_num + 1}.")
                     break
-                    
+
             except Exception as e:
-                if not self.should_stop():  # Only log if not gracefully stopping
-                    self._logger.error(f"Error in run loop: {e}")
+                if not self.should_stop():  # Only report if not gracefully stopping
+                    self._report_daq_error(f"DAQ error: {e}")
                 break
-                    
+
         self._logger.info(f"Run completed. Received {self.rec_sweeps} sweeps in {rec_chunks} chunks")
+
+    def _report_daq_error(self, message):
+        '''Event ended early. Report it, so the event is marked, and stop the FPGA sweep so the next event starts clean.'''
+        message = f"{message} Event ended after {self.rec_sweeps} of {self.sweep_num} sweeps."
+        self._logger.error(message)
+        self.daq_error.emit(message)
+        try:
+            self.daq.abort()
+            self.daq.get_chunk()   # drain the chunk the FPGA sends on interrupt
+        except Exception as e:
+            self._logger.warning(f"Error aborting sweep after DAQ error: {e}")
         
     def cleanup(self):
         '''Clean up DAQ connection'''

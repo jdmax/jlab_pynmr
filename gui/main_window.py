@@ -240,9 +240,19 @@ class MainWindow(QMainWindow):
         self.hist_file = open(os.path.join('config', f"{self.config_dict['settings']['history_file']}.json"), "a+") 
         self.hist_file.seek(0)
         self.history = History()
-        for line in self.hist_file:
-            jd = json.loads(line.rstrip('\n|\r'))            
-            self.history.res_hist(HistPoint(jd))
+        if getattr(self, 'service', None):
+            self.service.history = self.history   # service exposes the one real history
+        line = ''
+        for n, line in enumerate(self.hist_file, 1):
+            if not line.strip():
+                continue
+            try:
+                jd = json.loads(line.rstrip('\n|\r'))
+                self.history.res_hist(HistPoint(jd))
+            except (ValueError, KeyError, TypeError) as e:   # e.g. line truncated by a crash mid-write
+                logging.warning(f"Skipping unreadable line {n} of history file {self.hist_file.name}: {e}")
+        if line and not line.endswith('\n'):
+            self.hist_file.write('\n')   # terminate a truncated last line so new entries don't append to it
         
     def end_event(self):
         """Start ending the event"""
@@ -260,17 +270,24 @@ class MainWindow(QMainWindow):
     
     def end_finished(self):
         """Analysis thread has returned. Finish up closing event."""
-        # Prevent duplicate writes of the same event
-        if hasattr(self.previous_event, 'written_to_file') and self.previous_event.written_to_file:
+        # Act on the event this analysis thread ran on. Not necessarily previous_event: a re-analysis
+        # from the analysis tab can finish after the next event has closed.
+        event = getattr(self.sender(), 'event_parent', None) or self.previous_event
+
+        if getattr(event, 'written_to_file', False):
+            # Re-analysis of an event already on file: refresh displays only, don't rewrite it
+            if event is self.previous_event:
+                self.run_tab.update_event_plots()
+                self.anal_tab.update_event_plots()
             return
-        
-        self.previous_event.print_event(self.eventfile)
+
+        event.print_event(self.eventfile)
         self.eventfile.flush()   # keep file current for crash safety and for the baseline tab reading it
-        self.previous_event.written_to_file = True
+        event.written_to_file = True
         self.eventfile_lines += 1
         if self.eventfile_lines > 500:
             self.new_eventfile()
-        self.history.add_hist(HistPoint(self.previous_event), self.hist_file)
+        self.history.add_hist(HistPoint(event), self.hist_file)
         self.hist_file.flush()
 
         self.run_tab.update_event_plots()
@@ -282,13 +299,13 @@ class MainWindow(QMainWindow):
         # Publish event finished via event bus
         if hasattr(self, 'event_bus') and self.event_bus:
             self.event_bus.publish(EventType.EVENT_FINISHED, "main_window", {
-                "event": self.previous_event,
+                "event": event,
                 "current_event": self.event
             })
         
         now = datetime.datetime.now(tz=datetime.timezone.utc)
         elapsed = now.timestamp() - self.start_end.timestamp() 
-        mes = f'Finished event at {self.event.stop_time:%H:%M:%S} UTC, after {self.previous_event.elapsed}s. Analysis returned at {now:%H:%M:%S} UTC, after {elapsed:.1f}s.'
+        mes = f'Finished event at {event.stop_time:%H:%M:%S} UTC, after {event.elapsed}s. Analysis returned at {now:%H:%M:%S} UTC, after {elapsed:.1f}s.'
         self.status_bar.showMessage(mes)
         logging.info(mes)
         
@@ -303,6 +320,8 @@ class MainWindow(QMainWindow):
 
     def analysis_skipped(self):
         """Event closed without an analysis thread (empty scan or thread failed to start). Nothing is written, but the run loop must continue."""
+        if not self.analysis_in_progress:
+            return   # a re-analysis from the analysis tab, not an event closing; nothing is waiting on it
         logging.warning("Event closed without analysis; not written to eventfile.")
         self.start_pending_run()
 
